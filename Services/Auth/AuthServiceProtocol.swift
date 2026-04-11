@@ -11,6 +11,10 @@ protocol AuthServiceProtocol: AnyObject {
     /// `true` when the user has a valid session (access token present in Keychain).
     var isAuthenticated: Bool { get }
 
+    /// The authenticated user's email address, or `nil` if no session is active.
+    /// Sourced from `GIDSignIn.sharedInstance.currentUser?.profile?.email`.
+    var authenticatedEmail: String? { get }
+
     /// Initiates the Google Sign-In OAuth2 flow and exchanges the resulting
     /// `idToken` for a BodyMetric session token pair, persisting both to Keychain.
     ///

@@ -24,6 +24,12 @@ final class AuthService: AuthServiceProtocol {
     /// `true` when the user has a valid Google session.
     private(set) var isAuthenticated: Bool = false
 
+    /// The authenticated user's email, available after sign-in or session restore.
+    /// `nil` if no active session exists. Never logged (PII).
+    var authenticatedEmail: String? {
+        GIDSignIn.sharedInstance.currentUser?.profile?.email
+    }
+
     // MARK: - AuthServiceProtocol
 
     func signInWithGoogle() async throws {

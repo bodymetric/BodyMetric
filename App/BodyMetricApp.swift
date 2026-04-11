@@ -1,7 +1,7 @@
 import SwiftUI
 import Foundation
 import GoogleSignIn
-
+import Observation
 /// App entry point.
 ///
 /// Launch sequence:
@@ -14,6 +14,7 @@ struct BodyMetricApp: App {
     // MARK: - Services
 
     @State private var authService = AuthService()
+    @State private var profileStore = ProfileStore()
 
     // MARK: - Navigation state
 
@@ -55,8 +56,7 @@ struct BodyMetricApp: App {
                 SplashView()
                     .transition(.opacity)
             } else if authService.isAuthenticated {
-                // TODO(T035): Replace with real MainTabView once US1 is implemented.
-                authenticatedPlaceholder
+                HomeView(viewModel: makeHomeViewModel())
                     .transition(.opacity.combined(with: .scale(scale: 0.98)))
             } else {
                 LoginView(
@@ -78,6 +78,12 @@ struct BodyMetricApp: App {
         }()
         _ = await (restored, minDelay)
 
+        // G2 guard: if session restored but email is nil, treat as unauthenticated.
+        if authService.isAuthenticated && authService.authenticatedEmail == nil {
+            Logger.warning("Session restored but email unavailable — signing out", category: .auth)
+            try? await authService.signOut()
+        }
+
         Logger.info(
             "Splash resolved. isAuthenticated=\(authService.isAuthenticated)",
             category: .auth
@@ -85,32 +91,14 @@ struct BodyMetricApp: App {
         showSplash = false
     }
 
-    // MARK: - Authenticated placeholder
+    // MARK: - HomeViewModel factory
 
-    /// Temporary screen shown after login until MainTabView is built (T035).
-    private var authenticatedPlaceholder: some View {
-        ZStack {
-            GrayscalePalette.background.ignoresSafeArea()
-            VStack(spacing: 24) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 64))
-                    .symbolRenderingMode(.monochrome)
-                    .foregroundStyle(GrayscalePalette.primary)
-
-                Text("Signed in!")
-                    .font(.title2.weight(.semibold))
-                    .foregroundStyle(GrayscalePalette.primary)
-
-                Text("MainTabView coming in the next tasks")
-                    .font(.caption)
-                    .foregroundStyle(GrayscalePalette.secondary)
-
-                Button("Sign Out") {
-                    Task { try? await authService.signOut() }
-                }
-                .font(.subheadline)
-                .foregroundStyle(GrayscalePalette.secondary)
-            }
-        }
+    private func makeHomeViewModel() -> HomeViewModel {
+        let email = authService.authenticatedEmail ?? profileStore.email ?? ""
+        return HomeViewModel(
+            email: email,
+            profileService: UserProfileService(),
+            profileStore: profileStore
+        )
     }
 }
