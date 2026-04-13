@@ -128,4 +128,5 @@ private final class _PreviewAuthService: AuthServiceProtocol {
         try await Task.sleep(for: .seconds(1)) // simulate network
     }
     func signOut() async throws {}
+    func restorePreviousSignIn() async -> Bool { false }
 }

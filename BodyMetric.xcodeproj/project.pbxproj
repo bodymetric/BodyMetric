@@ -7,30 +7,41 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DF299BAF2F888F0300447E14 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299BA62F888F0300447E14 /* ProfileStoreTests.swift */; };
-		DF299BB02F888F0300447E14 /* UserProfileServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299BA72F888F0300447E14 /* UserProfileServiceTests.swift */; };
 		DF299BB12F888F0300447E14 /* HomeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299BA42F888F0300447E14 /* HomeViewModelTests.swift */; };
 		DF299BB22F888F0300447E14 /* BodyMetricTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299BA92F888F0300447E14 /* BodyMetricTests.swift */; };
 		DF299C3B2F88901100447E14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF299C2F2F88901100447E14 /* Assets.xcassets */; };
-		DF299C3C2F88901100447E14 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C1F2F88901100447E14 /* LoginView.swift */; };
-		DF299C3D2F88901100447E14 /* BodyMetricApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C142F88901100447E14 /* BodyMetricApp.swift */; };
-		DF299C3E2F88901100447E14 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C272F88901100447E14 /* HomeView.swift */; };
-		DF299C3F2F88901100447E14 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C2A2F88901100447E14 /* SplashView.swift */; };
-		DF299C402F88901100447E14 /* ProfileFetchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C342F88901100447E14 /* ProfileFetchError.swift */; };
 		DF299C412F88901100447E14 /* GrayscalePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C162F88901100447E14 /* GrayscalePalette.swift */; };
-		DF299C422F88901100447E14 /* UserProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C352F88901100447E14 /* UserProfileService.swift */; };
-		DF299C432F88901100447E14 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C382F88901100447E14 /* ProfileStore.swift */; };
-		DF299C442F88901100447E14 /* CreateUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C222F88901100447E14 /* CreateUserView.swift */; };
-		DF299C452F88901100447E14 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C2D2F88901100447E14 /* UserProfile.swift */; };
-		DF299C462F88901100447E14 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C312F88901100447E14 /* AuthService.swift */; };
-		DF299C472F88901100447E14 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C1D2F88901100447E14 /* LoginViewModel.swift */; };
 		DF299C482F88901100447E14 /* Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C1A2F88901100447E14 /* Transition.swift */; };
-		DF299C492F88901100447E14 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C252F88901100447E14 /* HomeViewModel.swift */; };
-		DF299C4A2F88901100447E14 /* UserProfileServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C362F88901100447E14 /* UserProfileServiceProtocol.swift */; };
-		DF299C4B2F88901100447E14 /* AuthServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C322F88901100447E14 /* AuthServiceProtocol.swift */; };
 		DF299C4C2F88901100447E14 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C182F88901100447E14 /* Logger.swift */; };
 		DF299C4D2F88901100447E14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF299C2F2F88901100447E14 /* Assets.xcassets */; };
 		DF299C702F88901100447E14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF299C2F2F88901100447E14 /* Assets.xcassets */; };
+		DF299CB22F89D7A700447E14 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CA32F89D7A700447E14 /* HomeView.swift */; };
+		DF299CB32F89D7A700447E14 /* AppHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CA72F89D7A700447E14 /* AppHeaderViewModel.swift */; };
+		DF299CB42F89D7A700447E14 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C982F89D7A700447E14 /* LoginView.swift */; };
+		DF299CB62F89D7A700447E14 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C962F89D7A700447E14 /* LoginViewModel.swift */; };
+		DF299CB72F89D7A700447E14 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CAE2F89D7A700447E14 /* SplashView.swift */; };
+		DF299CB92F89D7A700447E14 /* CreateUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C9B2F89D7A700447E14 /* CreateUserView.swift */; };
+		DF299CBA2F89D7A700447E14 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CA12F89D7A700447E14 /* HomeViewModel.swift */; };
+		DF299CBB2F89D7A700447E14 /* AppHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CA62F89D7A700447E14 /* AppHeader.swift */; };
+		DF299CBE2F89D7D100447E14 /* AppHeaderViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CBD2F89D7D100447E14 /* AppHeaderViewModelTests.swift */; };
+		DF299CC02F89D7EE00447E14 /* BodyMetricApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CBF2F89D7EE00447E14 /* BodyMetricApp.swift */; };
+		DF299CEC2F8B10C400447E14 /* UserProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE62F8B10C400447E14 /* UserProfileService.swift */; };
+		DF299CED2F8B10C400447E14 /* ProfileFetchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE52F8B10C400447E14 /* ProfileFetchError.swift */; };
+		DF299CEE2F8B10C400447E14 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE92F8B10C400447E14 /* ProfileStore.swift */; };
+		DF299CEF2F8B10C400447E14 /* AuthServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE32F8B10C400447E14 /* AuthServiceProtocol.swift */; };
+		DF299CF02F8B10C400447E14 /* UserProfileServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE72F8B10C400447E14 /* UserProfileServiceProtocol.swift */; };
+		DF299CF12F8B10C400447E14 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE22F8B10C400447E14 /* AuthService.swift */; };
+		DF299CF42F8B10E400447E14 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF22F8B10E400447E14 /* UserProfile.swift */; };
+		DF299CFF2F8B10FF00447E14 /* TokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CFC2F8B10FF00447E14 /* TokenStoreTests.swift */; };
+		DF299D002F8B10FF00447E14 /* AuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF52F8B10FF00447E14 /* AuthServiceTests.swift */; };
+		DF299D012F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CFA2F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift */; };
+		DF299D022F8B10FF00447E14 /* TokenRefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CFB2F8B10FF00447E14 /* TokenRefreshServiceTests.swift */; };
+		DF299D032F8B10FF00447E14 /* NetworkClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF72F8B10FF00447E14 /* NetworkClientTests.swift */; };
+		DF299D042F8B10FF00447E14 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF62F8B10FF00447E14 /* KeychainServiceTests.swift */; };
+		DF299D052F8B10FF00447E14 /* TokenExchangeServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF92F8B10FF00447E14 /* TokenExchangeServiceTests.swift */; };
+		DF299D062F8B10FF00447E14 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF82F8B10FF00447E14 /* ProfileStoreTests.swift */; };
+		DF299D072F8B10FF00447E14 /* UserProfileServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CFD2F8B10FF00447E14 /* UserProfileServiceTests.swift */; };
+		DF299D0A2F8B111300447E14 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299D082F8B111300447E14 /* TestHelpers.swift */; };
 		DF6A95342F829DF100752A2B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DF6A95332F829DF100752A2B /* GoogleSignIn */; };
 		DF6A95362F829DF100752A2B /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DF6A95352F829DF100752A2B /* GoogleSignInSwift */; };
 		DFF5D55F2F82989E0008AA3E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DFF5D55E2F82989E0008AA3E /* GoogleService-Info.plist */; };
@@ -55,27 +66,38 @@
 
 /* Begin PBXFileReference section */
 		DF299BA42F888F0300447E14 /* HomeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelTests.swift; sourceTree = "<group>"; };
-		DF299BA62F888F0300447E14 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
-		DF299BA72F888F0300447E14 /* UserProfileServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileServiceTests.swift; sourceTree = "<group>"; };
 		DF299BA92F888F0300447E14 /* BodyMetricTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyMetricTests.swift; sourceTree = "<group>"; };
-		DF299C142F88901100447E14 /* BodyMetricApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyMetricApp.swift; sourceTree = "<group>"; };
 		DF299C162F88901100447E14 /* GrayscalePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscalePalette.swift; sourceTree = "<group>"; };
 		DF299C182F88901100447E14 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		DF299C1A2F88901100447E14 /* Transition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transition.swift; sourceTree = "<group>"; };
-		DF299C1D2F88901100447E14 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
-		DF299C1F2F88901100447E14 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		DF299C222F88901100447E14 /* CreateUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserView.swift; sourceTree = "<group>"; };
-		DF299C252F88901100447E14 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
-		DF299C272F88901100447E14 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		DF299C2A2F88901100447E14 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
-		DF299C2D2F88901100447E14 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		DF299C2F2F88901100447E14 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DF299C312F88901100447E14 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
-		DF299C322F88901100447E14 /* AuthServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceProtocol.swift; sourceTree = "<group>"; };
-		DF299C342F88901100447E14 /* ProfileFetchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFetchError.swift; sourceTree = "<group>"; };
-		DF299C352F88901100447E14 /* UserProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileService.swift; sourceTree = "<group>"; };
-		DF299C362F88901100447E14 /* UserProfileServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileServiceProtocol.swift; sourceTree = "<group>"; };
-		DF299C382F88901100447E14 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
+		DF299C962F89D7A700447E14 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		DF299C982F89D7A700447E14 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		DF299C9B2F89D7A700447E14 /* CreateUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserView.swift; sourceTree = "<group>"; };
+		DF299CA12F89D7A700447E14 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		DF299CA32F89D7A700447E14 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		DF299CA62F89D7A700447E14 /* AppHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHeader.swift; sourceTree = "<group>"; };
+		DF299CA72F89D7A700447E14 /* AppHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHeaderViewModel.swift; sourceTree = "<group>"; };
+		DF299CAE2F89D7A700447E14 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		DF299CBD2F89D7D100447E14 /* AppHeaderViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHeaderViewModelTests.swift; sourceTree = "<group>"; };
+		DF299CBF2F89D7EE00447E14 /* BodyMetricApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyMetricApp.swift; sourceTree = "<group>"; };
+		DF299CE22F8B10C400447E14 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		DF299CE32F8B10C400447E14 /* AuthServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceProtocol.swift; sourceTree = "<group>"; };
+		DF299CE52F8B10C400447E14 /* ProfileFetchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFetchError.swift; sourceTree = "<group>"; };
+		DF299CE62F8B10C400447E14 /* UserProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileService.swift; sourceTree = "<group>"; };
+		DF299CE72F8B10C400447E14 /* UserProfileServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileServiceProtocol.swift; sourceTree = "<group>"; };
+		DF299CE92F8B10C400447E14 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
+		DF299CF22F8B10E400447E14 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		DF299CF52F8B10FF00447E14 /* AuthServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceTests.swift; sourceTree = "<group>"; };
+		DF299CF62F8B10FF00447E14 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
+		DF299CF72F8B10FF00447E14 /* NetworkClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientTests.swift; sourceTree = "<group>"; };
+		DF299CF82F8B10FF00447E14 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
+		DF299CF92F8B10FF00447E14 /* TokenExchangeServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenExchangeServiceTests.swift; sourceTree = "<group>"; };
+		DF299CFA2F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenRefreshCoordinatorTests.swift; sourceTree = "<group>"; };
+		DF299CFB2F8B10FF00447E14 /* TokenRefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenRefreshServiceTests.swift; sourceTree = "<group>"; };
+		DF299CFC2F8B10FF00447E14 /* TokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreTests.swift; sourceTree = "<group>"; };
+		DF299CFD2F8B10FF00447E14 /* UserProfileServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileServiceTests.swift; sourceTree = "<group>"; };
+		DF299D082F8B111300447E14 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		DFF5D5142F81C0230008AA3E /* BodyMetric.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BodyMetric.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF5D5212F81C0240008AA3E /* BodyMetricTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BodyMetricTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF5D52B2F81C0240008AA3E /* BodyMetricUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BodyMetricUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -138,25 +160,18 @@
 		DF299BA52F888F0300447E14 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				DF299CBD2F89D7D100447E14 /* AppHeaderViewModelTests.swift */,
 				DF299BA42F888F0300447E14 /* HomeViewModelTests.swift */,
 			);
 			path = Features;
 			sourceTree = "<group>";
 		};
-		DF299BA82F888F0300447E14 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				DF299BA62F888F0300447E14 /* ProfileStoreTests.swift */,
-				DF299BA72F888F0300447E14 /* UserProfileServiceTests.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
 		DF299BAA2F888F0300447E14 /* BodyMetricTests */ = {
 			isa = PBXGroup;
 			children = (
+				DF299D092F8B111300447E14 /* Helpers */,
+				DF299CFE2F8B10FF00447E14 /* Services */,
 				DF299BA52F888F0300447E14 /* Features */,
-				DF299BA82F888F0300447E14 /* Services */,
 				DF299BA92F888F0300447E14 /* BodyMetricTests.swift */,
 			);
 			path = BodyMetricTests;
@@ -165,7 +180,7 @@
 		DF299C152F88901100447E14 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				DF299C142F88901100447E14 /* BodyMetricApp.swift */,
+				DF299CBF2F89D7EE00447E14 /* BodyMetricApp.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -204,99 +219,6 @@
 			path = Core;
 			sourceTree = "<group>";
 		};
-		DF299C1E2F88901100447E14 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C1D2F88901100447E14 /* LoginViewModel.swift */,
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		DF299C202F88901100447E14 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C1F2F88901100447E14 /* LoginView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		DF299C212F88901100447E14 /* Auth */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C1E2F88901100447E14 /* ViewModels */,
-				DF299C202F88901100447E14 /* Views */,
-			);
-			path = Auth;
-			sourceTree = "<group>";
-		};
-		DF299C232F88901100447E14 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C222F88901100447E14 /* CreateUserView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		DF299C242F88901100447E14 /* CreateUser */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C232F88901100447E14 /* Views */,
-			);
-			path = CreateUser;
-			sourceTree = "<group>";
-		};
-		DF299C262F88901100447E14 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C252F88901100447E14 /* HomeViewModel.swift */,
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		DF299C282F88901100447E14 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C272F88901100447E14 /* HomeView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		DF299C292F88901100447E14 /* Home */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C262F88901100447E14 /* ViewModels */,
-				DF299C282F88901100447E14 /* Views */,
-			);
-			path = Home;
-			sourceTree = "<group>";
-		};
-		DF299C2B2F88901100447E14 /* Splash */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C2A2F88901100447E14 /* SplashView.swift */,
-			);
-			path = Splash;
-			sourceTree = "<group>";
-		};
-		DF299C2C2F88901100447E14 /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C212F88901100447E14 /* Auth */,
-				DF299C242F88901100447E14 /* CreateUser */,
-				DF299C292F88901100447E14 /* Home */,
-				DF299C2B2F88901100447E14 /* Splash */,
-			);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		DF299C2E2F88901100447E14 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				DF299C2D2F88901100447E14 /* UserProfile.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		DF299C302F88901100447E14 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -305,41 +227,176 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		DF299C332F88901100447E14 /* Auth */ = {
+		DF299C972F89D7A700447E14 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				DF299C312F88901100447E14 /* AuthService.swift */,
-				DF299C322F88901100447E14 /* AuthServiceProtocol.swift */,
+				DF299C962F89D7A700447E14 /* LoginViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DF299C992F89D7A700447E14 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DF299C982F89D7A700447E14 /* LoginView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DF299C9A2F89D7A700447E14 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				DF299C972F89D7A700447E14 /* ViewModels */,
+				DF299C992F89D7A700447E14 /* Views */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
 		};
-		DF299C372F88901100447E14 /* Profile */ = {
+		DF299C9C2F89D7A700447E14 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				DF299C342F88901100447E14 /* ProfileFetchError.swift */,
-				DF299C352F88901100447E14 /* UserProfileService.swift */,
-				DF299C362F88901100447E14 /* UserProfileServiceProtocol.swift */,
+				DF299C9B2F89D7A700447E14 /* CreateUserView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DF299C9D2F89D7A700447E14 /* CreateUser */ = {
+			isa = PBXGroup;
+			children = (
+				DF299C9C2F89D7A700447E14 /* Views */,
+			);
+			path = CreateUser;
+			sourceTree = "<group>";
+		};
+		DF299CA22F89D7A700447E14 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CA12F89D7A700447E14 /* HomeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DF299CA42F89D7A700447E14 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CA32F89D7A700447E14 /* HomeView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DF299CA52F89D7A700447E14 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CA22F89D7A700447E14 /* ViewModels */,
+				DF299CA42F89D7A700447E14 /* Views */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		DF299CA82F89D7A700447E14 /* Header */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CA62F89D7A700447E14 /* AppHeader.swift */,
+				DF299CA72F89D7A700447E14 /* AppHeaderViewModel.swift */,
+			);
+			path = Header;
+			sourceTree = "<group>";
+		};
+		DF299CA92F89D7A700447E14 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CA82F89D7A700447E14 /* Header */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		DF299CAF2F89D7A700447E14 /* Splash */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CAE2F89D7A700447E14 /* SplashView.swift */,
+			);
+			path = Splash;
+			sourceTree = "<group>";
+		};
+		DF299CB02F89D7A700447E14 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				DF299C9A2F89D7A700447E14 /* Auth */,
+				DF299C9D2F89D7A700447E14 /* CreateUser */,
+				DF299CA52F89D7A700447E14 /* Home */,
+				DF299CA92F89D7A700447E14 /* Shared */,
+				DF299CAF2F89D7A700447E14 /* Splash */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		DF299CE42F8B10C400447E14 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CE22F8B10C400447E14 /* AuthService.swift */,
+				DF299CE32F8B10C400447E14 /* AuthServiceProtocol.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		DF299CE82F8B10C400447E14 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CE52F8B10C400447E14 /* ProfileFetchError.swift */,
+				DF299CE62F8B10C400447E14 /* UserProfileService.swift */,
+				DF299CE72F8B10C400447E14 /* UserProfileServiceProtocol.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
 		};
-		DF299C392F88901100447E14 /* Storage */ = {
+		DF299CEA2F8B10C400447E14 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				DF299C382F88901100447E14 /* ProfileStore.swift */,
+				DF299CE92F8B10C400447E14 /* ProfileStore.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
 		};
-		DF299C3A2F88901100447E14 /* Services */ = {
+		DF299CEB2F8B10C400447E14 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				DF299C332F88901100447E14 /* Auth */,
-				DF299C372F88901100447E14 /* Profile */,
-				DF299C392F88901100447E14 /* Storage */,
+				DF299CE42F8B10C400447E14 /* Auth */,
+				DF299CE82F8B10C400447E14 /* Profile */,
+				DF299CEA2F8B10C400447E14 /* Storage */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		DF299CF32F8B10E400447E14 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CF22F8B10E400447E14 /* UserProfile.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DF299CFE2F8B10FF00447E14 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CF52F8B10FF00447E14 /* AuthServiceTests.swift */,
+				DF299CF62F8B10FF00447E14 /* KeychainServiceTests.swift */,
+				DF299CF72F8B10FF00447E14 /* NetworkClientTests.swift */,
+				DF299CF82F8B10FF00447E14 /* ProfileStoreTests.swift */,
+				DF299CF92F8B10FF00447E14 /* TokenExchangeServiceTests.swift */,
+				DF299CFA2F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift */,
+				DF299CFB2F8B10FF00447E14 /* TokenRefreshServiceTests.swift */,
+				DF299CFC2F8B10FF00447E14 /* TokenStoreTests.swift */,
+				DF299CFD2F8B10FF00447E14 /* UserProfileServiceTests.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		DF299D092F8B111300447E14 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				DF299D082F8B111300447E14 /* TestHelpers.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		DF6A95322F829DF100752A2B /* Frameworks */ = {
@@ -352,12 +409,12 @@
 		DFF5D50B2F81C0230008AA3E = {
 			isa = PBXGroup;
 			children = (
+				DF299CF32F8B10E400447E14 /* Models */,
+				DF299CEB2F8B10C400447E14 /* Services */,
+				DF299CB02F89D7A700447E14 /* Features */,
 				DF299C152F88901100447E14 /* App */,
 				DF299C1C2F88901100447E14 /* Core */,
-				DF299C2C2F88901100447E14 /* Features */,
-				DF299C2E2F88901100447E14 /* Models */,
 				DF299C302F88901100447E14 /* Resources */,
-				DF299C3A2F88901100447E14 /* Services */,
 				DF299BAA2F888F0300447E14 /* BodyMetricTests */,
 				DFF5D5162F81C0230008AA3E /* BodyMetric */,
 				DFF5D52E2F81C0240008AA3E /* BodyMetricUITests */,
@@ -528,22 +585,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF299C3C2F88901100447E14 /* LoginView.swift in Sources */,
-				DF299C3D2F88901100447E14 /* BodyMetricApp.swift in Sources */,
-				DF299C3E2F88901100447E14 /* HomeView.swift in Sources */,
-				DF299C3F2F88901100447E14 /* SplashView.swift in Sources */,
-				DF299C402F88901100447E14 /* ProfileFetchError.swift in Sources */,
 				DF299C412F88901100447E14 /* GrayscalePalette.swift in Sources */,
-				DF299C422F88901100447E14 /* UserProfileService.swift in Sources */,
-				DF299C432F88901100447E14 /* ProfileStore.swift in Sources */,
-				DF299C442F88901100447E14 /* CreateUserView.swift in Sources */,
-				DF299C452F88901100447E14 /* UserProfile.swift in Sources */,
-				DF299C462F88901100447E14 /* AuthService.swift in Sources */,
-				DF299C472F88901100447E14 /* LoginViewModel.swift in Sources */,
 				DF299C482F88901100447E14 /* Transition.swift in Sources */,
-				DF299C492F88901100447E14 /* HomeViewModel.swift in Sources */,
-				DF299C4A2F88901100447E14 /* UserProfileServiceProtocol.swift in Sources */,
-				DF299C4B2F88901100447E14 /* AuthServiceProtocol.swift in Sources */,
+				DF299CC02F89D7EE00447E14 /* BodyMetricApp.swift in Sources */,
+				DF299CB22F89D7A700447E14 /* HomeView.swift in Sources */,
+				DF299CB32F89D7A700447E14 /* AppHeaderViewModel.swift in Sources */,
+				DF299CB42F89D7A700447E14 /* LoginView.swift in Sources */,
+				DF299CB62F89D7A700447E14 /* LoginViewModel.swift in Sources */,
+				DF299CF42F8B10E400447E14 /* UserProfile.swift in Sources */,
+				DF299CB72F89D7A700447E14 /* SplashView.swift in Sources */,
+				DF299CEC2F8B10C400447E14 /* UserProfileService.swift in Sources */,
+				DF299CED2F8B10C400447E14 /* ProfileFetchError.swift in Sources */,
+				DF299CEE2F8B10C400447E14 /* ProfileStore.swift in Sources */,
+				DF299CEF2F8B10C400447E14 /* AuthServiceProtocol.swift in Sources */,
+				DF299CF02F8B10C400447E14 /* UserProfileServiceProtocol.swift in Sources */,
+				DF299CF12F8B10C400447E14 /* AuthService.swift in Sources */,
+				DF299CB92F89D7A700447E14 /* CreateUserView.swift in Sources */,
+				DF299CBA2F89D7A700447E14 /* HomeViewModel.swift in Sources */,
+				DF299CBB2F89D7A700447E14 /* AppHeader.swift in Sources */,
 				DF299C4C2F88901100447E14 /* Logger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -552,9 +611,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF299BAF2F888F0300447E14 /* ProfileStoreTests.swift in Sources */,
-				DF299BB02F888F0300447E14 /* UserProfileServiceTests.swift in Sources */,
+				DF299CBE2F89D7D100447E14 /* AppHeaderViewModelTests.swift in Sources */,
 				DF299BB12F888F0300447E14 /* HomeViewModelTests.swift in Sources */,
+				DF299CFF2F8B10FF00447E14 /* TokenStoreTests.swift in Sources */,
+				DF299D002F8B10FF00447E14 /* AuthServiceTests.swift in Sources */,
+				DF299D012F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift in Sources */,
+				DF299D022F8B10FF00447E14 /* TokenRefreshServiceTests.swift in Sources */,
+				DF299D032F8B10FF00447E14 /* NetworkClientTests.swift in Sources */,
+				DF299D042F8B10FF00447E14 /* KeychainServiceTests.swift in Sources */,
+				DF299D0A2F8B111300447E14 /* TestHelpers.swift in Sources */,
+				DF299D052F8B10FF00447E14 /* TokenExchangeServiceTests.swift in Sources */,
+				DF299D062F8B10FF00447E14 /* ProfileStoreTests.swift in Sources */,
+				DF299D072F8B10FF00447E14 /* UserProfileServiceTests.swift in Sources */,
 				DF299BB22F888F0300447E14 /* BodyMetricTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

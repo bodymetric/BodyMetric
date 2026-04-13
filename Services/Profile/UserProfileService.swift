@@ -1,11 +1,11 @@
 import Foundation
 
-/// Concrete implementation of `UserProfileServiceProtocol`.
+/// Fetches a user's profile from the BodyMetric API.
 ///
-/// Makes a single GET request to the BodyMetric API with the user's email
-/// as a query parameter and decodes the JSON response into a `UserProfile`.
+/// Uses `NetworkClientProtocol` so bearer token injection and 401 handling
+/// are handled centrally by `NetworkClient` (Constitution Principle VII).
 ///
-/// Constitution Principle I: pure Swift; URLSession only.
+/// Constitution Principle I: pure Swift.
 /// Constitution Principle III: status code logged at INFO; email never logged.
 @MainActor
 final class UserProfileService: UserProfileServiceProtocol {
@@ -13,20 +13,15 @@ final class UserProfileService: UserProfileServiceProtocol {
     // MARK: - Constants
 
     private static let baseURL = "https://api.bodymetric.com.br/api/users"
-    private static let timeoutInterval: TimeInterval = 10
 
     // MARK: - Dependencies
 
-    private let session: URLSession
+    private let networkClient: NetworkClientProtocol
 
     // MARK: - Init
 
-    init(session: URLSession = {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = UserProfileService.timeoutInterval
-        return URLSession(configuration: config)
-    }()) {
-        self.session = session
+    init(networkClient: NetworkClientProtocol) {
+        self.networkClient = networkClient
     }
 
     // MARK: - UserProfileServiceProtocol
@@ -36,18 +31,16 @@ final class UserProfileService: UserProfileServiceProtocol {
         Logger.info("Profile fetch initiated", category: .network)
 
         let data: Data
-        let response: URLResponse
+        let http: HTTPURLResponse
 
         do {
-            (data, response) = try await session.data(from: url)
+            (data, http) = try await networkClient.data(for: URLRequest(url: url))
+        } catch let netErr as NetworkError {
+            Logger.error("Profile fetch blocked by auth layer: \(netErr)", category: .network)
+            throw ProfileFetchError.unauthorized
         } catch {
             Logger.error("Profile fetch network failure", error: error, category: .network)
             throw ProfileFetchError.networkError(error)
-        }
-
-        guard let http = response as? HTTPURLResponse else {
-            Logger.error("Profile fetch received non-HTTP response", category: .network)
-            throw ProfileFetchError.networkError(URLError(.badServerResponse))
         }
 
         Logger.info("Profile fetch response: HTTP \(http.statusCode)", category: .network)
@@ -78,12 +71,14 @@ final class UserProfileService: UserProfileServiceProtocol {
     private func decode(data: Data, email: String) throws -> UserProfile {
         do {
             var profile = try JSONDecoder().decode(UserProfile.self, from: data)
-            profile.email = email // inject email — not present in response body
+            profile.email = email
             if let w = profile.weight, w <= 0 {
-                Logger.warning("Profile fetch: weight value ≤0, treating as invalid", category: .network)
+                Logger.warning("Profile fetch: weight value ≤0, treating as invalid",
+                               category: .network)
             }
             if let h = profile.height, h <= 0 {
-                Logger.warning("Profile fetch: height value ≤0, treating as invalid", category: .network)
+                Logger.warning("Profile fetch: height value ≤0, treating as invalid",
+                               category: .network)
             }
             return profile
         } catch {

@@ -7,8 +7,9 @@ import SwiftUI
 /// driven by `BodyMetricApp` using `.bmFade` animation.
 struct SplashView: View {
 
+    @State private var bouncing = false
+
     var body: some View {
-        let _ = print("🚀 SplashView appeared")  // temporary test
         ZStack {
             GrayscalePalette.background
                 .ignoresSafeArea()
@@ -17,6 +18,13 @@ struct SplashView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 120, height: 120)
+                .offset(y: bouncing ? -20 : 0)
+                .animation(
+                    .interpolatingSpring(stiffness: 70, damping: 10)
+                        .repeatForever(autoreverses: true),
+                    value: bouncing
+                )
+                .onAppear { bouncing = true }
         }
     }
 }

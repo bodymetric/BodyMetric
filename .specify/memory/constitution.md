@@ -1,30 +1,31 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 3.0.0 → 3.1.0
-Rationale for MINOR bump: New enforceable commit-message rule added to the
-  Development Workflow section requiring Gitmoji icons on every commit.
-  Adding a new enforceable rule to an existing section qualifies as a MINOR bump
-  per the versioning policy.
+Version change: 3.1.0 → 3.2.0
+Rationale for MINOR bump: New enforceable security principle added (Principle VII —
+  Token Security & Session Management). Adding a new principle with multiple
+  MUST rules qualifies as a MINOR bump per the versioning policy.
 Modified principles:
   - None
-Added sections:
-  - None
-Removed sections:
+Added principles:
+  - VII. Token Security & Session Management — covers bearer token transmission,
+    secure storage of JWT + refresh token in Keychain, session lifecycle
+    (persist during session, delete on logout or token expiration).
+Removed principles:
   - None
 Workflow rule changes:
-  - "Commit hygiene" expanded: every commit message MUST be prefixed with a
-    Gitmoji icon (https://gitmoji.dev) that matches the primary intent of the
-    commit. The existing task-ID and imperative-mood requirements are retained.
+  - Development Workflow gains a new "Token security gate": PRs that add
+    authenticated API calls MUST verify the bearer token is sent and that
+    token storage/deletion follows Principle VII.
 Templates reviewed & status:
-  ✅ .specify/templates/tasks-template.md — "Commit after each task" note
-     is compatible; no structural change required.
-  ✅ .specify/templates/plan-template.md — No commit-hygiene references; no
-     update required.
+  ✅ .specify/templates/tasks-template.md — Generic; no structural change required.
+  ✅ .specify/templates/plan-template.md — Constitution Check table now has 7 rows;
+     template updated mentally (no physical template edit needed as it is filled
+     dynamically by /speckit-plan).
   ✅ .specify/templates/spec-template.md — Generic; no conflicts.
   ✅ .specify/templates/agent-file-template.md — Generic; no conflicts.
   ⚠  .specify/templates/commands/ — Directory does not exist. When added,
-     commands MUST be reviewed for alignment with the 6 active principles.
+     commands MUST be reviewed for alignment with all 7 active principles.
 Follow-up TODOs:
   - TODO(ANIMATION_STANDARD): Specific animation duration/curve baseline
     not yet defined. Update Principle V once a design system is adopted.
@@ -33,10 +34,16 @@ Follow-up TODOs:
     crash reporter) not yet decided. Specify in Principle III once chosen.
   - TODO(TRACING_BACKEND): Tracing/analytics backend not yet decided.
     Specify in Principle IV once chosen.
+  - TODO(TOKEN_EXPIRY_DETECTION): Strategy for detecting refresh token
+    expiration (server-side 401, local TTL check, or both) not yet specified.
+    Update Principle VII once decided.
 Impact on existing feature artifacts:
-  - specs/001-gym-workout-tracker/plan.md — No commit-hygiene references;
-    no update required.
-  - specs/001-gym-workout-tracker/tasks.md — No update required.
+  - specs/001-gym-workout-tracker/plan.md — Constitution Check listed 6
+    principles; must be updated to add Principle VII row on next plan revision.
+  - specs/002-user-profile-fetch/plan.md — Same; add Principle VII row.
+  - specs/003-authenticated-header/plan.md — Same; add Principle VII row.
+  - Services/Auth/AuthService.swift — Currently stores no tokens in Keychain.
+    Must be updated in a dedicated task to comply with Principle VII.
 -->
 
 # BodyMetric Constitution
@@ -95,6 +102,7 @@ MUST be logged with enough context to reproduce and diagnose the issue.
 - Silent failures (errors caught and discarded without logging) are a defect.
 - Logging MUST NOT expose personally identifiable information (PII) or
   sensitive health data; redact or omit such fields before writing to any log.
+- Tokens, credentials, and secrets MUST NEVER appear in any log entry.
 - TODO(LOGGING_BACKEND): Choose and document the logging destination (e.g.,
   Apple Unified Logging / OSLog, a crash-reporting SDK) and update this
   principle once decided.
@@ -114,7 +122,7 @@ product understanding, debugging, and quality assurance.
 - Each trace event MUST capture: event name (snake_case, descriptive), a
   timestamp, and the minimum properties needed to understand context. No
   freeform string payloads.
-- Trace events MUST NOT include PII or raw health data; use anonymised
+- Trace events MUST NOT include PII, raw health data, or tokens; use anonymised
   identifiers (session ID, anonymised user ID) only.
 - Tracing instrumentation MUST be added as part of the feature task, not as a
   post-launch patch; untraced features are considered incomplete.
@@ -171,6 +179,40 @@ or color tinting of any kind is permitted in production screens.
 that reduces visual distraction during workouts and enforces a disciplined,
 accessible design language.
 
+### VII. Token Security & Session Management
+
+All authenticated requests MUST carry the Google-issued JWT (id token) as a
+Bearer token in the `Authorization` HTTP header. Both the JWT and the refresh
+token MUST be stored exclusively in the iOS Keychain immediately after a
+successful Google Sign-In. They MUST be deleted from the Keychain on logout
+or on detection of refresh token expiration.
+
+- Every HTTP request made within the authenticated area of the app MUST include
+  the header `Authorization: Bearer <id_token>`.
+- The Google id token (JWT) MUST be written to Keychain immediately after
+  `GIDSignIn.signIn()` succeeds; it MUST NOT be stored in UserDefaults,
+  `NSUbiquitousKeyValueStore`, or any unencrypted medium.
+- The Google refresh token MUST also be written to Keychain at the same time
+  as the id token; both are stored together under distinct, namespaced keys.
+- Both tokens MUST persist across app restarts for the duration of the user's
+  session (until explicit logout or expiration).
+- On logout, both tokens MUST be deleted from Keychain before the
+  `AuthService.signOut()` call returns.
+- On detection of refresh token expiration (server 401 or local TTL check),
+  both tokens MUST be deleted from Keychain and the user MUST be redirected
+  to the login screen without requiring a manual sign-out action.
+- Tokens MUST NEVER appear in log entries, trace events, or crash reports;
+  log only non-sensitive metadata (e.g., token presence: true/false).
+- TODO(TOKEN_EXPIRY_DETECTION): Define the strategy for detecting refresh
+  token expiration (server-side 401, local TTL check, or both) and update
+  this principle once decided.
+
+**Rationale**: Storing credentials only in Keychain ensures they are encrypted
+at rest by the OS and are never accessible to other apps. Attaching the bearer
+token to every authenticated request ensures the backend can verify identity
+on each call. Deleting tokens on session end limits the blast radius of a
+compromised device.
+
 ## Technical Stack
 
 - **Language**: Swift (100% of product code); no Objective-C new code.
@@ -183,6 +225,8 @@ accessible design language.
   Tracking table.
 - **Networking**: URLSession (native) preferred; a third-party HTTP client
   requires justification.
+- **Token Storage**: iOS Keychain (via KeychainSwift SPM package) is the sole
+  permitted storage for JWT and refresh tokens (Principle VII).
 - **Logging**: TODO(LOGGING_BACKEND) — OSLog (Unified Logging) is the default
   until a decision is documented in Principle III.
 - **Tracing**: TODO(TRACING_BACKEND) — Decision to be documented in Principle IV.
@@ -200,7 +244,7 @@ accessible design language.
 - **Spec before code**: A `spec.md` and `plan.md` MUST exist and be reviewed
   before any implementation task is started.
 - **Constitution Check**: Every `plan.md` MUST include a completed Constitution
-  Check section (all six principles verified) before Phase 0 research begins.
+  Check section (all seven principles verified) before Phase 0 research begins.
 - **Test gate**: Write tests → confirm they fail → implement → confirm they
   pass. No exceptions. Coverage MUST remain ≥ 90% after every merged PR.
 - **Logging gate**: Every error-handling site added or modified MUST include
@@ -210,10 +254,14 @@ accessible design language.
   complete.
 - **Grayscale gate**: UI code review MUST verify that no non-grayscale color
   values are introduced (Principle VI).
+- **Token security gate**: Any PR that adds or modifies authenticated API calls
+  MUST verify that the `Authorization: Bearer <token>` header is present, that
+  tokens are read exclusively from Keychain, and that logout/expiry paths delete
+  tokens from Keychain (Principle VII).
 - **Code review**: All pull requests require at least one human reviewer. The
   reviewer is accountable for verifying the Constitution Check was completed,
   coverage threshold is met, error logging is present, interactions are traced,
-  and the grayscale constraint is respected.
+  the grayscale constraint is respected, and token security rules are followed.
 - **Commit hygiene**: Every commit message MUST be prefixed with a Gitmoji
   icon (https://gitmoji.dev) that matches the primary intent of the commit.
   Common mappings: ✨ new feature, 🐛 bug fix, 📝 documentation, ♻️ refactor,
@@ -254,4 +302,4 @@ this document prevails unless an amendment is filed and approved.
 - A full constitution review SHOULD be conducted at the start of each
   development quarter or after any significant product pivot.
 
-**Version**: 3.1.0 | **Ratified**: 2026-04-03 | **Last Amended**: 2026-04-05
+**Version**: 3.2.0 | **Ratified**: 2026-04-03 | **Last Amended**: 2026-04-10

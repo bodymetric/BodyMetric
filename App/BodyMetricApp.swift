@@ -2,46 +2,105 @@ import SwiftUI
 import Foundation
 import GoogleSignIn
 import Observation
+
 /// App entry point.
 ///
 /// Launch sequence:
 ///   SplashView (≥1.5 s, while restoring prior session)
 ///     → LoginView         (if no prior session)
 ///     → MainTabView stub  (if authenticated)
+///
+/// Dependency wiring order (avoids init-time circular references):
+///   1. KeychainService, TokenStore, TokenRefreshService (no deps)
+///   2. TokenRefreshCoordinator (needs refreshService + keychainService + onForceLogout box)
+///   3. NetworkClient (needs tokenStore + coordinator)
+///   4. AuthService (needs exchangeService + tokenStore + keychainService + coordinator)
+///   5. Wire proactive timer on tokenStore (needs coordinator + tokenStore — post-init)
+///   6. Wire onForceLogout box to point at authService (post-init)
 @main
 struct BodyMetricApp: App {
 
     // MARK: - Services
 
-    @State private var authService = AuthService()
+    @State private var authService: AuthService
     @State private var profileStore = ProfileStore()
+
+    // Shared singletons retained for dependency injection into HomeViewModel
+    private let tokenStore: TokenStore
+    private let keychainService: KeychainService
+    private let coordinator: TokenRefreshCoordinator
+    private let networkClient: NetworkClient
 
     // MARK: - Navigation state
 
     @State private var showSplash = true
 
-    // MARK: - Scene
+    // MARK: - Init
 
     init() {
-        // Configure GoogleSignIn with the CLIENT_ID from GoogleService-Info.plist.
-        // This replaces the need for GIDClientID in Info.plist.
-        guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-              let plist = NSDictionary(contentsOfFile: path),
-              let clientID = plist["CLIENT_ID"] as? String else {
-            Logger.fault("GoogleService-Info.plist not found or missing CLIENT_ID", category: .auth)
-            return
+        // Step 1: leaf services
+        let ks = KeychainService()
+        let ts = TokenStore()
+        let trs = TokenRefreshService()
+
+        // Step 2: coordinator — onForceLogout wired via box after authService is created
+        let authBox = AuthServiceBox()
+        let coord = TokenRefreshCoordinator(
+            refreshService: trs,
+            keychainService: ks,
+            onForceLogout: { [weak authBox] in
+                await authBox?.service?.forceSignOut()
+            }
+        )
+
+        // Step 3: NetworkClient
+        let client = NetworkClient(tokenStore: ts, coordinator: coord)
+
+        // Step 4: AuthService
+        let auth = AuthService(
+            tokenExchangeService: TokenExchangeService(),
+            tokenStore: ts,
+            keychainService: ks,
+            coordinator: coord
+        )
+
+        // Step 5: Wire proactive timer (post-init, avoids circular init)
+        Task {
+            await ts.setRefreshAction { [weak coord] in
+                guard let c = coord else { return }
+                try? await c.refresh(tokenStore: ts)
+            }
         }
-        let config = GIDConfiguration(clientID: clientID)
-        GIDSignIn.sharedInstance.configuration = config
-        Logger.info("GoogleSignIn configured with clientID: \(String(clientID.prefix(20)))...", category: .auth)
+
+        // Step 6: Wire force-logout box
+        authBox.service = auth
+
+        // Configure Google Sign-In
+        if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+           let plist = NSDictionary(contentsOfFile: path),
+           let clientID = plist["CLIENT_ID"] as? String {
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+            Logger.info("GoogleSignIn configured with clientID: \(String(clientID.prefix(20)))...",
+                        category: .auth)
+        } else {
+            Logger.fault("GoogleService-Info.plist not found or missing CLIENT_ID", category: .auth)
+        }
+
+        // Assign stored properties
+        self.keychainService = ks
+        self.tokenStore = ts
+        self.coordinator = coord
+        self.networkClient = client
+        _authService = State(wrappedValue: auth)
     }
+
+    // MARK: - Scene
 
     var body: some Scene {
         WindowGroup {
             rootView
                 .task { await resolveSplash() }
                 .onOpenURL { url in
-                    // Required for Google Sign-In redirect back to the app.
                     GIDSignIn.sharedInstance.handle(url)
                 }
         }
@@ -56,7 +115,7 @@ struct BodyMetricApp: App {
                 SplashView()
                     .transition(.opacity)
             } else if authService.isAuthenticated {
-                HomeView(viewModel: makeHomeViewModel())
+                authenticatedContainer
                     .transition(.opacity.combined(with: .scale(scale: 0.98)))
             } else {
                 LoginView(
@@ -78,7 +137,6 @@ struct BodyMetricApp: App {
         }()
         _ = await (restored, minDelay)
 
-        // G2 guard: if session restored but email is nil, treat as unauthenticated.
         if authService.isAuthenticated && authService.authenticatedEmail == nil {
             Logger.warning("Session restored but email unavailable — signing out", category: .auth)
             try? await authService.signOut()
@@ -91,14 +149,32 @@ struct BodyMetricApp: App {
         showSplash = false
     }
 
+    // MARK: - Authenticated container
+
+    private var authenticatedContainer: some View {
+        VStack(spacing: 0) {
+            AppHeader(viewModel: AppHeaderViewModel(authService: authService))
+            HomeView(viewModel: makeHomeViewModel())
+        }
+    }
+
     // MARK: - HomeViewModel factory
 
     private func makeHomeViewModel() -> HomeViewModel {
         let email = authService.authenticatedEmail ?? profileStore.email ?? ""
         return HomeViewModel(
             email: email,
-            profileService: UserProfileService(),
+            profileService: UserProfileService(networkClient: networkClient),
             profileStore: profileStore
         )
     }
+}
+
+// MARK: - AuthServiceBox
+
+/// Breaks the coordinator → authService circular init dependency.
+/// The coordinator captures this box in its `onForceLogout` closure;
+/// `authBox.service` is set after `AuthService` is fully initialized.
+private final class AuthServiceBox: @unchecked Sendable {
+    weak var service: AuthService?
 }
