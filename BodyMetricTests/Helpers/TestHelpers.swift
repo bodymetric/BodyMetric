@@ -75,3 +75,25 @@ final class MockUserProfileService: UserProfileServiceProtocol {
         return profileToReturn!
     }
 }
+
+// MARK: - MockUpdateProfileService
+
+/// In-memory stub for `UpdateProfileServiceProtocol`.
+@MainActor
+final class MockUpdateProfileService: UpdateProfileServiceProtocol {
+
+    var responseToReturn = AuthUser(
+        id: 1, name: "Default", email: "default@example.com",
+        height: 170.0, weight: 70.0
+    )
+    var shouldThrow = false
+    var callCount = 0
+    var delay: TimeInterval = 0
+
+    func updateProfile(_ request: UpdateProfileRequest) async throws -> AuthUser {
+        callCount += 1
+        if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
+        if shouldThrow { throw ProfileUpdateError.serverError(422) }
+        return responseToReturn
+    }
+}

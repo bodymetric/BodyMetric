@@ -28,14 +28,6 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, 24)
             }
-            .navigationDestination(
-                isPresented: Binding(
-                    get: { viewModel.navigationState == .createUser },
-                    set: { _ in }
-                )
-            ) {
-                CreateUserView()
-            }
         }
         .task { await viewModel.loadProfile() }
     }

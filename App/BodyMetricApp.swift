@@ -56,12 +56,14 @@ struct BodyMetricApp: App {
         // Step 3: NetworkClient
         let client = NetworkClient(tokenStore: ts, coordinator: coord)
 
-        // Step 4: AuthService
+        // Step 4: AuthService (shares the same ProfileStore instance as the app)
+        let ps = ProfileStore()
         let auth = AuthService(
             tokenExchangeService: TokenExchangeService(),
             tokenStore: ts,
             keychainService: ks,
-            coordinator: coord
+            coordinator: coord,
+            profileStore: ps
         )
 
         // Step 5: Wire proactive timer (post-init, avoids circular init)
@@ -92,6 +94,7 @@ struct BodyMetricApp: App {
         self.coordinator = coord
         self.networkClient = client
         _authService = State(wrappedValue: auth)
+        _profileStore = State(wrappedValue: ps)
     }
 
     // MARK: - Scene
@@ -126,6 +129,7 @@ struct BodyMetricApp: App {
         }
         .animation(.bmFade, value: showSplash)
         .animation(.bmFade, value: authService.isAuthenticated)
+        .animation(.bmFade, value: authService.needsProfileSetup)
     }
 
     // MARK: - Splash resolution
@@ -151,10 +155,20 @@ struct BodyMetricApp: App {
 
     // MARK: - Authenticated container
 
+    @ViewBuilder
     private var authenticatedContainer: some View {
-        VStack(spacing: 0) {
-            AppHeader(viewModel: AppHeaderViewModel(authService: authService))
-            HomeView(viewModel: makeHomeViewModel())
+        if authService.needsProfileSetup {
+            // Profile completion gate — mandatory; no back navigation.
+            CreateUserView(
+                viewModel: makeUpdateProfileViewModel()
+            )
+            .transition(.opacity.combined(with: .scale(scale: 0.98)))
+        } else {
+            VStack(spacing: 0) {
+                AppHeader(viewModel: AppHeaderViewModel(authService: authService))
+                HomeView(viewModel: makeHomeViewModel())
+            }
+            .transition(.opacity.combined(with: .scale(scale: 0.98)))
         }
     }
 
@@ -166,6 +180,18 @@ struct BodyMetricApp: App {
             email: email,
             profileService: UserProfileService(networkClient: networkClient),
             profileStore: profileStore
+        )
+    }
+
+    // MARK: - UpdateProfileViewModel factory
+
+    private func makeUpdateProfileViewModel() -> UpdateProfileViewModel {
+        let email = authService.authenticatedEmail ?? profileStore.email ?? ""
+        return UpdateProfileViewModel(
+            email: email,
+            updateService: UpdateProfileService(networkClient: networkClient),
+            profileStore: profileStore,
+            authService: authService
         )
     }
 }

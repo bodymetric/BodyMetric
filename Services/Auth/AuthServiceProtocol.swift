@@ -27,6 +27,14 @@ protocol AuthServiceProtocol: AnyObject {
     /// Attempts to restore a previous sign-in silently (called during SplashView).
     /// Returns `true` if a prior session was restored without user interaction.
     func restorePreviousSignIn() async -> Bool
+
+    /// `true` when the authenticated user's profile is missing required fields
+    /// (`name`, `height`, `weight`). Set after token exchange or session restore.
+    /// `BodyMetricApp` routes to `UpdateProfileView` when this is `true`.
+    var needsProfileSetup: Bool { get }
+
+    /// Clears the profile setup gate after a successful profile completion submission.
+    func clearNeedsProfileSetup()
 }
 
 // MARK: - Auth errors

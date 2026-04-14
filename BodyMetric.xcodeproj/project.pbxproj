@@ -44,6 +44,11 @@
 		DF299D0A2F8B111300447E14 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299D082F8B111300447E14 /* TestHelpers.swift */; };
 		DF6A95342F829DF100752A2B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DF6A95332F829DF100752A2B /* GoogleSignIn */; };
 		DF6A95362F829DF100752A2B /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DF6A95352F829DF100752A2B /* GoogleSignInSwift */; };
+		DFBA86EC2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86EA2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift */; };
+		DFBA86EF2F8DCD1C007EC5A2 /* UpdateProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86ED2F8DCD1C007EC5A2 /* UpdateProfileService.swift */; };
+		DFBA86F02F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86EE2F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift */; };
+		DFBA86F22F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86F12F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift */; };
+		DFBA86F42F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86F32F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift */; };
 		DFF5D55F2F82989E0008AA3E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DFF5D55E2F82989E0008AA3E /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +103,11 @@
 		DF299CFC2F8B10FF00447E14 /* TokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreTests.swift; sourceTree = "<group>"; };
 		DF299CFD2F8B10FF00447E14 /* UserProfileServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileServiceTests.swift; sourceTree = "<group>"; };
 		DF299D082F8B111300447E14 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
+		DFBA86EA2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileViewModel.swift; sourceTree = "<group>"; };
+		DFBA86ED2F8DCD1C007EC5A2 /* UpdateProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileService.swift; sourceTree = "<group>"; };
+		DFBA86EE2F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileServiceProtocol.swift; sourceTree = "<group>"; };
+		DFBA86F12F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileServiceTests.swift; sourceTree = "<group>"; };
+		DFBA86F32F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileViewModelTests.swift; sourceTree = "<group>"; };
 		DFF5D5142F81C0230008AA3E /* BodyMetric.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BodyMetric.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF5D5212F81C0240008AA3E /* BodyMetricTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BodyMetricTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF5D52B2F81C0240008AA3E /* BodyMetricUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BodyMetricUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -160,6 +170,7 @@
 		DF299BA52F888F0300447E14 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				DFBA86F32F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift */,
 				DF299CBD2F89D7D100447E14 /* AppHeaderViewModelTests.swift */,
 				DF299BA42F888F0300447E14 /* HomeViewModelTests.swift */,
 			);
@@ -263,6 +274,7 @@
 		DF299C9D2F89D7A700447E14 /* CreateUser */ = {
 			isa = PBXGroup;
 			children = (
+				DFBA86EB2F8DCCCD007EC5A2 /* ViewModels */,
 				DF299C9C2F89D7A700447E14 /* Views */,
 			);
 			path = CreateUser;
@@ -342,6 +354,8 @@
 		DF299CE82F8B10C400447E14 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				DFBA86ED2F8DCD1C007EC5A2 /* UpdateProfileService.swift */,
+				DFBA86EE2F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift */,
 				DF299CE52F8B10C400447E14 /* ProfileFetchError.swift */,
 				DF299CE62F8B10C400447E14 /* UserProfileService.swift */,
 				DF299CE72F8B10C400447E14 /* UserProfileServiceProtocol.swift */,
@@ -378,6 +392,7 @@
 		DF299CFE2F8B10FF00447E14 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				DFBA86F12F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift */,
 				DF299CF52F8B10FF00447E14 /* AuthServiceTests.swift */,
 				DF299CF62F8B10FF00447E14 /* KeychainServiceTests.swift */,
 				DF299CF72F8B10FF00447E14 /* NetworkClientTests.swift */,
@@ -404,6 +419,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DFBA86EB2F8DCCCD007EC5A2 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DFBA86EA2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		DFF5D50B2F81C0230008AA3E = {
@@ -588,7 +611,10 @@
 				DF299C412F88901100447E14 /* GrayscalePalette.swift in Sources */,
 				DF299C482F88901100447E14 /* Transition.swift in Sources */,
 				DF299CC02F89D7EE00447E14 /* BodyMetricApp.swift in Sources */,
+				DFBA86EC2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift in Sources */,
 				DF299CB22F89D7A700447E14 /* HomeView.swift in Sources */,
+				DFBA86EF2F8DCD1C007EC5A2 /* UpdateProfileService.swift in Sources */,
+				DFBA86F02F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift in Sources */,
 				DF299CB32F89D7A700447E14 /* AppHeaderViewModel.swift in Sources */,
 				DF299CB42F89D7A700447E14 /* LoginView.swift in Sources */,
 				DF299CB62F89D7A700447E14 /* LoginViewModel.swift in Sources */,
@@ -611,6 +637,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFBA86F22F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift in Sources */,
 				DF299CBE2F89D7D100447E14 /* AppHeaderViewModelTests.swift in Sources */,
 				DF299BB12F888F0300447E14 /* HomeViewModelTests.swift in Sources */,
 				DF299CFF2F8B10FF00447E14 /* TokenStoreTests.swift in Sources */,
@@ -618,6 +645,7 @@
 				DF299D012F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift in Sources */,
 				DF299D022F8B10FF00447E14 /* TokenRefreshServiceTests.swift in Sources */,
 				DF299D032F8B10FF00447E14 /* NetworkClientTests.swift in Sources */,
+				DFBA86F42F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift in Sources */,
 				DF299D042F8B10FF00447E14 /* KeychainServiceTests.swift in Sources */,
 				DF299D0A2F8B111300447E14 /* TestHelpers.swift in Sources */,
 				DF299D052F8B10FF00447E14 /* TokenExchangeServiceTests.swift in Sources */,

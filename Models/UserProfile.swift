@@ -13,6 +13,9 @@ struct UserProfile: Decodable {
     /// not from this response body).
     var email: String
 
+    /// Display name. nil if the API omitted the field.
+    var name: String?
+
     /// Body weight numeric value. nil if the API omitted the field.
     var weight: Double?
 
@@ -28,6 +31,7 @@ struct UserProfile: Decodable {
     // MARK: - CodingKeys
 
     private enum CodingKeys: String, CodingKey {
+        case name
         case weight
         case weightUnit
         case height
@@ -39,6 +43,7 @@ struct UserProfile: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        name       = try container.decodeIfPresent(String.self, forKey: .name)
         weight     = try container.decodeIfPresent(Double.self, forKey: .weight)
         weightUnit = try container.decodeIfPresent(String.self, forKey: .weightUnit)
         height     = try container.decodeIfPresent(Double.self, forKey: .height)
@@ -49,11 +54,13 @@ struct UserProfile: Decodable {
     // MARK: - Memberwise init (for tests and ProfileStore hydration)
 
     init(email: String,
+         name: String? = nil,
          weight: Double? = nil,
          weightUnit: String? = nil,
          height: Double? = nil,
          heightUnit: String? = nil) {
         self.email      = email
+        self.name       = name
         self.weight     = weight
         self.weightUnit = weightUnit
         self.height     = height

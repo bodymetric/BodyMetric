@@ -77,4 +77,6 @@ final class MockHeaderAuthService: AuthServiceProtocol {
     }
 
     func restorePreviousSignIn() async -> Bool { false }
+    var needsProfileSetup: Bool = false
+    func clearNeedsProfileSetup() { needsProfileSetup = false }
 }

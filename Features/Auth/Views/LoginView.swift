@@ -129,4 +129,6 @@ private final class _PreviewAuthService: AuthServiceProtocol {
     }
     func signOut() async throws {}
     func restorePreviousSignIn() async -> Bool { false }
+    var needsProfileSetup: Bool = false
+    func clearNeedsProfileSetup() {}
 }

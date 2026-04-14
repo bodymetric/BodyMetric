@@ -29,6 +29,11 @@ final class AuthService: AuthServiceProtocol {
 
     private(set) var isAuthenticated: Bool = false
 
+    /// `true` when the authenticated user's profile is missing name, height, or weight.
+    /// Set by `signInWithGoogle()` after token exchange and by `restorePreviousSignIn()`.
+    /// `BodyMetricApp` routes to the profile completion form when this is `true`.
+    private(set) var needsProfileSetup: Bool = false
+
     var authenticatedEmail: String? {
         GIDSignIn.sharedInstance.currentUser?.profile?.email
     }
@@ -39,6 +44,7 @@ final class AuthService: AuthServiceProtocol {
     private let tokenStore: any TokenStoreProtocol
     private let keychainService: KeychainServiceProtocol
     private let coordinator: any TokenRefreshCoordinatorProtocol
+    private let profileStore: ProfileStore
 
     // MARK: - Init
 
@@ -46,12 +52,14 @@ final class AuthService: AuthServiceProtocol {
         tokenExchangeService: TokenExchangeServiceProtocol,
         tokenStore: any TokenStoreProtocol,
         keychainService: KeychainServiceProtocol,
-        coordinator: any TokenRefreshCoordinatorProtocol
+        coordinator: any TokenRefreshCoordinatorProtocol,
+        profileStore: ProfileStore = ProfileStore()
     ) {
         self.tokenExchangeService = tokenExchangeService
         self.tokenStore = tokenStore
         self.keychainService = keychainService
         self.coordinator = coordinator
+        self.profileStore = profileStore
     }
 
     // MARK: - AuthServiceProtocol
@@ -75,21 +83,27 @@ final class AuthService: AuthServiceProtocol {
         do {
             let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
             let user = result.user
-            Logger.info(user.accessToken.tokenString)
 
-           
             guard let idToken = user.idToken?.tokenString else {
                 Logger.warning("Google Sign-In succeeded but idToken is nil", category: .auth)
                 throw AuthError.tokenExchangeFailed
             }
 
-            Logger.info(idToken)
             Logger.info("Google Sign-In succeeded. Exchanging id token...", category: .auth)
 
             let tokenPair = try await tokenExchangeService.exchange(googleIdToken: idToken)
 
             await tokenStore.store(accessToken: tokenPair.accessToken)
             try keychainService.saveRefreshToken(tokenPair.refreshToken)
+
+            // Always persist the user object so userId is available for subsequent
+            // API calls (e.g. PUT /api/users/{id}) even when the profile is incomplete.
+            profileStore.save(from: tokenPair.user)
+            needsProfileSetup = !tokenPair.user.isComplete
+            Logger.info(
+                "Profile completeness at login: needsProfileSetup=\(needsProfileSetup)",
+                category: .auth
+            )
 
             isAuthenticated = true
             traceEvent("token_exchange_succeeded")
@@ -137,6 +151,12 @@ final class AuthService: AuthServiceProtocol {
             // Check Keychain for a valid refresh token — if absent, no real session.
             if (try? keychainService.loadRefreshToken()) != nil {
                 Logger.info("Previous session restored (refresh token present)", category: .auth)
+                // Re-apply profile completeness gate on restore.
+                needsProfileSetup = !profileStore.isComplete
+                Logger.info(
+                    "Session restore: needsProfileSetup=\(needsProfileSetup)",
+                    category: .auth
+                )
                 isAuthenticated = true
                 return true
             } else {
@@ -152,6 +172,14 @@ final class AuthService: AuthServiceProtocol {
                          category: .auth)
             return false
         }
+    }
+
+    // MARK: - Profile setup gate
+
+    /// Clears the profile setup gate after a successful profile completion submission.
+    func clearNeedsProfileSetup() {
+        needsProfileSetup = false
+        Logger.info("AuthService: needsProfileSetup cleared", category: .auth)
     }
 
     // MARK: - Force sign-out (called by TokenRefreshCoordinator on refresh failure)
