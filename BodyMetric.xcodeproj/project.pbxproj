@@ -7,19 +7,92 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DF6A95192F829BEF00752A2B /* AuthServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A95162F829BEF00752A2B /* AuthServiceProtocol.swift */; };
-		DF6A951A2F829BEF00752A2B /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A95152F829BEF00752A2B /* AuthService.swift */; };
-		DF6A951B2F829BEF00752A2B /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A95102F829BEF00752A2B /* Logger.swift */; };
-		DF6A951C2F829BEF00752A2B /* Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A95122F829BEF00752A2B /* Transition.swift */; };
-		DF6A951D2F829BEF00752A2B /* GrayscalePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6A950E2F829BEF00752A2B /* GrayscalePalette.swift */; };
+		083DFFB6E41C488B95016764 /* ConfigureDayStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1408F4A35B4029870C5DFC /* ConfigureDayStepView.swift */; };
+		29BB8B343A3643DC8DCB452D /* ReviewStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0CDD747353C4748B94BEFD0 /* ReviewStepView.swift */; };
+		2AB11CF645694EBAA0393753 /* ExerciseBlockRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F13E0B5FA37451BB40D4B2F /* ExerciseBlockRowView.swift */; };
+		2C0436F7397446F79824B4F7 /* WorkoutPlanStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB594AE658E941F9A741AC40 /* WorkoutPlanStore.swift */; };
+		361EF7CCF1534F5EAC0CE448 /* WizardStepRailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BE42AEA6FBA437CA1C8A3F6 /* WizardStepRailView.swift */; };
+		52139D61797546BBA3665F87 /* HomeMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13020788D3644C7AC69CE23 /* HomeMenuView.swift */; };
+		525C51275CEA4112BBAF2CCB /* NewPlanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACB5D4E7461449BA41266BB /* NewPlanViewModel.swift */; };
+		72DD12A9BC1042C482557259 /* NewPlanViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7336CAEF89594D708BE10970 /* NewPlanViewModelTests.swift */; };
+		FB9072C1E39F45A18342C02F /* WorkoutPlanModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5DBAF95E744D9890E4A176 /* WorkoutPlanModels.swift */; };
+		CDF1468BBC3B4A54876BCA15 /* WorkoutPlanError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA4AFB3F7B14274B9BC200A /* WorkoutPlanError.swift */; };
+		5B780D8E340B4A83B57217CE /* WorkoutPlanServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F479727DAA4F3FA0A23131 /* WorkoutPlanServiceProtocol.swift */; };
+		5A4CE2A5D2954CF48F76B061 /* WorkoutPlanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0EF7B5CE34455A9CACFFB2 /* WorkoutPlanService.swift */; };
+		45389F691FA84FE9B6332E07 /* WorkoutPlanServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847FCC65CF3C480D92918F08 /* WorkoutPlanServiceTests.swift */; };
+		7D98FEAC7A4D4D0AA1D0EE08 /* NewPlanModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5FC2520EA34B3283DF1039 /* NewPlanModelsTests.swift */; };
+		7F5AF24763EF4D21B88BEEAF /* NewPlanWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A018F7CDCDEF4FB796C8A570 /* NewPlanWizardView.swift */; };
+		A4FADBB933E7406690A8E31C /* HomeMenuModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C785539F64472A98536961 /* HomeMenuModelsTests.swift */; };
+		A9A261EF4D00417DB4DF03C7 /* SelectDaysStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8DC2D0861DD4C3CB5550CE2 /* SelectDaysStepView.swift */; };
+		AC8A2D1CC13D45E0BEE60CAE /* NewPlanModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C23E99B2C794FF1BB651D86 /* NewPlanModels.swift */; };
+		BA1FE550950B4133BA36A4E1 /* PlanSavedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED186908122641468EE8E8B6 /* PlanSavedView.swift */; };
+		C7AC09DF520842298DE378CE /* HomeMenuModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A27FAEC4FA4BB8BBE9C182 /* HomeMenuModels.swift */; };
+		DF299BB12F888F0300447E14 /* HomeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299BA42F888F0300447E14 /* HomeViewModelTests.swift */; };
+		DF299BB22F888F0300447E14 /* BodyMetricTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299BA92F888F0300447E14 /* BodyMetricTests.swift */; };
+		DF299C3B2F88901100447E14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF299C2F2F88901100447E14 /* Assets.xcassets */; };
+		DF299C412F88901100447E14 /* GrayscalePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C162F88901100447E14 /* GrayscalePalette.swift */; };
+		DF299C482F88901100447E14 /* Transition.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C1A2F88901100447E14 /* Transition.swift */; };
+		DF299C4C2F88901100447E14 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C182F88901100447E14 /* Logger.swift */; };
+		DF299C4D2F88901100447E14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF299C2F2F88901100447E14 /* Assets.xcassets */; };
+		DF299C702F88901100447E14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF299C2F2F88901100447E14 /* Assets.xcassets */; };
+		DF299CB22F89D7A700447E14 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CA32F89D7A700447E14 /* HomeView.swift */; };
+		DF299CB42F89D7A700447E14 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C982F89D7A700447E14 /* LoginView.swift */; };
+		DF299CB62F89D7A700447E14 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C962F89D7A700447E14 /* LoginViewModel.swift */; };
+		DF299CB72F89D7A700447E14 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CAE2F89D7A700447E14 /* SplashView.swift */; };
+		DF299CB92F89D7A700447E14 /* CreateUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299C9B2F89D7A700447E14 /* CreateUserView.swift */; };
+		DF299CBA2F89D7A700447E14 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CA12F89D7A700447E14 /* HomeViewModel.swift */; };
+		DF299CBE2F89D7D100447E14 /* AppHeaderViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CBD2F89D7D100447E14 /* AppHeaderViewModelTests.swift */; };
+		DF299CC02F89D7EE00447E14 /* BodyMetricApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CBF2F89D7EE00447E14 /* BodyMetricApp.swift */; };
+		DF299CEC2F8B10C400447E14 /* UserProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE62F8B10C400447E14 /* UserProfileService.swift */; };
+		DF299CED2F8B10C400447E14 /* ProfileFetchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE52F8B10C400447E14 /* ProfileFetchError.swift */; };
+		DF299CEE2F8B10C400447E14 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE92F8B10C400447E14 /* ProfileStore.swift */; };
+		DF299CEF2F8B10C400447E14 /* AuthServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE32F8B10C400447E14 /* AuthServiceProtocol.swift */; };
+		DF299CF02F8B10C400447E14 /* UserProfileServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE72F8B10C400447E14 /* UserProfileServiceProtocol.swift */; };
+		DF299CF12F8B10C400447E14 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CE22F8B10C400447E14 /* AuthService.swift */; };
+		DF299CF42F8B10E400447E14 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF22F8B10E400447E14 /* UserProfile.swift */; };
+		DF299CFF2F8B10FF00447E14 /* TokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CFC2F8B10FF00447E14 /* TokenStoreTests.swift */; };
+		DF299D002F8B10FF00447E14 /* AuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF52F8B10FF00447E14 /* AuthServiceTests.swift */; };
+		DF299D012F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CFA2F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift */; };
+		DF299D022F8B10FF00447E14 /* TokenRefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CFB2F8B10FF00447E14 /* TokenRefreshServiceTests.swift */; };
+		DF299D032F8B10FF00447E14 /* NetworkClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF72F8B10FF00447E14 /* NetworkClientTests.swift */; };
+		DF299D042F8B10FF00447E14 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF62F8B10FF00447E14 /* KeychainServiceTests.swift */; };
+		DF299D052F8B10FF00447E14 /* TokenExchangeServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF92F8B10FF00447E14 /* TokenExchangeServiceTests.swift */; };
+		DF299D062F8B10FF00447E14 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CF82F8B10FF00447E14 /* ProfileStoreTests.swift */; };
+		DF299D072F8B10FF00447E14 /* UserProfileServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299CFD2F8B10FF00447E14 /* UserProfileServiceTests.swift */; };
+		DF299D0A2F8B111300447E14 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF299D082F8B111300447E14 /* TestHelpers.swift */; };
 		DF6A95342F829DF100752A2B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DF6A95332F829DF100752A2B /* GoogleSignIn */; };
 		DF6A95362F829DF100752A2B /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DF6A95352F829DF100752A2B /* GoogleSignInSwift */; };
-		DFF5D5522F81C0750008AA3E /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF5D5472F81C0750008AA3E /* LoginView.swift */; };
-		DFF5D5542F81C0750008AA3E /* BodyMetricApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF5D53E2F81C0750008AA3E /* BodyMetricApp.swift */; };
-		DFF5D5552F81C0750008AA3E /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF5D54A2F81C0750008AA3E /* SplashView.swift */; };
-		DFF5D5582F81C0750008AA3E /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF5D5452F81C0750008AA3E /* LoginViewModel.swift */; };
-		DFF5D5592F81C0750008AA3E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFF5D54D2F81C0750008AA3E /* Assets.xcassets */; };
-		DFF5D55F2F82989E0008AA3E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DFF5D55E2F82989E0008AA3E /* GoogleService-Info.plist */; };
+		DF9622A82F9D9992008F2222 /* NewPlanWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9622A52F9D9992008F2222 /* NewPlanWizardView.swift */; };
+		DF9622A92F9D9992008F2222 /* SelectDaysStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9622A22F9D9992008F2222 /* SelectDaysStepView.swift */; };
+		DF9622AA2F9D9992008F2222 /* ExerciseBlockRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF96229E2F9D9992008F2222 /* ExerciseBlockRowView.swift */; };
+		DF9622AB2F9D9992008F2222 /* WorkoutPlanStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9622992F9D9992008F2222 /* WorkoutPlanStore.swift */; };
+		DF9622AC2F9D9992008F2222 /* ExercisePickerSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF96229F2F9D9992008F2222 /* ExercisePickerSheetView.swift */; };
+		DF9622AD2F9D9992008F2222 /* NewPlanModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9622982F9D9992008F2222 /* NewPlanModels.swift */; };
+		DF9622AE2F9D9992008F2222 /* PlanSavedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9622A02F9D9992008F2222 /* PlanSavedView.swift */; };
+		DF9622AF2F9D9992008F2222 /* NewPlanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF96229B2F9D9992008F2222 /* NewPlanViewModel.swift */; };
+		DF9622B02F9D9992008F2222 /* ReviewStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9622A12F9D9992008F2222 /* ReviewStepView.swift */; };
+		DF9622B12F9D9992008F2222 /* WizardStepRailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9622A32F9D9992008F2222 /* WizardStepRailView.swift */; };
+		DF9622B22F9D9992008F2222 /* ConfigureDayStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF96229D2F9D9992008F2222 /* ConfigureDayStepView.swift */; };
+		DF9E59AC2F93DEBD001F55CF /* WorkoutPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59AB2F93DEBD001F55CF /* WorkoutPalette.swift */; };
+		DF9E59C02F93DEF0001F55CF /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59BB2F93DEF0001F55CF /* CheckInView.swift */; };
+		DF9E59C12F93DEF0001F55CF /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59B02F93DEF0001F55CF /* MainTabView.swift */; };
+		DF9E59C22F93DEF0001F55CF /* WorkoutModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59B22F93DEF0001F55CF /* WorkoutModels.swift */; };
+		DF9E59C32F93DEF0001F55CF /* AppHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59AD2F93DEF0001F55CF /* AppHeader.swift */; };
+		DF9E59C42F93DEF0001F55CF /* ActiveSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59B42F93DEF0001F55CF /* ActiveSessionViewModel.swift */; };
+		DF9E59C52F93DEF0001F55CF /* WorkoutCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59BD2F93DEF0001F55CF /* WorkoutCompleteView.swift */; };
+		DF9E59C62F93DEF0001F55CF /* ActiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59BA2F93DEF0001F55CF /* ActiveSessionView.swift */; };
+		DF9E59C72F93DEF0001F55CF /* RestTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59B82F93DEF0001F55CF /* RestTimerView.swift */; };
+		DF9E59C82F93DEF0001F55CF /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59BC2F93DEF0001F55CF /* TodayView.swift */; };
+		DF9E59C92F93DEF0001F55CF /* ExerciseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59B62F93DEF0001F55CF /* ExerciseCard.swift */; };
+		DF9E59CA2F93DEF0001F55CF /* AppHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59AE2F93DEF0001F55CF /* AppHeaderViewModel.swift */; };
+		DF9E59CB2F93DEF0001F55CF /* LogSetSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9E59B72F93DEF0001F55CF /* LogSetSheet.swift */; };
+		DF9E59CD2F97CFF6001F55CF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF9E59CC2F97CFF6001F55CF /* GoogleService-Info.plist */; };
+		DFBA86EC2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86EA2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift */; };
+		DFBA86EF2F8DCD1C007EC5A2 /* UpdateProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86ED2F8DCD1C007EC5A2 /* UpdateProfileService.swift */; };
+		DFBA86F02F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86EE2F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift */; };
+		DFBA86F22F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86F12F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift */; };
+		DFBA86F42F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBA86F32F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift */; };
+		EA4F695A5FD34F3B888A39A2 /* ExercisePickerSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CABB67271FD6476A9684A793 /* ExercisePickerSheetView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,20 +113,91 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		DF6A950E2F829BEF00752A2B /* GrayscalePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscalePalette.swift; sourceTree = "<group>"; };
-		DF6A95102F829BEF00752A2B /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		DF6A95122F829BEF00752A2B /* Transition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transition.swift; sourceTree = "<group>"; };
-		DF6A95152F829BEF00752A2B /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
-		DF6A95162F829BEF00752A2B /* AuthServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceProtocol.swift; sourceTree = "<group>"; };
+		1D5FC2520EA34B3283DF1039 /* NewPlanModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlanModelsTests.swift; sourceTree = "<group>"; };
+		2F13E0B5FA37451BB40D4B2F /* ExerciseBlockRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseBlockRowView.swift; sourceTree = "<group>"; };
+		4C23E99B2C794FF1BB651D86 /* NewPlanModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlanModels.swift; sourceTree = "<group>"; };
+		7336CAEF89594D708BE10970 /* NewPlanViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlanViewModelTests.swift; sourceTree = "<group>"; };
+		9B5DBAF95E744D9890E4A176 /* WorkoutPlanModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanModels.swift; sourceTree = "<group>"; };
+		BBA4AFB3F7B14274B9BC200A /* WorkoutPlanError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanError.swift; sourceTree = "<group>"; };
+		51F479727DAA4F3FA0A23131 /* WorkoutPlanServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanServiceProtocol.swift; sourceTree = "<group>"; };
+		3C0EF7B5CE34455A9CACFFB2 /* WorkoutPlanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanService.swift; sourceTree = "<group>"; };
+		847FCC65CF3C480D92918F08 /* WorkoutPlanServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanServiceTests.swift; sourceTree = "<group>"; };
+		7A1408F4A35B4029870C5DFC /* ConfigureDayStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureDayStepView.swift; sourceTree = "<group>"; };
+		8ACB5D4E7461449BA41266BB /* NewPlanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlanViewModel.swift; sourceTree = "<group>"; };
+		8BE42AEA6FBA437CA1C8A3F6 /* WizardStepRailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WizardStepRailView.swift; sourceTree = "<group>"; };
+		A018F7CDCDEF4FB796C8A570 /* NewPlanWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlanWizardView.swift; sourceTree = "<group>"; };
+		BB594AE658E941F9A741AC40 /* WorkoutPlanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanStore.swift; sourceTree = "<group>"; };
+		C1A27FAEC4FA4BB8BBE9C182 /* HomeMenuModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMenuModels.swift; sourceTree = "<group>"; };
+		C8DC2D0861DD4C3CB5550CE2 /* SelectDaysStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectDaysStepView.swift; sourceTree = "<group>"; };
+		CABB67271FD6476A9684A793 /* ExercisePickerSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExercisePickerSheetView.swift; sourceTree = "<group>"; };
+		DF299BA42F888F0300447E14 /* HomeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelTests.swift; sourceTree = "<group>"; };
+		DF299BA92F888F0300447E14 /* BodyMetricTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyMetricTests.swift; sourceTree = "<group>"; };
+		DF299C162F88901100447E14 /* GrayscalePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscalePalette.swift; sourceTree = "<group>"; };
+		DF299C182F88901100447E14 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		DF299C1A2F88901100447E14 /* Transition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transition.swift; sourceTree = "<group>"; };
+		DF299C2F2F88901100447E14 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DF299C962F89D7A700447E14 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		DF299C982F89D7A700447E14 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		DF299C9B2F89D7A700447E14 /* CreateUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserView.swift; sourceTree = "<group>"; };
+		DF299CA12F89D7A700447E14 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		DF299CA32F89D7A700447E14 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		DF299CAE2F89D7A700447E14 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		DF299CBD2F89D7D100447E14 /* AppHeaderViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHeaderViewModelTests.swift; sourceTree = "<group>"; };
+		DF299CBF2F89D7EE00447E14 /* BodyMetricApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyMetricApp.swift; sourceTree = "<group>"; };
+		DF299CE22F8B10C400447E14 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		DF299CE32F8B10C400447E14 /* AuthServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceProtocol.swift; sourceTree = "<group>"; };
+		DF299CE52F8B10C400447E14 /* ProfileFetchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFetchError.swift; sourceTree = "<group>"; };
+		DF299CE62F8B10C400447E14 /* UserProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileService.swift; sourceTree = "<group>"; };
+		DF299CE72F8B10C400447E14 /* UserProfileServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileServiceProtocol.swift; sourceTree = "<group>"; };
+		DF299CE92F8B10C400447E14 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
+		DF299CF22F8B10E400447E14 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		DF299CF52F8B10FF00447E14 /* AuthServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceTests.swift; sourceTree = "<group>"; };
+		DF299CF62F8B10FF00447E14 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
+		DF299CF72F8B10FF00447E14 /* NetworkClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientTests.swift; sourceTree = "<group>"; };
+		DF299CF82F8B10FF00447E14 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
+		DF299CF92F8B10FF00447E14 /* TokenExchangeServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenExchangeServiceTests.swift; sourceTree = "<group>"; };
+		DF299CFA2F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenRefreshCoordinatorTests.swift; sourceTree = "<group>"; };
+		DF299CFB2F8B10FF00447E14 /* TokenRefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenRefreshServiceTests.swift; sourceTree = "<group>"; };
+		DF299CFC2F8B10FF00447E14 /* TokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreTests.swift; sourceTree = "<group>"; };
+		DF299CFD2F8B10FF00447E14 /* UserProfileServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileServiceTests.swift; sourceTree = "<group>"; };
+		DF299D082F8B111300447E14 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
+		DF9622982F9D9992008F2222 /* NewPlanModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlanModels.swift; sourceTree = "<group>"; };
+		DF9622992F9D9992008F2222 /* WorkoutPlanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanStore.swift; sourceTree = "<group>"; };
+		DF96229B2F9D9992008F2222 /* NewPlanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlanViewModel.swift; sourceTree = "<group>"; };
+		DF96229D2F9D9992008F2222 /* ConfigureDayStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureDayStepView.swift; sourceTree = "<group>"; };
+		DF96229E2F9D9992008F2222 /* ExerciseBlockRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseBlockRowView.swift; sourceTree = "<group>"; };
+		DF96229F2F9D9992008F2222 /* ExercisePickerSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExercisePickerSheetView.swift; sourceTree = "<group>"; };
+		DF9622A02F9D9992008F2222 /* PlanSavedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanSavedView.swift; sourceTree = "<group>"; };
+		DF9622A12F9D9992008F2222 /* ReviewStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewStepView.swift; sourceTree = "<group>"; };
+		DF9622A22F9D9992008F2222 /* SelectDaysStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectDaysStepView.swift; sourceTree = "<group>"; };
+		DF9622A32F9D9992008F2222 /* WizardStepRailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WizardStepRailView.swift; sourceTree = "<group>"; };
+		DF9622A52F9D9992008F2222 /* NewPlanWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlanWizardView.swift; sourceTree = "<group>"; };
+		DF9E59AB2F93DEBD001F55CF /* WorkoutPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPalette.swift; sourceTree = "<group>"; };
+		DF9E59AD2F93DEF0001F55CF /* AppHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHeader.swift; sourceTree = "<group>"; };
+		DF9E59AE2F93DEF0001F55CF /* AppHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHeaderViewModel.swift; sourceTree = "<group>"; };
+		DF9E59B02F93DEF0001F55CF /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		DF9E59B22F93DEF0001F55CF /* WorkoutModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutModels.swift; sourceTree = "<group>"; };
+		DF9E59B42F93DEF0001F55CF /* ActiveSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSessionViewModel.swift; sourceTree = "<group>"; };
+		DF9E59B62F93DEF0001F55CF /* ExerciseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseCard.swift; sourceTree = "<group>"; };
+		DF9E59B72F93DEF0001F55CF /* LogSetSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogSetSheet.swift; sourceTree = "<group>"; };
+		DF9E59B82F93DEF0001F55CF /* RestTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerView.swift; sourceTree = "<group>"; };
+		DF9E59BA2F93DEF0001F55CF /* ActiveSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSessionView.swift; sourceTree = "<group>"; };
+		DF9E59BB2F93DEF0001F55CF /* CheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
+		DF9E59BC2F93DEF0001F55CF /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		DF9E59BD2F93DEF0001F55CF /* WorkoutCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCompleteView.swift; sourceTree = "<group>"; };
+		DF9E59CC2F97CFF6001F55CF /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DFBA86EA2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileViewModel.swift; sourceTree = "<group>"; };
+		DFBA86ED2F8DCD1C007EC5A2 /* UpdateProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileService.swift; sourceTree = "<group>"; };
+		DFBA86EE2F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileServiceProtocol.swift; sourceTree = "<group>"; };
+		DFBA86F12F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileServiceTests.swift; sourceTree = "<group>"; };
+		DFBA86F32F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileViewModelTests.swift; sourceTree = "<group>"; };
 		DFF5D5142F81C0230008AA3E /* BodyMetric.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BodyMetric.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF5D5212F81C0240008AA3E /* BodyMetricTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BodyMetricTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF5D52B2F81C0240008AA3E /* BodyMetricUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BodyMetricUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFF5D53E2F81C0750008AA3E /* BodyMetricApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyMetricApp.swift; sourceTree = "<group>"; };
-		DFF5D5452F81C0750008AA3E /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
-		DFF5D5472F81C0750008AA3E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		DFF5D54A2F81C0750008AA3E /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
-		DFF5D54D2F81C0750008AA3E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DFF5D55E2F82989E0008AA3E /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E4C785539F64472A98536961 /* HomeMenuModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMenuModelsTests.swift; sourceTree = "<group>"; };
+		ED186908122641468EE8E8B6 /* PlanSavedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanSavedView.swift; sourceTree = "<group>"; };
+		F0CDD747353C4748B94BEFD0 /* ReviewStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewStepView.swift; sourceTree = "<group>"; };
+		F13020788D3644C7AC69CE23 /* HomeMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMenuView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -73,11 +217,6 @@
 				DF6A95382F82A43300752A2B /* Exceptions for "BodyMetric" folder in "BodyMetric" target */,
 			);
 			path = BodyMetric;
-			sourceTree = "<group>";
-		};
-		DFF5D5242F81C0240008AA3E /* BodyMetricTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = BodyMetricTests;
 			sourceTree = "<group>";
 		};
 		DFF5D52E2F81C0240008AA3E /* BodyMetricUITests */ = {
@@ -114,55 +253,293 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		DF6A950F2F829BEF00752A2B /* Design */ = {
+		25B3DB2786E74C6DA42533BD /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				DF6A950E2F829BEF00752A2B /* GrayscalePalette.swift */,
+				C809E7EF488547D5BF72C740 /* Components */,
+				A018F7CDCDEF4FB796C8A570 /* NewPlanWizardView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		6427A756402B4AC9A6091751 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				4C23E99B2C794FF1BB651D86 /* NewPlanModels.swift */,
+				BB594AE658E941F9A741AC40 /* WorkoutPlanStore.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6E3558AD48A04637AED97A7D /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				8ACB5D4E7461449BA41266BB /* NewPlanViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C809E7EF488547D5BF72C740 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				8BE42AEA6FBA437CA1C8A3F6 /* WizardStepRailView.swift */,
+				C8DC2D0861DD4C3CB5550CE2 /* SelectDaysStepView.swift */,
+				7A1408F4A35B4029870C5DFC /* ConfigureDayStepView.swift */,
+				2F13E0B5FA37451BB40D4B2F /* ExerciseBlockRowView.swift */,
+				CABB67271FD6476A9684A793 /* ExercisePickerSheetView.swift */,
+				F0CDD747353C4748B94BEFD0 /* ReviewStepView.swift */,
+				ED186908122641468EE8E8B6 /* PlanSavedView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		DF299BA52F888F0300447E14 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				DFBA86F32F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift */,
+				DF299CBD2F89D7D100447E14 /* AppHeaderViewModelTests.swift */,
+				DF299BA42F888F0300447E14 /* HomeViewModelTests.swift */,
+				E4C785539F64472A98536961 /* HomeMenuModelsTests.swift */,
+				1D5FC2520EA34B3283DF1039 /* NewPlanModelsTests.swift */,
+				7336CAEF89594D708BE10970 /* NewPlanViewModelTests.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		DF299BAA2F888F0300447E14 /* BodyMetricTests */ = {
+			isa = PBXGroup;
+			children = (
+				DF299D092F8B111300447E14 /* Helpers */,
+				DF299CFE2F8B10FF00447E14 /* Services */,
+				DF299BA52F888F0300447E14 /* Features */,
+				DF299BA92F888F0300447E14 /* BodyMetricTests.swift */,
+			);
+			path = BodyMetricTests;
+			sourceTree = "<group>";
+		};
+		DF299C152F88901100447E14 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CBF2F89D7EE00447E14 /* BodyMetricApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DF299C172F88901100447E14 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				DF9E59AB2F93DEBD001F55CF /* WorkoutPalette.swift */,
+				DF299C162F88901100447E14 /* GrayscalePalette.swift */,
 			);
 			path = Design;
 			sourceTree = "<group>";
 		};
-		DF6A95112F829BEF00752A2B /* Logging */ = {
+		DF299C192F88901100447E14 /* Logging */ = {
 			isa = PBXGroup;
 			children = (
-				DF6A95102F829BEF00752A2B /* Logger.swift */,
+				DF299C182F88901100447E14 /* Logger.swift */,
 			);
 			path = Logging;
 			sourceTree = "<group>";
 		};
-		DF6A95132F829BEF00752A2B /* Navigation */ = {
+		DF299C1B2F88901100447E14 /* Navigation */ = {
 			isa = PBXGroup;
 			children = (
-				DF6A95122F829BEF00752A2B /* Transition.swift */,
+				DF299C1A2F88901100447E14 /* Transition.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
 		};
-		DF6A95142F829BEF00752A2B /* Core */ = {
+		DF299C1C2F88901100447E14 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				DF6A950F2F829BEF00752A2B /* Design */,
-				DF6A95112F829BEF00752A2B /* Logging */,
-				DF6A95132F829BEF00752A2B /* Navigation */,
+				DF299C172F88901100447E14 /* Design */,
+				DF299C192F88901100447E14 /* Logging */,
+				DF299C1B2F88901100447E14 /* Navigation */,
 			);
 			path = Core;
 			sourceTree = "<group>";
 		};
-		DF6A95172F829BEF00752A2B /* Auth */ = {
+		DF299C302F88901100447E14 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				DF6A95152F829BEF00752A2B /* AuthService.swift */,
-				DF6A95162F829BEF00752A2B /* AuthServiceProtocol.swift */,
+				DF299C2F2F88901100447E14 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		DF299C972F89D7A700447E14 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DF299C962F89D7A700447E14 /* LoginViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DF299C992F89D7A700447E14 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DF299C982F89D7A700447E14 /* LoginView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DF299C9A2F89D7A700447E14 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				DF299C972F89D7A700447E14 /* ViewModels */,
+				DF299C992F89D7A700447E14 /* Views */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
 		};
-		DF6A95182F829BEF00752A2B /* Services */ = {
+		DF299C9C2F89D7A700447E14 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				DF6A95172F829BEF00752A2B /* Auth */,
+				DF299C9B2F89D7A700447E14 /* CreateUserView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DF299C9D2F89D7A700447E14 /* CreateUser */ = {
+			isa = PBXGroup;
+			children = (
+				DFBA86EB2F8DCCCD007EC5A2 /* ViewModels */,
+				DF299C9C2F89D7A700447E14 /* Views */,
+			);
+			path = CreateUser;
+			sourceTree = "<group>";
+		};
+		DF299CA22F89D7A700447E14 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CA12F89D7A700447E14 /* HomeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DF299CA42F89D7A700447E14 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CA32F89D7A700447E14 /* HomeView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DF299CA52F89D7A700447E14 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CA22F89D7A700447E14 /* ViewModels */,
+				DF299CA42F89D7A700447E14 /* Views */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		DF299CA92F89D7A700447E14 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		DF299CAF2F89D7A700447E14 /* Splash */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CAE2F89D7A700447E14 /* SplashView.swift */,
+			);
+			path = Splash;
+			sourceTree = "<group>";
+		};
+		DF299CB02F89D7A700447E14 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				DF9622A72F9D9992008F2222 /* NewPlan */,
+				DF9E59AF2F93DEF0001F55CF /* Header */,
+				DF9E59B12F93DEF0001F55CF /* Navigation */,
+				DF9E59BF2F93DEF0001F55CF /* Workout */,
+				EBB4E5B4DDED427AB024768F /* NewPlan */,
+				DF299C9A2F89D7A700447E14 /* Auth */,
+				DF299C9D2F89D7A700447E14 /* CreateUser */,
+				DF299CA52F89D7A700447E14 /* Home */,
+				DF299CA92F89D7A700447E14 /* Shared */,
+				DF299CAF2F89D7A700447E14 /* Splash */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		DF299CE42F8B10C400447E14 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CE22F8B10C400447E14 /* AuthService.swift */,
+				DF299CE32F8B10C400447E14 /* AuthServiceProtocol.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		DF299CE82F8B10C400447E14 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				DFBA86ED2F8DCD1C007EC5A2 /* UpdateProfileService.swift */,
+				DFBA86EE2F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift */,
+				DF299CE52F8B10C400447E14 /* ProfileFetchError.swift */,
+				DF299CE62F8B10C400447E14 /* UserProfileService.swift */,
+				DF299CE72F8B10C400447E14 /* UserProfileServiceProtocol.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		DF299CEA2F8B10C400447E14 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CE92F8B10C400447E14 /* ProfileStore.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		DF299CEB2F8B10C400447E14 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CE42F8B10C400447E14 /* Auth */,
+				DF299CE82F8B10C400447E14 /* Profile */,
+				DF299CEA2F8B10C400447E14 /* Storage */,
+				67612C1DE519493DAC5C868E /* WorkoutPlan */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		DF299CF32F8B10E400447E14 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DF299CF22F8B10E400447E14 /* UserProfile.swift */,
+				9B5DBAF95E744D9890E4A176 /* WorkoutPlanModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DF299CFE2F8B10FF00447E14 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				DFBA86F12F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift */,
+				DF299CF52F8B10FF00447E14 /* AuthServiceTests.swift */,
+				DF299CF62F8B10FF00447E14 /* KeychainServiceTests.swift */,
+				DF299CF72F8B10FF00447E14 /* NetworkClientTests.swift */,
+				DF299CF82F8B10FF00447E14 /* ProfileStoreTests.swift */,
+				DF299CF92F8B10FF00447E14 /* TokenExchangeServiceTests.swift */,
+				DF299CFA2F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift */,
+				DF299CFB2F8B10FF00447E14 /* TokenRefreshServiceTests.swift */,
+				DF299CFC2F8B10FF00447E14 /* TokenStoreTests.swift */,
+				DF299CFD2F8B10FF00447E14 /* UserProfileServiceTests.swift */,
+				847FCC65CF3C480D92918F08 /* WorkoutPlanServiceTests.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		DF299D092F8B111300447E14 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				DF299D082F8B111300447E14 /* TestHelpers.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		DF6A95322F829DF100752A2B /* Frameworks */ = {
@@ -172,19 +549,145 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		DF96229A2F9D9992008F2222 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DF9622982F9D9992008F2222 /* NewPlanModels.swift */,
+				DF9622992F9D9992008F2222 /* WorkoutPlanStore.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DF96229C2F9D9992008F2222 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DF96229B2F9D9992008F2222 /* NewPlanViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DF9622A42F9D9992008F2222 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DF96229D2F9D9992008F2222 /* ConfigureDayStepView.swift */,
+				DF96229E2F9D9992008F2222 /* ExerciseBlockRowView.swift */,
+				DF96229F2F9D9992008F2222 /* ExercisePickerSheetView.swift */,
+				DF9622A02F9D9992008F2222 /* PlanSavedView.swift */,
+				DF9622A12F9D9992008F2222 /* ReviewStepView.swift */,
+				DF9622A22F9D9992008F2222 /* SelectDaysStepView.swift */,
+				DF9622A32F9D9992008F2222 /* WizardStepRailView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		DF9622A62F9D9992008F2222 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DF9622A42F9D9992008F2222 /* Components */,
+				DF9622A52F9D9992008F2222 /* NewPlanWizardView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DF9622A72F9D9992008F2222 /* NewPlan */ = {
+			isa = PBXGroup;
+			children = (
+				DF96229A2F9D9992008F2222 /* Models */,
+				DF96229C2F9D9992008F2222 /* ViewModels */,
+				DF9622A62F9D9992008F2222 /* Views */,
+			);
+			path = NewPlan;
+			sourceTree = "<group>";
+		};
+		DF9E59AF2F93DEF0001F55CF /* Header */ = {
+			isa = PBXGroup;
+			children = (
+				DF9E59AD2F93DEF0001F55CF /* AppHeader.swift */,
+				DF9E59AE2F93DEF0001F55CF /* AppHeaderViewModel.swift */,
+			);
+			path = Header;
+			sourceTree = "<group>";
+		};
+		DF9E59B12F93DEF0001F55CF /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				DF9E59B02F93DEF0001F55CF /* MainTabView.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		DF9E59B32F93DEF0001F55CF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DF9E59B22F93DEF0001F55CF /* WorkoutModels.swift */,
+				C1A27FAEC4FA4BB8BBE9C182 /* HomeMenuModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DF9E59B52F93DEF0001F55CF /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DF9E59B42F93DEF0001F55CF /* ActiveSessionViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DF9E59B92F93DEF0001F55CF /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DF9E59B62F93DEF0001F55CF /* ExerciseCard.swift */,
+				F13020788D3644C7AC69CE23 /* HomeMenuView.swift */,
+				DF9E59B72F93DEF0001F55CF /* LogSetSheet.swift */,
+				DF9E59B82F93DEF0001F55CF /* RestTimerView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		DF9E59BE2F93DEF0001F55CF /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DF9E59B92F93DEF0001F55CF /* Components */,
+				DF9E59BA2F93DEF0001F55CF /* ActiveSessionView.swift */,
+				DF9E59BB2F93DEF0001F55CF /* CheckInView.swift */,
+				DF9E59BC2F93DEF0001F55CF /* TodayView.swift */,
+				DF9E59BD2F93DEF0001F55CF /* WorkoutCompleteView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DF9E59BF2F93DEF0001F55CF /* Workout */ = {
+			isa = PBXGroup;
+			children = (
+				DF9E59B32F93DEF0001F55CF /* Models */,
+				DF9E59B52F93DEF0001F55CF /* ViewModels */,
+				DF9E59BE2F93DEF0001F55CF /* Views */,
+			);
+			path = Workout;
+			sourceTree = "<group>";
+		};
+		DFBA86EB2F8DCCCD007EC5A2 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DFBA86EA2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		DFF5D50B2F81C0230008AA3E = {
 			isa = PBXGroup;
 			children = (
-				DF6A95142F829BEF00752A2B /* Core */,
-				DF6A95182F829BEF00752A2B /* Services */,
-				DFF5D53F2F81C0750008AA3E /* App */,
-				DFF5D54C2F81C0750008AA3E /* Features */,
-				DFF5D54E2F81C0750008AA3E /* Resources */,
+				DF9E59CC2F97CFF6001F55CF /* GoogleService-Info.plist */,
+				DF299CF32F8B10E400447E14 /* Models */,
+				DF299CEB2F8B10C400447E14 /* Services */,
+				DF299CB02F89D7A700447E14 /* Features */,
+				DF299C152F88901100447E14 /* App */,
+				DF299C1C2F88901100447E14 /* Core */,
+				DF299C302F88901100447E14 /* Resources */,
+				DF299BAA2F888F0300447E14 /* BodyMetricTests */,
 				DFF5D5162F81C0230008AA3E /* BodyMetric */,
-				DFF5D5242F81C0240008AA3E /* BodyMetricTests */,
 				DFF5D52E2F81C0240008AA3E /* BodyMetricUITests */,
 				DFF5D5152F81C0230008AA3E /* Products */,
-				DFF5D55E2F82989E0008AA3E /* GoogleService-Info.plist */,
 				DF6A95322F829DF100752A2B /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -199,62 +702,25 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DFF5D53F2F81C0750008AA3E /* App */ = {
+		EBB4E5B4DDED427AB024768F /* NewPlan */ = {
 			isa = PBXGroup;
 			children = (
-				DFF5D53E2F81C0750008AA3E /* BodyMetricApp.swift */,
+				6427A756402B4AC9A6091751 /* Models */,
+				6E3558AD48A04637AED97A7D /* ViewModels */,
+				25B3DB2786E74C6DA42533BD /* Views */,
 			);
-			path = App;
+			path = NewPlan;
 			sourceTree = "<group>";
 		};
-		DFF5D5462F81C0750008AA3E /* ViewModels */ = {
+
+		67612C1DE519493DAC5C868E /* WorkoutPlan */ = {
 			isa = PBXGroup;
 			children = (
-				DFF5D5452F81C0750008AA3E /* LoginViewModel.swift */,
+				BBA4AFB3F7B14274B9BC200A /* WorkoutPlanError.swift */,
+				51F479727DAA4F3FA0A23131 /* WorkoutPlanServiceProtocol.swift */,
+				3C0EF7B5CE34455A9CACFFB2 /* WorkoutPlanService.swift */,
 			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		DFF5D5482F81C0750008AA3E /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				DFF5D5472F81C0750008AA3E /* LoginView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		DFF5D5492F81C0750008AA3E /* Auth */ = {
-			isa = PBXGroup;
-			children = (
-				DFF5D5462F81C0750008AA3E /* ViewModels */,
-				DFF5D5482F81C0750008AA3E /* Views */,
-			);
-			path = Auth;
-			sourceTree = "<group>";
-		};
-		DFF5D54B2F81C0750008AA3E /* Splash */ = {
-			isa = PBXGroup;
-			children = (
-				DFF5D54A2F81C0750008AA3E /* SplashView.swift */,
-			);
-			path = Splash;
-			sourceTree = "<group>";
-		};
-		DFF5D54C2F81C0750008AA3E /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				DFF5D5492F81C0750008AA3E /* Auth */,
-				DFF5D54B2F81C0750008AA3E /* Splash */,
-			);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		DFF5D54E2F81C0750008AA3E /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				DFF5D54D2F81C0750008AA3E /* Assets.xcassets */,
-			);
-			path = Resources;
+			path = WorkoutPlan;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -296,9 +762,6 @@
 			);
 			dependencies = (
 				DFF5D5232F81C0240008AA3E /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				DFF5D5242F81C0240008AA3E /* BodyMetricTests */,
 			);
 			name = BodyMetricTests;
 			packageProductDependencies = (
@@ -383,8 +846,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DFF5D5592F81C0750008AA3E /* Assets.xcassets in Resources */,
-				DFF5D55F2F82989E0008AA3E /* GoogleService-Info.plist in Resources */,
+				DF299C3B2F88901100447E14 /* Assets.xcassets in Resources */,
+				DF9E59CD2F97CFF6001F55CF /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,6 +855,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF299C4D2F88901100447E14 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,6 +863,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF299C702F88901100447E14 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,15 +874,67 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DFF5D5522F81C0750008AA3E /* LoginView.swift in Sources */,
-				DFF5D5542F81C0750008AA3E /* BodyMetricApp.swift in Sources */,
-				DF6A95192F829BEF00752A2B /* AuthServiceProtocol.swift in Sources */,
-				DF6A951A2F829BEF00752A2B /* AuthService.swift in Sources */,
-				DF6A951B2F829BEF00752A2B /* Logger.swift in Sources */,
-				DF6A951C2F829BEF00752A2B /* Transition.swift in Sources */,
-				DF6A951D2F829BEF00752A2B /* GrayscalePalette.swift in Sources */,
-				DFF5D5552F81C0750008AA3E /* SplashView.swift in Sources */,
-				DFF5D5582F81C0750008AA3E /* LoginViewModel.swift in Sources */,
+				DF299C412F88901100447E14 /* GrayscalePalette.swift in Sources */,
+				DF9E59AC2F93DEBD001F55CF /* WorkoutPalette.swift in Sources */,
+				DF299C482F88901100447E14 /* Transition.swift in Sources */,
+				DF299CC02F89D7EE00447E14 /* BodyMetricApp.swift in Sources */,
+				DFBA86EC2F8DCCCD007EC5A2 /* UpdateProfileViewModel.swift in Sources */,
+				DF299CB22F89D7A700447E14 /* HomeView.swift in Sources */,
+				DFBA86EF2F8DCD1C007EC5A2 /* UpdateProfileService.swift in Sources */,
+				DFBA86F02F8DCD1C007EC5A2 /* UpdateProfileServiceProtocol.swift in Sources */,
+				DF299CB42F89D7A700447E14 /* LoginView.swift in Sources */,
+				DF299CB62F89D7A700447E14 /* LoginViewModel.swift in Sources */,
+				DF299CF42F8B10E400447E14 /* UserProfile.swift in Sources */,
+				DF299CB72F89D7A700447E14 /* SplashView.swift in Sources */,
+				DF299CEC2F8B10C400447E14 /* UserProfileService.swift in Sources */,
+				DF299CED2F8B10C400447E14 /* ProfileFetchError.swift in Sources */,
+				DF299CEE2F8B10C400447E14 /* ProfileStore.swift in Sources */,
+				DF299CEF2F8B10C400447E14 /* AuthServiceProtocol.swift in Sources */,
+				DF299CF02F8B10C400447E14 /* UserProfileServiceProtocol.swift in Sources */,
+				DF299CF12F8B10C400447E14 /* AuthService.swift in Sources */,
+				DF299CB92F89D7A700447E14 /* CreateUserView.swift in Sources */,
+				DF299CBA2F89D7A700447E14 /* HomeViewModel.swift in Sources */,
+				DF9E59C02F93DEF0001F55CF /* CheckInView.swift in Sources */,
+				DF9622A82F9D9992008F2222 /* NewPlanWizardView.swift in Sources */,
+				DF9622A92F9D9992008F2222 /* SelectDaysStepView.swift in Sources */,
+				DF9622AA2F9D9992008F2222 /* ExerciseBlockRowView.swift in Sources */,
+				DF9622AB2F9D9992008F2222 /* WorkoutPlanStore.swift in Sources */,
+				DF9622AC2F9D9992008F2222 /* ExercisePickerSheetView.swift in Sources */,
+				DF9622AD2F9D9992008F2222 /* NewPlanModels.swift in Sources */,
+				DF9622AE2F9D9992008F2222 /* PlanSavedView.swift in Sources */,
+				DF9622AF2F9D9992008F2222 /* NewPlanViewModel.swift in Sources */,
+				DF9622B02F9D9992008F2222 /* ReviewStepView.swift in Sources */,
+				DF9622B12F9D9992008F2222 /* WizardStepRailView.swift in Sources */,
+				DF9622B22F9D9992008F2222 /* ConfigureDayStepView.swift in Sources */,
+				DF9E59C12F93DEF0001F55CF /* MainTabView.swift in Sources */,
+				DF9E59C22F93DEF0001F55CF /* WorkoutModels.swift in Sources */,
+				DF9E59C32F93DEF0001F55CF /* AppHeader.swift in Sources */,
+				DF9E59C42F93DEF0001F55CF /* ActiveSessionViewModel.swift in Sources */,
+				DF9E59C52F93DEF0001F55CF /* WorkoutCompleteView.swift in Sources */,
+				DF9E59C62F93DEF0001F55CF /* ActiveSessionView.swift in Sources */,
+				DF9E59C72F93DEF0001F55CF /* RestTimerView.swift in Sources */,
+				DF9E59C82F93DEF0001F55CF /* TodayView.swift in Sources */,
+				DF9E59C92F93DEF0001F55CF /* ExerciseCard.swift in Sources */,
+				DF9E59CA2F93DEF0001F55CF /* AppHeaderViewModel.swift in Sources */,
+				C7AC09DF520842298DE378CE /* HomeMenuModels.swift in Sources */,
+				52139D61797546BBA3665F87 /* HomeMenuView.swift in Sources */,
+				AC8A2D1CC13D45E0BEE60CAE /* NewPlanModels.swift in Sources */,
+				2C0436F7397446F79824B4F7 /* WorkoutPlanStore.swift in Sources */,
+				525C51275CEA4112BBAF2CCB /* NewPlanViewModel.swift in Sources */,
+				7F5AF24763EF4D21B88BEEAF /* NewPlanWizardView.swift in Sources */,
+				361EF7CCF1534F5EAC0CE448 /* WizardStepRailView.swift in Sources */,
+				A9A261EF4D00417DB4DF03C7 /* SelectDaysStepView.swift in Sources */,
+				083DFFB6E41C488B95016764 /* ConfigureDayStepView.swift in Sources */,
+				2AB11CF645694EBAA0393753 /* ExerciseBlockRowView.swift in Sources */,
+				EA4F695A5FD34F3B888A39A2 /* ExercisePickerSheetView.swift in Sources */,
+				29BB8B343A3643DC8DCB452D /* ReviewStepView.swift in Sources */,
+				BA1FE550950B4133BA36A4E1 /* PlanSavedView.swift in Sources */,
+									FB9072C1E39F45A18342C02F /* WorkoutPlanModels.swift in Sources */,
+					CDF1468BBC3B4A54876BCA15 /* WorkoutPlanError.swift in Sources */,
+					5B780D8E340B4A83B57217CE /* WorkoutPlanServiceProtocol.swift in Sources */,
+					5A4CE2A5D2954CF48F76B061 /* WorkoutPlanService.swift in Sources */,
+					DF9E59CB2F93DEF0001F55CF /* LogSetSheet.swift in Sources */,
+				DF299C4C2F88901100447E14 /* Logger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +942,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFBA86F22F8DCD55007EC5A2 /* UpdateProfileServiceTests.swift in Sources */,
+				DF299CBE2F89D7D100447E14 /* AppHeaderViewModelTests.swift in Sources */,
+				DF299BB12F888F0300447E14 /* HomeViewModelTests.swift in Sources */,
+				DF299CFF2F8B10FF00447E14 /* TokenStoreTests.swift in Sources */,
+				DF299D002F8B10FF00447E14 /* AuthServiceTests.swift in Sources */,
+				DF299D012F8B10FF00447E14 /* TokenRefreshCoordinatorTests.swift in Sources */,
+				DF299D022F8B10FF00447E14 /* TokenRefreshServiceTests.swift in Sources */,
+				DF299D032F8B10FF00447E14 /* NetworkClientTests.swift in Sources */,
+				DFBA86F42F8DCD6D007EC5A2 /* UpdateProfileViewModelTests.swift in Sources */,
+									45389F691FA84FE9B6332E07 /* WorkoutPlanServiceTests.swift in Sources */,
+					A4FADBB933E7406690A8E31C /* HomeMenuModelsTests.swift in Sources */,
+				7D98FEAC7A4D4D0AA1D0EE08 /* NewPlanModelsTests.swift in Sources */,
+				72DD12A9BC1042C482557259 /* NewPlanViewModelTests.swift in Sources */,
+				DF299D042F8B10FF00447E14 /* KeychainServiceTests.swift in Sources */,
+				DF299D0A2F8B111300447E14 /* TestHelpers.swift in Sources */,
+				DF299D052F8B10FF00447E14 /* TokenExchangeServiceTests.swift in Sources */,
+				DF299D062F8B10FF00447E14 /* ProfileStoreTests.swift in Sources */,
+				DF299D072F8B10FF00447E14 /* UserProfileServiceTests.swift in Sources */,
+				DF299BB22F888F0300447E14 /* BodyMetricTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

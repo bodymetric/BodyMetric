@@ -123,8 +123,12 @@ struct LoginView: View {
 /// In-preview stub. Not for use in production.
 private final class _PreviewAuthService: AuthServiceProtocol {
     var isAuthenticated: Bool = false
+    var authenticatedEmail: String? = nil
     func signInWithGoogle() async throws {
         try await Task.sleep(for: .seconds(1)) // simulate network
     }
     func signOut() async throws {}
+    func restorePreviousSignIn() async -> Bool { false }
+    var needsProfileSetup: Bool = false
+    func clearNeedsProfileSetup() {}
 }

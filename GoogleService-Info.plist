@@ -3,14 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>743191937656-otkgm954q5g5cj66ivgqdci4uih495he.apps.googleusercontent.com</string>
+	<string>896869679213-3s52psojr437pbm0elpp957of232i0cp.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.743191937656-otkgm954q5g5cj66ivgqdci4uih495he</string>
+	<string>com.googleusercontent.apps.896869679213-3s52psojr437pbm0elpp957of232i0cp</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.bodymetric.app.BodyMetric</string>
-	<key>New item</key>
-	<string>GoogleService-Info.plist</string>
 </dict>
 </plist>
