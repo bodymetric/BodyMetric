@@ -31,6 +31,7 @@ struct BodyMetricApp: App {
     private let coordinator: TokenRefreshCoordinator
     private let networkClient: NetworkClient
 
+
     // MARK: - Navigation state
 
     @State private var showSplash = true
@@ -164,10 +165,12 @@ struct BodyMetricApp: App {
             )
             .transition(.opacity.combined(with: .scale(scale: 0.98)))
         } else {
-            VStack(spacing: 0) {
-                AppHeader(viewModel: AppHeaderViewModel(authService: authService))
-                HomeView(viewModel: makeHomeViewModel())
-            }
+            MainTabView(
+                homeViewModel: makeHomeViewModel(),
+                authService: authService,
+                profileStore: profileStore,
+                networkClient: networkClient
+            )
             .transition(.opacity.combined(with: .scale(scale: 0.98)))
         }
     }
