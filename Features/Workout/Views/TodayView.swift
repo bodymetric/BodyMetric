@@ -5,6 +5,7 @@ struct TodayView: View {
     let streak: WorkoutStreak
     let userName: String
     let networkClient: any NetworkClientProtocol
+    let onSignOut: @MainActor () -> Void
 
     @State private var path = NavigationPath()
     @State private var menuOpen = false
@@ -63,11 +64,15 @@ struct TodayView: View {
                         case .newWorkoutPlan:
                             showWizard = true
                         }
-                    }
+                    },
+                    onSignOut: onSignOut
                 )
             }
             .fullScreenCover(isPresented: $showWizard) {
-                NewPlanWizardView(service: WorkoutPlanService(networkClient: networkClient))
+                NewPlanWizardView(
+                    service: WorkoutPlanService(networkClient: networkClient),
+                    dayConfigService: WorkoutDayPlanService(networkClient: networkClient)
+                )
             }
         }
     }
@@ -341,6 +346,7 @@ private final class PreviewNetworkClientStub: NetworkClientProtocol {
         workout: .mockToday,
         streak: .init(days: 12, weekDone: [true, true, false, true, true, false, false]),
         userName: "Alex",
-        networkClient: PreviewNetworkClientStub()
+        networkClient: PreviewNetworkClientStub(),
+        onSignOut: {}
     )
 }

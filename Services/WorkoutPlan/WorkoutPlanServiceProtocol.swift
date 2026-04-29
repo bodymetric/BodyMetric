@@ -20,7 +20,9 @@ protocol WorkoutPlanServiceProtocol: AnyObject {
     /// The POST is a full replace-all — the server deletes prior records and inserts the
     /// submitted array atomically. The client sends every currently selected day.
     /// - Parameter days: The complete set of days to save.
+    /// - Returns: The created `[WorkoutPlanDayResponse]` containing `planId` per day,
+    ///   which is required for the step-2 day-plan save (feature 011).
     /// - Throws: `WorkoutPlanError.serverError` if the server returns non-201,
     ///   `WorkoutPlanError.networkError` for transport failures.
-    func saveDays(_ days: [WorkoutPlanDayRequest]) async throws
+    func saveDays(_ days: [WorkoutPlanDayRequest]) async throws -> [WorkoutPlanDayResponse]
 }

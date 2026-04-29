@@ -15,6 +15,7 @@ struct HomeMenuView: View {
     var activeDestination: HomeMenuDestination = .today
     let userName: String
     var onNavigate: (HomeMenuDestination) -> Void
+    var onSignOut: (() -> Void)? = nil
 
     private let panelWidth: CGFloat = 268
     private let version: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -150,6 +151,12 @@ struct HomeMenuView: View {
     private var itemList: some View {
         VStack(spacing: 2) {
             ForEach(HomeMenuItem.catalog) { item in
+                if item.isSeparatorAbove {
+                    Divider()
+                        .background(GrayscalePalette.separator)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                }
                 menuItemRow(item)
             }
         }
@@ -159,10 +166,21 @@ struct HomeMenuView: View {
 
     @ViewBuilder
     private func menuItemRow(_ item: HomeMenuItem) -> some View {
+        // Label color: secondary for the Exit sign-out row; primary for everything else.
+        let labelColor: Color = item.isSignOut ? GrayscalePalette.secondary : GrayscalePalette.primary
+        let iconColor: Color = item.isPrimary ? WorkoutPalette.accentInk : GrayscalePalette.secondary
+
         Button {
             guard item.isActive else { return }
-            Logger.info("menu_item_tapped destination:\(item.id)")
-            onNavigate(item.destination ?? .today)
+            if item.isSignOut {
+                // Sign-out: close menu first, then invoke callback (spec FR-003/FR-004)
+                Logger.info("menu_sign_out_tapped")
+                isPresented = false
+                onSignOut?()
+            } else {
+                Logger.info("menu_item_tapped destination:\(item.id)")
+                onNavigate(item.destination ?? .today)
+            }
         } label: {
             HStack(spacing: 12) {
                 // Icon cell
@@ -172,7 +190,7 @@ struct HomeMenuView: View {
                         .frame(width: 32, height: 32)
                     Image(systemName: item.iconName)
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(item.isPrimary ? WorkoutPalette.accentInk : GrayscalePalette.secondary)
+                        .foregroundStyle(iconColor)
                 }
                 .overlay(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -183,7 +201,7 @@ struct HomeMenuView: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(item.label)
                         .font(.system(size: 14, design: .rounded).weight(.semibold))
-                        .foregroundStyle(GrayscalePalette.primary)
+                        .foregroundStyle(labelColor)
                         .tracking(-0.1)
                     Text(item.subtitle)
                         .font(.system(size: 11, design: .monospaced))
@@ -194,11 +212,11 @@ struct HomeMenuView: View {
                 Spacer()
 
                 // Trailing indicator
-                if item.isActive {
+                if item.isActive && !item.isSignOut {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(GrayscalePalette.secondary)
-                } else {
+                } else if !item.isActive {
                     Text("SOON")
                         .font(.system(size: 9, design: .monospaced).weight(.bold))
                         .foregroundStyle(GrayscalePalette.secondary)
@@ -212,11 +230,13 @@ struct HomeMenuView: View {
                                 .stroke(GrayscalePalette.separator, lineWidth: 1)
                         )
                 }
+                // isSignOut items show no trailing indicator (Exit stands alone)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 10)
             .background(
-                activeDestination == item.destination ? GrayscalePalette.surface : .clear
+                (activeDestination == item.destination && !item.isSignOut)
+                    ? GrayscalePalette.surface : .clear
             )
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .opacity(item.isActive ? 1 : 0.45)

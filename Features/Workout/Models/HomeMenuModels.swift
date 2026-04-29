@@ -17,9 +17,11 @@ enum HomeMenuDestination: Equatable, Hashable, Identifiable {
 
 /// A single entry in the top-right dropdown menu.
 ///
-/// `isActive`  → tappable and navigable.
-/// `isPrimary` → uses WorkoutPalette accent on icon cell (only "New Workout Plan").
-/// `destination` is `nil` for coming-soon items.
+/// `isActive`       → tappable; navigable or sign-out depending on `isSignOut`.
+/// `isPrimary`      → uses WorkoutPalette accent on icon cell (only "New Workout Plan").
+/// `isSignOut`      → triggers the `onSignOut` callback instead of navigation (only "Exit").
+/// `isSeparatorAbove` → renders a `Divider()` above the row (only "Exit").
+/// `destination`    is `nil` for coming-soon items and for sign-out.
 struct HomeMenuItem: Identifiable {
     let id: String
     let label: String
@@ -28,8 +30,33 @@ struct HomeMenuItem: Identifiable {
     let isActive: Bool
     let isPrimary: Bool
     let destination: HomeMenuDestination?
+    let isSignOut: Bool
+    let isSeparatorAbove: Bool
 
-    // MARK: - Static catalog (7 items, order matches spec FR-005)
+    // Convenience init keeps existing call sites unmodified (new fields default to false).
+    init(
+        id: String,
+        label: String,
+        subtitle: String,
+        iconName: String,
+        isActive: Bool,
+        isPrimary: Bool,
+        destination: HomeMenuDestination?,
+        isSignOut: Bool = false,
+        isSeparatorAbove: Bool = false
+    ) {
+        self.id = id
+        self.label = label
+        self.subtitle = subtitle
+        self.iconName = iconName
+        self.isActive = isActive
+        self.isPrimary = isPrimary
+        self.destination = destination
+        self.isSignOut = isSignOut
+        self.isSeparatorAbove = isSeparatorAbove
+    }
+
+    // MARK: - Static catalog (8 items, spec FR-001 / FR-002)
 
     static let catalog: [HomeMenuItem] = [
         HomeMenuItem(
@@ -94,6 +121,18 @@ struct HomeMenuItem: Identifiable {
             isActive: false,
             isPrimary: false,
             destination: nil
+        ),
+        // Exit — last item; triggers sign-out rather than navigation (spec FR-001)
+        HomeMenuItem(
+            id: "exit",
+            label: "Exit",
+            subtitle: "Sign out of your account",
+            iconName: "rectangle.portrait.and.arrow.right",
+            isActive: true,
+            isPrimary: false,
+            destination: nil,
+            isSignOut: true,
+            isSeparatorAbove: true
         ),
     ]
 }

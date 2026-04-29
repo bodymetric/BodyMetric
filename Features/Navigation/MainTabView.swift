@@ -35,7 +35,13 @@ struct MainTabView: View {
                 workout: .mockToday,
                 streak: .mockStreak,
                 userName: profileStore.name ?? "You",
-                networkClient: networkClient
+                networkClient: networkClient,
+                onSignOut: {
+                    // Sign-out is dispatched async; AuthService.signOut() handles
+                    // access token clear, Keychain delete, and Google sign-out.
+                    // isAuthenticated = false triggers BodyMetricApp to show LoginView.
+                    Task { try? await authService.signOut() }
+                }
             )
             .transition(.opacity)
 

@@ -118,23 +118,45 @@ final class WorkoutPlanServiceTests: XCTestCase {
     // MARK: - saveDays: success
 
     func test_saveDays_201_doesNotThrow() async throws {
-        mockClient.responseData = Data()
+        // T003: saveDays now returns [WorkoutPlanDayResponse]; response body must decode correctly
+        let json = """
+        [{"planId":1,"plannedWeekNumber":1,"plannedDayOfWeek":"monday","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
+        """.data(using: .utf8)!
+        mockClient.responseData = json
         mockClient.responseStatus = 201
 
         let days = [
             WorkoutPlanDayRequest(plannedWeekNumber: "1", plannedDayOfWeek: "monday"),
             WorkoutPlanDayRequest(plannedWeekNumber: "7", plannedDayOfWeek: "sunday"),
         ]
-        // Should not throw
-        try await sut.saveDays(days)
+        let result = try await sut.saveDays(days)
+        XCTAssertFalse(result.isEmpty, "saveDays must return decoded [WorkoutPlanDayResponse]")
+    }
+
+    func test_saveDays_201_returnsDecodedDayResponses() async throws {
+        let json = """
+        [{"planId":7,"plannedWeekNumber":7,"plannedDayOfWeek":"sunday","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
+        """.data(using: .utf8)!
+        mockClient.responseData = json
+        mockClient.responseStatus = 201
+
+        let days = [WorkoutPlanDayRequest(plannedWeekNumber: "7", plannedDayOfWeek: "sunday")]
+        let result = try await sut.saveDays(days)
+
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result[0].planId, 7)
+        XCTAssertEqual(result[0].plannedWeekNumber, 7)
     }
 
     func test_saveDays_201_sendsCorrectJSONBody() async throws {
-        mockClient.responseData = Data()
+        let json = """
+        [{"planId":3,"plannedWeekNumber":3,"plannedDayOfWeek":"wednesday","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
+        """.data(using: .utf8)!
+        mockClient.responseData = json
         mockClient.responseStatus = 201
 
         let days = [WorkoutPlanDayRequest(plannedWeekNumber: "3", plannedDayOfWeek: "wednesday")]
-        try await sut.saveDays(days)
+        _ = try await sut.saveDays(days)
 
         let capturedRequest = try XCTUnwrap(mockClient.capturedRequests.last)
         XCTAssertEqual(capturedRequest.httpMethod, "POST")

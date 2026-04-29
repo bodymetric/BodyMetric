@@ -23,9 +23,17 @@ struct ConfigureDayStepView: View {
 
             sessionNameField
 
+            // Inline save error banner (spec FR-010/FR-011; feature 011)
+            if let errorMessage = viewModel.dayConfigSaveError {
+                dayConfigErrorBanner(errorMessage)
+                    .padding(.top, 12)
+                    .transition(.opacity)
+            }
+
             blockSection
                 .padding(.top, 18)
         }
+        .animation(.bmFade, value: viewModel.dayConfigSaveError != nil)
         .sheet(item: Binding(
             get: { viewModel.activePickerBlockId.map { PickerID(id: $0) } },
             set: { viewModel.activePickerBlockId = $0?.id }
@@ -79,6 +87,10 @@ struct ConfigureDayStepView: View {
                     .font(.system(size: 18, design: .rounded).weight(.bold))
                     .foregroundStyle(GrayscalePalette.primary)
                     .autocorrectionDisabled()
+                    .onChange(of: sessionName.wrappedValue) { _, _ in
+                        // Dismiss step-2 save error when user edits the name (spec FR-012)
+                        viewModel.dayConfigSaveError = nil
+                    }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
@@ -163,6 +175,30 @@ struct ConfigureDayStepView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Step-2 save error banner (feature 011, spec FR-010/FR-011)
+
+    private func dayConfigErrorBanner(_ message: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(GrayscalePalette.primary)
+            Text(message)
+                .font(.system(size: 13, design: .rounded))
+                .foregroundStyle(GrayscalePalette.primary)
+                .lineSpacing(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(GrayscalePalette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(GrayscalePalette.separator, lineWidth: 1)
+        )
     }
 }
 

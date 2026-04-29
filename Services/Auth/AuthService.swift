@@ -125,6 +125,9 @@ final class AuthService: AuthServiceProtocol {
     }
 
     func signOut() async throws {
+        // ProfileStore data is intentionally preserved — only tokens are cleared on sign-out.
+        // User data (workout plans, profile) remains on the server and is accessible on re-login.
+        // (spec 009-menu-sign-out US2: sign-out must not delete user data)
         Logger.info("Sign-out initiated", category: .auth)
 
         await tokenStore.clearAccessToken()

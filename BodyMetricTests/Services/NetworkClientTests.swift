@@ -144,6 +144,67 @@ final class NetworkClientTests: XCTestCase {
         XCTAssertEqual(capturedRetryAuth, "Bearer new-token",
                        "Retry must use the refreshed token")
     }
+
+    // MARK: - FR-002: URL-path exemption (T002 — fails before T004 is implemented)
+
+    func test_data_qPath_doesNotAddAuthorizationHeader() async throws {
+        let qURL = URL(string: "https://api.bodymetric.com.br/q/exercises")!
+        await mockTokenStore.set(accessToken: "should-not-appear")
+        var capturedRequest: URLRequest?
+        MockURLProtocol.requestHandler = { req in
+            capturedRequest = req
+            let resp = HTTPURLResponse(url: qURL, statusCode: 200,
+                                       httpVersion: nil, headerFields: nil)!
+            return (Data(), resp)
+        }
+        _ = try await sut.data(for: URLRequest(url: qURL))
+        XCTAssertNil(capturedRequest?.value(forHTTPHeaderField: "Authorization"),
+                     "/q/* requests must NOT include an Authorization header")
+    }
+
+    func test_data_versionPath_doesNotAddAuthorizationHeader() async throws {
+        let vURL = URL(string: "https://api.bodymetric.com.br/version")!
+        await mockTokenStore.set(accessToken: "should-not-appear")
+        var capturedRequest: URLRequest?
+        MockURLProtocol.requestHandler = { req in
+            capturedRequest = req
+            let resp = HTTPURLResponse(url: vURL, statusCode: 200,
+                                       httpVersion: nil, headerFields: nil)!
+            return (Data(), resp)
+        }
+        _ = try await sut.data(for: URLRequest(url: vURL))
+        XCTAssertNil(capturedRequest?.value(forHTTPHeaderField: "Authorization"),
+                     "/version requests must NOT include an Authorization header")
+    }
+
+    func test_data_authPath_doesNotAddAuthorizationHeader() async throws {
+        let authURL = URL(string: "https://api.bodymetric.com.br/api/auth/refresh")!
+        await mockTokenStore.set(accessToken: "should-not-appear")
+        var capturedRequest: URLRequest?
+        MockURLProtocol.requestHandler = { req in
+            capturedRequest = req
+            let resp = HTTPURLResponse(url: authURL, statusCode: 200,
+                                       httpVersion: nil, headerFields: nil)!
+            return (Data(), resp)
+        }
+        _ = try await sut.data(for: URLRequest(url: authURL))
+        XCTAssertNil(capturedRequest?.value(forHTTPHeaderField: "Authorization"),
+                     "/api/auth/* requests must NOT include an Authorization header")
+    }
+
+    func test_data_exemptPath_worksWithoutToken() async throws {
+        // Exempt paths must succeed even when no token is stored — no .noToken error.
+        let qURL = URL(string: "https://api.bodymetric.com.br/q/muscle-groups")!
+        // Do NOT set an access token — tokenStore is empty.
+        MockURLProtocol.requestHandler = { _ in
+            let resp = HTTPURLResponse(url: qURL, statusCode: 200,
+                                       httpVersion: nil, headerFields: nil)!
+            return (Data(), resp)
+        }
+        // Should NOT throw NetworkError.noToken for an exempt path.
+        let (_, http) = try await sut.data(for: URLRequest(url: qURL))
+        XCTAssertEqual(http.statusCode, 200)
+    }
 }
 
 // MARK: - Mocks

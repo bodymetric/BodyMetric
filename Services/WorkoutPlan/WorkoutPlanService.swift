@@ -56,7 +56,7 @@ final class WorkoutPlanService: WorkoutPlanServiceProtocol {
         }
     }
 
-    func saveDays(_ days: [WorkoutPlanDayRequest]) async throws {
+    func saveDays(_ days: [WorkoutPlanDayRequest]) async throws -> [WorkoutPlanDayResponse] {
         guard let url = URL(string: Self.baseURL) else {
             throw WorkoutPlanError.networkError(URLError(.badURL))
         }
@@ -74,10 +74,11 @@ final class WorkoutPlanService: WorkoutPlanServiceProtocol {
 
         Logger.info("WorkoutPlanService: saveDays initiated dayCount:\(days.count)", category: .network)
 
+        let data: Data
         let http: HTTPURLResponse
 
         do {
-            (_, http) = try await networkClient.data(for: request)
+            (data, http) = try await networkClient.data(for: request)
         } catch {
             Logger.error("WorkoutPlanService: saveDays network failure", error: error, category: .network)
             throw WorkoutPlanError.networkError(error)
@@ -87,6 +88,18 @@ final class WorkoutPlanService: WorkoutPlanServiceProtocol {
 
         guard http.statusCode == 201 else {
             throw WorkoutPlanError.serverError(http.statusCode)
+        }
+
+        // Decode 201 body to return planId per day (needed for step-2 day-plan saves).
+        return try decodeArray(data: data)
+    }
+
+    private func decodeArray(data: Data) throws -> [WorkoutPlanDayResponse] {
+        do {
+            return try JSONDecoder().decode([WorkoutPlanDayResponse].self, from: data)
+        } catch {
+            Logger.error("WorkoutPlanService: saveDays decode failure", error: error, category: .network)
+            throw WorkoutPlanError.decodingError
         }
     }
 

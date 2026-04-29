@@ -13,6 +13,7 @@ import SwiftUI
 struct NewPlanWizardView: View {
 
     let service: any WorkoutPlanServiceProtocol
+    let dayConfigService: any WorkoutDayPlanServiceProtocol
 
     @State private var viewModel = NewPlanViewModel()
     @State private var store = WorkoutPlanStore()
@@ -38,7 +39,7 @@ struct NewPlanWizardView: View {
             PlanSavedView(
                 dayCount: viewModel.orderedSelectedDays.count,
                 onHome: { dismiss() },
-                onRestart: {
+                onRestart: { [self] in
                     viewModel = NewPlanViewModel()
                 }
             )
@@ -123,8 +124,10 @@ struct NewPlanWizardView: View {
     private var wizardFooter: some View {
         let isLast = viewModel.currentStep == viewModel.totalSteps
         let canContinue = viewModel.isStepValid(viewModel.currentStep)
-        // Step 1 Continue is also disabled while a save is in progress (FR-010)
+        // Step 1 Continue is disabled while step-1 save is in progress (FR-010 feature 008)
         let step1Saving = viewModel.currentStep == 1 && viewModel.isSaving
+        // Step 2+ Continue is disabled while day-config save is in progress (FR-005)
+        let stepDaySaving = viewModel.currentStep > 1 && viewModel.currentStep < viewModel.totalSteps && viewModel.isDayConfigSaving
         let canFinish = isLast && viewModel.allDaysValid
 
         return VStack(spacing: 0) {
@@ -147,7 +150,10 @@ struct NewPlanWizardView: View {
                 }
 
                 if !isLast {
-                    continueButton(enabled: canContinue && !step1Saving, isSaving: step1Saving)
+                    continueButton(
+                        enabled: canContinue && !step1Saving && !stepDaySaving,
+                        isSaving: step1Saving || stepDaySaving
+                    )
                 } else {
                     finishButton(enabled: canFinish)
                 }
@@ -162,9 +168,16 @@ struct NewPlanWizardView: View {
     private func continueButton(enabled: Bool, isSaving: Bool = false) -> some View {
         Button {
             if viewModel.currentStep == 1 {
-                // Step 1: POST selected days first, then advance on success (FR-009, FR-011)
+                // Step 1: POST selected days first, then advance on success (FR-009 feature 008)
                 Task {
                     await viewModel.saveDays(using: service) {
+                        viewModel.advance()
+                    }
+                }
+            } else if let day = viewModel.currentDayOfWeek {
+                // Steps 2…N: POST day plan + exercise blocks, then advance (FR-006–FR-009 feature 011)
+                Task {
+                    await viewModel.saveDayConfig(for: day, using: dayConfigService) {
                         viewModel.advance()
                     }
                 }

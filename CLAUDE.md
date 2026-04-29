@@ -1,6 +1,6 @@
 # BodyMetric Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-26
+Auto-generated from all feature plans. Last updated: 2026-04-29
 
 ## Active Technologies
 - Swift 5.10 + SwiftUI (UI), URLSession (networking), GoogleSignIn-iOS via SPM (auth), KeychainSwift via SPM (secure email storage), UserDefaults (weight/height cache) (002-user-profile-fetch)
@@ -15,6 +15,12 @@ Auto-generated from all feature plans. Last updated: 2026-04-26
 - UserDefaults (via existing `ProfileStore` pattern) for saving the resulting `WorkoutPlan`; in-memory during wizard flow (006-home-menu-dropdown)
 - Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), URLSession (via existing `NetworkClient`); no new SPM packages (008-wizard-day-selection)
 - No local persistence for this feature (day selections live on the server); existing `WorkoutPlanStore` (UserDefaults) is unaffected (008-wizard-day-selection)
+- Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), GoogleSignIn-iOS (already present); no new SPM packages (009-menu-sign-out)
+- No new storage — sign-out deletes Keychain tokens via existing `KeychainService` (009-menu-sign-out)
+- Swift 5.10 / iOS 17+ + URLSession (native), KeychainSwift SPM package; no new dependencies (010-api-auth-session)
+- Keychain (refresh token — existing); in-memory actor (access token — existing) (010-api-auth-session)
+- Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), URLSession via existing `NetworkClient`; no new SPM packages (011-wizard-day-persist)
+- No local persistence; all data saved to server (011-wizard-day-persist)
 
 - Swift 5.10 / iOS 17+ + SwiftUI (UI), URLSession (networking), GoogleSignIn-iOS via SPM (auth), Security framework / KeychainSwift via SPM (secure storage) (001-gym-workout-tracker)
 
@@ -34,9 +40,9 @@ tests/
 Swift 5.10 / iOS 17+: Follow standard conventions
 
 ## Recent Changes
-- 008-wizard-day-selection: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), URLSession (via existing `NetworkClient`); no new SPM packages
-- 006-home-menu-dropdown: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`, `NavigationStack`, ZStack overlays), no new SPM packages required
-- 005-profile-completion-form: Added Swift 5.10 + iOS 17+ + SwiftUI (`@Observable`), URLSession (via `NetworkClient`), GoogleSignIn-iOS (SPM, existing)
+- 011-wizard-day-persist: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), URLSession via existing `NetworkClient`; no new SPM packages
+- 010-api-auth-session: Added Swift 5.10 / iOS 17+ + URLSession (native), KeychainSwift SPM package; no new dependencies
+- 009-menu-sign-out: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), GoogleSignIn-iOS (already present); no new SPM packages
 
 
 <!-- MANUAL ADDITIONS START -->

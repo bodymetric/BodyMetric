@@ -440,8 +440,189 @@ final class MockWorkoutPlanService: WorkoutPlanServiceProtocol {
         return daysToReturn
     }
 
-    func saveDays(_ days: [WorkoutPlanDayRequest]) async throws {
+    // T003: updated to match new return type [WorkoutPlanDayResponse]
+    var savedDaysResponse: [WorkoutPlanDayResponse] = []
+
+    func saveDays(_ days: [WorkoutPlanDayRequest]) async throws -> [WorkoutPlanDayResponse] {
         if saveShouldThrow { throw WorkoutPlanError.serverError(500) }
         savedDays = days
+        return savedDaysResponse
+    }
+}
+
+// MARK: - Day config (step 2) tests (T004)
+
+@MainActor
+final class NewPlanViewModelDayConfigTests: XCTestCase {
+
+    private var sut: NewPlanViewModel!
+    private var mockDayConfigService: MockWorkoutDayPlanService!
+    private var mockPlanService: MockWorkoutPlanService!
+
+    override func setUp() async throws {
+        try await super.setUp()
+        mockDayConfigService = MockWorkoutDayPlanService()
+        mockPlanService = MockWorkoutPlanService()
+        sut = NewPlanViewModel()
+    }
+
+    override func tearDown() async throws {
+        sut = nil
+        mockDayConfigService = nil
+        mockPlanService = nil
+        try await super.tearDown()
+    }
+
+    // MARK: - saveDays stores workoutPlanIds
+
+    func test_saveDays_storesWorkoutPlanIdsFromResponse() async {
+        sut.selectedDays = [.monday, .sunday]
+        let mondayResponse = WorkoutPlanDayResponse(planId: 10, plannedWeekNumber: 1,
+            plannedDayOfWeek: "monday", executionCount: 0, dayNames: [],
+            totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0)
+        let sundayResponse = WorkoutPlanDayResponse(planId: 77, plannedWeekNumber: 7,
+            plannedDayOfWeek: "sunday", executionCount: 0, dayNames: [],
+            totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0)
+        mockPlanService.savedDaysResponse = [mondayResponse, sundayResponse]
+
+        await sut.saveDays(using: mockPlanService, onSuccess: {})
+
+        XCTAssertEqual(sut.workoutPlanIds[.monday], 10)
+        XCTAssertEqual(sut.workoutPlanIds[.sunday], 77)
+    }
+
+    // MARK: - saveDayConfig: success
+
+    func test_saveDayConfig_success_callsOnSuccess() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        var called = false
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: { called = true })
+        XCTAssertTrue(called)
+    }
+
+    func test_saveDayConfig_success_isDayConfigSavingFalseAfter() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: {})
+        XCTAssertFalse(sut.isDayConfigSaving)
+    }
+
+    func test_saveDayConfig_success_dayConfigSaveErrorNil() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: {})
+        XCTAssertNil(sut.dayConfigSaveError)
+    }
+
+    // MARK: - saveDayConfig: day plan failure
+
+    func test_saveDayConfig_dayPlanFailure_onSuccessNotCalled() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        mockDayConfigService.saveDayPlanShouldThrow = true
+        var called = false
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: { called = true })
+        XCTAssertFalse(called)
+    }
+
+    func test_saveDayConfig_dayPlanFailure_dayConfigSaveErrorNotNil() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        mockDayConfigService.saveDayPlanShouldThrow = true
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: {})
+        XCTAssertNotNil(sut.dayConfigSaveError)
+    }
+
+    func test_saveDayConfig_dayPlanFailure_isDayConfigSavingFalse() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        mockDayConfigService.saveDayPlanShouldThrow = true
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: {})
+        XCTAssertFalse(sut.isDayConfigSaving)
+    }
+
+    // MARK: - saveDayConfig: exercise block failure
+
+    func test_saveDayConfig_blockFailure_onSuccessNotCalled() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        mockDayConfigService.saveExerciseBlockShouldThrow = true
+        var called = false
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: { called = true })
+        XCTAssertFalse(called)
+    }
+
+    func test_saveDayConfig_blockFailure_dayConfigSaveErrorNotNil() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        mockDayConfigService.saveExerciseBlockShouldThrow = true
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: {})
+        XCTAssertNotNil(sut.dayConfigSaveError)
+    }
+
+    // MARK: - Duplicate-tap guard
+
+    func test_saveDayConfig_isDayConfigSavingPreventsReeentry() async {
+        setupDayWithPlanId(day: .monday, planId: 5)
+        // Manually set saving flag to simulate in-progress
+        sut.isDayConfigSaving = true
+        var called = false
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: { called = true })
+        XCTAssertFalse(called, "Re-entry must be blocked when isDayConfigSaving is true")
+    }
+
+    // MARK: - US3: sequential block save — second block fails
+
+    func test_saveDayConfig_secondBlockFails_onSuccessNotCalled() async {
+        setupDayWithTwoBlocks(day: .wednesday, planId: 99)
+        mockDayConfigService.saveExerciseBlockFailAtCallIndex = 1  // first ok, second fails
+        var called = false
+        await sut.saveDayConfig(for: .wednesday, using: mockDayConfigService, onSuccess: { called = true })
+        XCTAssertFalse(called)
+        XCTAssertNotNil(sut.dayConfigSaveError)
+    }
+
+    // MARK: - Helpers
+
+    private func setupDayWithPlanId(day: DayOfWeek, planId: Int) {
+        sut.selectedDays = [day]
+        sut.workoutPlanIds[day] = planId
+        var plan = DayPlan(day: day)
+        plan.sessionName = "Test Session"
+        var block = ExerciseBlock()
+        block.exerciseId = "bench"
+        block.targetReps = 8
+        block.targetWeight = 60
+        block.restSeconds = 90
+        plan.blocks = [block]
+        sut.dayPlans[day] = plan
+    }
+
+    private func setupDayWithTwoBlocks(day: DayOfWeek, planId: Int) {
+        sut.selectedDays = [day]
+        sut.workoutPlanIds[day] = planId
+        var plan = DayPlan(day: day)
+        plan.sessionName = "Two Block Day"
+        var b1 = ExerciseBlock(); b1.exerciseId = "bench"; b1.targetReps = 8; b1.targetWeight = 60; b1.restSeconds = 90
+        var b2 = ExerciseBlock(); b2.exerciseId = "squat"; b2.targetReps = 5; b2.targetWeight = 100; b2.restSeconds = 180
+        plan.blocks = [b1, b2]
+        sut.dayPlans[day] = plan
+    }
+}
+
+// MARK: - MockWorkoutDayPlanService
+
+@MainActor
+final class MockWorkoutDayPlanService: WorkoutDayPlanServiceProtocol {
+    var dayPlanResponseId: Int = 42
+    var saveDayPlanShouldThrow = false
+    var saveExerciseBlockShouldThrow = false
+    var saveExerciseBlockFailAtCallIndex: Int? = nil
+    private var exerciseBlockCallCount = 0
+
+    func saveDayPlan(workoutPlanId: Int, request: WorkoutDayPlanRequest) async throws -> WorkoutDayPlanResponse {
+        if saveDayPlanShouldThrow { throw WorkoutPlanError.serverError(500) }
+        return WorkoutDayPlanResponse(workoutDayPlanId: dayPlanResponseId)
+    }
+
+    func saveExerciseBlock(workoutDayPlanId: Int, request: ExerciseBlockPlanRequest) async throws {
+        defer { exerciseBlockCallCount += 1 }
+        if saveExerciseBlockShouldThrow { throw WorkoutPlanError.serverError(500) }
+        if let failAt = saveExerciseBlockFailAtCallIndex, exerciseBlockCallCount >= failAt {
+            throw WorkoutPlanError.serverError(500)
+        }
     }
 }

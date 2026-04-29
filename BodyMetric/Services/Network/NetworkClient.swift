@@ -35,9 +35,23 @@ final class NetworkClient: NetworkClientProtocol {
         self.session = session
     }
 
+    // MARK: - Exempt path prefixes (FR-002)
+
+    private static let exemptPathPrefixes = ["/api/auth/", "/q/", "/version"]
+
+    private func isExemptPath(_ request: URLRequest) -> Bool {
+        guard let path = request.url?.path else { return false }
+        return Self.exemptPathPrefixes.contains { path.hasPrefix($0) }
+    }
+
     // MARK: - NetworkClientProtocol
 
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        // Exempt paths (auth, public query, version) skip token injection entirely (FR-002).
+        if isExemptPath(request) {
+            return try await executeUnauthenticated(request)
+        }
+
         guard let token = await tokenStore.accessToken else {
             Logger.warning("NetworkClient: no access token — request blocked", category: .network)
             throw NetworkError.noToken
@@ -71,6 +85,14 @@ final class NetworkClient: NetworkClientProtocol {
     }
 
     // MARK: - Private
+
+    private func executeUnauthenticated(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw NetworkError.httpError(-1)
+        }
+        return (data, http)
+    }
 
     private func execute(_ request: URLRequest, bearerToken: String) async throws -> (Data, HTTPURLResponse) {
         var req = request

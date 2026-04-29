@@ -30,9 +30,10 @@ final class TokenRefreshServiceTests: XCTestCase {
     // MARK: - 200 success
 
     func test_refresh_200_returnsNewAccessToken() async throws {
+        // Mock JSON uses the correct server field names: "sessionToken" and "refreshToken"
         MockURLProtocol.requestHandler = { _ in
             let json = """
-            {"access_token":"new-acc","refresh_token":"new-ref"}
+            {"sessionToken":"new-acc","refreshToken":"new-ref"}
             """.data(using: .utf8)!
             let resp = HTTPURLResponse(url: URL(string: "https://example.com")!,
                                        statusCode: 200, httpVersion: nil, headerFields: nil)!
@@ -46,7 +47,7 @@ final class TokenRefreshServiceTests: XCTestCase {
     func test_refresh_200_missingRotatedRefresh_returnsNilRefresh() async throws {
         MockURLProtocol.requestHandler = { _ in
             let json = """
-            {"access_token":"new-acc"}
+            {"sessionToken":"new-acc"}
             """.data(using: .utf8)!
             let resp = HTTPURLResponse(url: URL(string: "https://example.com")!,
                                        statusCode: 200, httpVersion: nil, headerFields: nil)!
@@ -62,7 +63,7 @@ final class TokenRefreshServiceTests: XCTestCase {
         MockURLProtocol.requestHandler = { req in
             capturedBody = req.httpBody
             let json = """
-            {"access_token":"a","refresh_token":"r"}
+            {"sessionToken":"a","refreshToken":"r"}
             """.data(using: .utf8)!
             let resp = HTTPURLResponse(url: URL(string: "https://example.com")!,
                                        statusCode: 200, httpVersion: nil, headerFields: nil)!
@@ -70,7 +71,11 @@ final class TokenRefreshServiceTests: XCTestCase {
         }
         _ = try await sut.refresh(using: "my-stored-refresh")
         let body = try JSONDecoder().decode([String: String].self, from: capturedBody!)
-        XCTAssertEqual(body["refresh_token"], "my-stored-refresh")
+        // T001: body must use camelCase "refreshToken" per the API contract
+        XCTAssertEqual(body["refreshToken"], "my-stored-refresh",
+                       "Request body must send camelCase 'refreshToken' key")
+        XCTAssertNil(body["refresh_token"],
+                     "Request body must NOT send snake_case 'refresh_token' key")
     }
 
     func test_refresh_doesNotSendAuthorizationHeader() async throws {
@@ -78,7 +83,7 @@ final class TokenRefreshServiceTests: XCTestCase {
         MockURLProtocol.requestHandler = { req in
             capturedRequest = req
             let json = """
-            {"access_token":"a","refresh_token":"r"}
+            {"sessionToken":"a","refreshToken":"r"}
             """.data(using: .utf8)!
             let resp = HTTPURLResponse(url: URL(string: "https://example.com")!,
                                        statusCode: 200, httpVersion: nil, headerFields: nil)!

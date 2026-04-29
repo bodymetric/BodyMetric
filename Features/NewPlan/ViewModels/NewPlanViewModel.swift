@@ -38,6 +38,13 @@ final class NewPlanViewModel {
     var isSaving: Bool = false
     var saveErrorMessage: String? = nil
 
+    // MARK: - API state (step 2)
+
+    /// planId per DayOfWeek, populated from step-1 saveDays response (feature 011).
+    var workoutPlanIds: [DayOfWeek: Int] = [:]
+    var isDayConfigSaving: Bool = false
+    var dayConfigSaveError: String? = nil
+
     // MARK: - Derived
 
     var orderedSelectedDays: [DayOfWeek] {
@@ -73,6 +80,7 @@ final class NewPlanViewModel {
         }
         // Clear any prior save error when the user changes their selection (spec FR-013)
         saveErrorMessage = nil
+        dayConfigSaveError = nil
         Logger.info(
             "wizard_day_toggled day:\(day.shortLabel) selected:\(selectedDays.contains(day))"
         )
@@ -119,7 +127,13 @@ final class NewPlanViewModel {
 
         let requests = orderedSelectedDays.map(\.toRequest)
         do {
-            try await service.saveDays(requests)
+            let savedDays = try await service.saveDays(requests)
+            // Store planId per DayOfWeek for use in step-2 day-plan saves (feature 011).
+            for response in savedDays {
+                if let day = DayOfWeek(rawValue: response.plannedWeekNumber) {
+                    workoutPlanIds[day] = response.planId
+                }
+            }
             Logger.info("wizard_days_save_success dayCount:\(requests.count)")
             onSuccess()
         } catch {
@@ -127,6 +141,51 @@ final class NewPlanViewModel {
             saveErrorMessage = "Could not save your training days. Please try again."
         }
         isSaving = false
+    }
+
+    /// Saves the current day's configuration (day plan + all exercise blocks) to the server.
+    ///
+    /// Sequential: day plan first, then each exercise block using the returned workoutDayPlanId.
+    /// Advances the wizard only when all saves succeed (spec FR-009).
+    func saveDayConfig(
+        for day: DayOfWeek,
+        using service: any WorkoutDayPlanServiceProtocol,
+        onSuccess: @MainActor @Sendable () -> Void
+    ) async {
+        guard !isDayConfigSaving,
+              let plan = dayPlans[day],
+              let planId = workoutPlanIds[day] else { return }
+
+        isDayConfigSaving = true
+        dayConfigSaveError = nil
+        Logger.info("wizard_day_config_save_started day:\(day.shortLabel)")
+
+        do {
+            // 1. Save the day plan (FR-006)
+            let dayRequest = WorkoutDayPlanRequest(
+                name: plan.sessionName,
+                orderIndex: day.orderIndex,
+                isActive: true
+            )
+            let dayResponse = try await service.saveDayPlan(workoutPlanId: planId, request: dayRequest)
+            Logger.info("wizard_day_plan_saved workoutDayPlanId:\(dayResponse.workoutDayPlanId)")
+
+            // 2. Save each exercise block sequentially (FR-007; intentional: not parallel — see research.md)
+            for block in plan.blocks {
+                let blockRequest = ExerciseBlockPlanRequest(block: block)
+                try await service.saveExerciseBlock(
+                    workoutDayPlanId: dayResponse.workoutDayPlanId,
+                    request: blockRequest
+                )
+            }
+            Logger.info("wizard_exercise_blocks_saved count:\(plan.blocks.count)")
+
+            onSuccess()
+        } catch {
+            Logger.error("wizard_day_config_save_failed", error: error)
+            dayConfigSaveError = "Could not save your workout day. Please try again."
+        }
+        isDayConfigSaving = false
     }
 
     // MARK: - Navigation

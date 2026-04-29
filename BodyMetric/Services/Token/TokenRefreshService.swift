@@ -43,7 +43,7 @@ final class TokenRefreshService: TokenRefreshServiceProtocol {
         // NOTE: No Authorization header — the refresh token IS the credential.
 
         do {
-            request.httpBody = try JSONEncoder().encode(["refresh_token": refreshToken])
+            request.httpBody = try JSONEncoder().encode(["refreshToken": refreshToken])
         } catch {
             Logger.error("TokenRefreshService: failed to encode request body",
                          error: error, category: .auth)

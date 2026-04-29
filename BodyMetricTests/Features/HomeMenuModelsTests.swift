@@ -9,15 +9,15 @@ final class HomeMenuModelsTests: XCTestCase {
 
     // MARK: - Catalog count
 
-    func test_catalog_containsExactlySevenItems() {
-        XCTAssertEqual(HomeMenuItem.catalog.count, 7)
+    func test_catalog_containsExactlyEightItems() {
+        XCTAssertEqual(HomeMenuItem.catalog.count, 8)
     }
 
     // MARK: - Active items
 
-    func test_catalog_exactlyTwoItemsAreActive() {
+    func test_catalog_exactlyThreeItemsAreActive() {
         let activeItems = HomeMenuItem.catalog.filter(\.isActive)
-        XCTAssertEqual(activeItems.count, 2)
+        XCTAssertEqual(activeItems.count, 3)
     }
 
     func test_catalog_todayItemIsActive() {
@@ -48,7 +48,7 @@ final class HomeMenuModelsTests: XCTestCase {
     // MARK: - Labels
 
     func test_catalog_labelsMatchSpec() {
-        let expected = ["Today", "New Workout Plan", "My Plans", "History", "Progress", "Profile", "Settings"]
+        let expected = ["Today", "New Workout Plan", "My Plans", "History", "Progress", "Profile", "Settings", "Exit"]
         let actual = HomeMenuItem.catalog.map(\.label)
         XCTAssertEqual(actual, expected)
     }
@@ -86,11 +86,43 @@ final class HomeMenuModelsTests: XCTestCase {
         XCTAssertEqual(actual, expected)
     }
 
+    // MARK: - Exit item (009-menu-sign-out)
+
+    func test_catalog_exitItemIsLast() {
+        XCTAssertEqual(HomeMenuItem.catalog.last?.id, "exit")
+    }
+
+    func test_catalog_exitItemIsActive() {
+        let exit = HomeMenuItem.catalog.last!
+        XCTAssertTrue(exit.isActive)
+    }
+
+    func test_catalog_exitItemIsSignOut() {
+        let exit = HomeMenuItem.catalog.last!
+        XCTAssertTrue(exit.isSignOut)
+    }
+
+    func test_catalog_exitItemHasSeparatorAbove() {
+        let exit = HomeMenuItem.catalog.last!
+        XCTAssertTrue(exit.isSeparatorAbove)
+    }
+
+    func test_catalog_exitItemHasNilDestination() {
+        let exit = HomeMenuItem.catalog.last!
+        XCTAssertNil(exit.destination)
+    }
+
+    func test_catalog_exitItemIsNotPrimary() {
+        let exit = HomeMenuItem.catalog.last!
+        XCTAssertFalse(exit.isPrimary)
+    }
+
     // MARK: - US2: dismiss tests (binding behaviour verified in integration)
 
-    func test_catalog_activeItemsHaveNonNilDestinations() {
-        let activeItems = HomeMenuItem.catalog.filter(\.isActive)
-        for item in activeItems {
+    func test_catalog_navigableActiveItemsHaveNonNilDestinations() {
+        // Active items that are NOT sign-out must have a destination for navigation.
+        let navigableItems = HomeMenuItem.catalog.filter { $0.isActive && !$0.isSignOut }
+        for item in navigableItems {
             XCTAssertNotNil(item.destination, "\(item.label) must have a destination")
         }
     }
