@@ -1,80 +1,54 @@
-# Implementation Plan: Workout Plan Wizard — Step 2 Day & Exercise Persistence
+# Implementation Plan: WorkoutPlanDayResponse Model Fix
 
-**Branch**: `011-wizard-day-persist` | **Date**: 2026-04-29 | **Spec**: [spec.md](spec.md)  
-**Input**: Feature specification from `/specs/011-wizard-day-persist/spec.md`
-
-**User clarification**: Persist each wizard step-2 day via `POST /api/workout-plans/{workoutPlanId}/days` (name, orderIndex, isActive: true), then persist each exercise block via `POST /api/workout-day-plans/{workoutDayPlanId}/exercise-blocks` using the ID returned by the day POST. Navigate forward only on full success.
+**Branch**: `011-wizard-day-persist` | **Date**: 2026-04-30  
+**User clarification**: The actual `GET /api/workout-plans` response uses `"id"` (not `"planId"`), uppercase `plannedDayOfWeek` values ("MONDAY"), `createdAt`, `days`, and `_links` fields. The existing struct was built from an earlier mock; it must now match the real API.
 
 ## Summary
 
-When the user taps Continue on step 2 of the wizard (Configure Day), the app:
-1. POSTs the day plan (name + orderIndex + isActive) to `/api/workout-plans/{planId}/days`
-2. Uses the returned `workoutDayPlanId` to POST each exercise block to `/api/workout-day-plans/{workoutDayPlanId}/exercise-blocks`
-3. Advances the wizard only when all saves succeed; shows inline error and stays put on any failure.
+`WorkoutPlanDayResponse` was modelled on an assumed schema that doesn't match the live API. The key difference is the primary key field: the server returns `"id"` but the struct declared `planId`. Every piece of code that reads `response.planId` and every test mock that produces `"planId"` in JSON must be updated. The `plannedWeekNumber` (Int) mapping that drives day pre-fill is unchanged.
 
-This requires one backward-compatible change to existing feature 008 code: `WorkoutPlanService.saveDays` must decode the 201 response body to return `[WorkoutPlanDayResponse]` so that each day's `planId` is available for step 2.
+## Changed fields
+
+| Old field | New field | Notes |
+|-----------|-----------|-------|
+| `planId: Int` | `id: Int` | Direct JSON mapping; no CodingKeys needed |
+| `plannedWeekNumber: Int` | unchanged | |
+| `plannedDayOfWeek: String` | unchanged | Value now UPPERCASE ("MONDAY"), but field not used in logic |
+| `executionCount: Int` | removed | Not in real response |
+| `dayNames: [String]` | removed | Not in real response |
+| `totalExercises: Int` | removed | Not in real response |
+| `totalSets: Int` | removed | Not in real response |
+| `estimatedDurationMinutes: Int` | removed | Not in real response |
+| *(new)* `createdAt: String?` | added optional | Present in response; not used in logic |
+| `var id: Int { planId }` | replaced by stored `id: Int` | Identifiable via stored property |
 
 ## Technical Context
 
 **Language/Version**: Swift 5.10 / iOS 17+  
-**Primary Dependencies**: SwiftUI (`@Observable`), URLSession via existing `NetworkClient`; no new SPM packages  
-**Storage**: No local persistence; all data saved to server  
-**Testing**: XCTest (unit) + existing test helpers (`MockNetworkClient`)  
-**Target Platform**: iOS 17+ iPhone  
-**Project Type**: Mobile app — new service + ViewModel extension + View wiring  
-**Performance Goals**: Day + blocks saved and wizard advances within 2 s under normal network  
-**Constraints**: GrayscalePalette + WorkoutPalette (workout flow); ≥ 90% coverage; no new SPM deps  
-**Scale/Scope**: 3 new files, 5 modified files, 2 new test files
+**Primary Dependencies**: Swift `Codable`; no new packages  
+**Testing**: XCTest; update mocks and property references  
+**Scope**: 4 modified files, 0 new files
 
 ## Constitution Check
 
 | Principle | Requirement | Status | Notes |
 |-----------|-------------|--------|-------|
-| I. Swift-Native Code | All product code in Swift; SPM for dependencies | ✅ | Pure Swift; no new packages |
-| II. Comprehensive Testing | TDD; ≥ 90% coverage; tests before implementation | ✅ | Service unit tests + ViewModel tests required before implementation |
-| III. Error Logging | All errors logged; no PII in logs | ✅ | `Logger.error` at every catch site; no user data in messages |
-| IV. Interaction Tracing | All interactions traced; no PII | ✅ | Trace events: `wizard_day_config_save_started`, `wizard_day_plan_saved`, `wizard_exercise_blocks_saved`, `wizard_day_config_save_failed` |
-| V. User-Friendly, Simple & Fast | Single primary action; <300 ms feedback | ✅ | Continue button shows saving state; error shown in < 300 ms |
-| VI. Grayscale Visual Design | All UI colors grayscale | ✅ | Error banner uses GrayscalePalette; WorkoutPalette permitted for CTA in workout flow |
-| VII. Token Security | Bearer token in header; Keychain tokens; delete on logout | ✅ | NetworkClient handles token injection; no new auth code |
+| I. Swift-Native Code | All product code in Swift; SPM for dependencies | ✅ | Pure Swift struct change |
+| II. Comprehensive Testing | TDD; ≥ 90% coverage; tests before implementation | ✅ | Tests updated to match new schema; existing decode tests verify the fix |
+| III. Error Logging | All errors logged; no PII in logs | ✅ | No change to logging |
+| IV. Interaction Tracing | All interactions traced; no PII | ✅ | No change to traces |
+| V. User-Friendly, Simple & Fast | Token refresh transparent; <300 ms feedback | ✅ | No UI changes |
+| VI. Grayscale Visual Design | All UI colors grayscale | ✅ | No UI changes |
+| VII. Token Security | Bearer token in header; Keychain storage | ✅ | No change to auth layer |
 
-## Project Structure
-
-### Documentation (this feature)
+## Project Structure (changed files only)
 
 ```text
-specs/011-wizard-day-persist/
-├── plan.md              ← this file
-├── research.md          ← Phase 0 output
-├── data-model.md        ← Phase 1 output
-├── quickstart.md        ← Phase 1 output
-├── contracts/           ← Phase 1 output
-│   ├── post-workout-plan-day.md
-│   └── post-exercise-block.md
-└── tasks.md             ← Phase 2 output (created by /speckit.tasks)
+Models/WorkoutPlanModels.swift                            [MODIFY] rewrite WorkoutPlanDayResponse
+Features/NewPlan/ViewModels/NewPlanViewModel.swift        [MODIFY] response.planId → response.id (1 line)
+BodyMetricTests/Services/WorkoutPlanServiceTests.swift    [MODIFY] mock JSON + assertion references
+BodyMetricTests/Features/NewPlanViewModelTests.swift      [MODIFY] constructor calls (many lines)
 ```
-
-### Source Code
-
-```text
-# New files
-Services/WorkoutPlan/WorkoutDayPlanService.swift           [NEW] POST /days + POST /exercise-blocks
-Services/WorkoutPlan/WorkoutDayPlanServiceProtocol.swift   [NEW] testable contract
-Models/WorkoutDayPlanModels.swift                          [NEW] request/response DTOs
-
-# Modified files (backward-compatible)
-Services/WorkoutPlan/WorkoutPlanServiceProtocol.swift      [MODIFY] saveDays returns [WorkoutPlanDayResponse]
-Services/WorkoutPlan/WorkoutPlanService.swift              [MODIFY] decode + return 201 response body
-Features/NewPlan/ViewModels/NewPlanViewModel.swift         [MODIFY] add workoutPlanIds, saveDayConfig()
-Features/NewPlan/Views/NewPlanWizardView.swift             [MODIFY] inject dayConfigService; wire step 2 Continue
-Features/Workout/Views/TodayView.swift                     [MODIFY] pass WorkoutDayPlanService to wizard
-
-# New test files
-BodyMetricTests/Services/WorkoutDayPlanServiceTests.swift  [NEW] unit tests for both POST methods
-BodyMetricTests/Features/NewPlanViewModelTests.swift       [MODIFY] add tests for saveDayConfig
-```
-
-**Structure Decision**: `WorkoutDayPlanService` lives alongside `WorkoutPlanService` in `Services/WorkoutPlan/`. DTOs live in `Models/`. Injection follows the established pattern: `TodayView` creates the concrete service and passes it to `NewPlanWizardView`.
 
 ## Complexity Tracking
 

@@ -87,6 +87,15 @@ struct Exercise: Identifiable {
     ]
 }
 
+// MARK: - Set config
+
+/// One individual set row within an exercise block.
+struct SetConfig: Identifiable, Codable {
+    var id: UUID           = UUID()
+    var targetReps: Int    = 8
+    var targetWeight: Double = 60.0
+}
+
 // MARK: - Exercise block
 
 /// A single exercise slot within a day plan.
@@ -95,12 +104,14 @@ struct Exercise: Identifiable {
 struct ExerciseBlock: Identifiable, Codable {
     var id: UUID           = UUID()
     var exerciseId: String = ""
-    var targetReps: Int    = 8
-    var targetWeight: Double = 60.0
+    var sets: [SetConfig]  = (0..<4).map { _ in SetConfig() }
     var restSeconds: Int   = 90
 
     var isValid: Bool {
-        !exerciseId.isEmpty && targetReps >= 1 && targetWeight >= 0 && restSeconds >= 0
+        !exerciseId.isEmpty &&
+        !sets.isEmpty &&
+        sets.allSatisfy { $0.targetReps >= 1 && $0.targetWeight >= 0 } &&
+        restSeconds >= 0
     }
 }
 
@@ -135,16 +146,24 @@ struct WorkoutPlan: Identifiable, Codable {
     }
 }
 
-// MARK: - API mapping (T009)
+// MARK: - API mapping
 
 extension DayOfWeek {
+
+    /// Parses the API's `plannedDayOfWeek` string (e.g. "MONDAY", "monday") into a `DayOfWeek`.
+    /// Case-insensitive. Returns `nil` for unrecognised values.
+    init?(fromApiString string: String) {
+        guard let match = DayOfWeek.allCases.first(where: {
+            $0.fullLabel.uppercased() == string.uppercased()
+        }) else { return nil }
+        self = match
+    }
+
     /// Converts this day to the POST request format for `WorkoutPlanService.saveDays(_:)`.
     ///
-    /// `plannedWeekNumber` is a String per the API contract (differs from GET response Int).
+    /// The server identifies the day from `plannedDayOfWeek` alone; `plannedWeekNumber`
+    /// has been removed from the payload (feature 014 — server manages `actualWeekNumber`).
     var toRequest: WorkoutPlanDayRequest {
-        WorkoutPlanDayRequest(
-            plannedWeekNumber: String(rawValue),
-            plannedDayOfWeek: fullLabel.lowercased()
-        )
+        WorkoutPlanDayRequest(plannedDayOfWeek: fullLabel.lowercased())
     }
 }

@@ -12,7 +12,8 @@ struct MainTabView: View {
     let authService: AuthServiceProtocol
     let profileStore: ProfileStore
     let networkClient: any NetworkClientProtocol
-    
+    let homeService: any HomeServiceProtocol
+
     @State private var selectedTab: Tab = .today
 
     enum Tab { case today, history, profile }
@@ -32,16 +33,13 @@ struct MainTabView: View {
         switch selectedTab {
         case .today:
             TodayView(
-                workout: .mockToday,
-                streak: .mockStreak,
+                viewModel: TodayViewModel(),
                 userName: profileStore.name ?? "You",
                 networkClient: networkClient,
                 onSignOut: {
-                    // Sign-out is dispatched async; AuthService.signOut() handles
-                    // access token clear, Keychain delete, and Google sign-out.
-                    // isAuthenticated = false triggers BodyMetricApp to show LoginView.
                     Task { try? await authService.signOut() }
-                }
+                },
+                homeService: homeService
             )
             .transition(.opacity)
 

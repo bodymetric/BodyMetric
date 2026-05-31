@@ -3,7 +3,7 @@ import SwiftUI
 /// A single exercise block row inside `ConfigureDayStepView`.
 ///
 /// Displays: block number, muscle group label, optional remove button,
-/// exercise picker trigger, and a stepper trio (Reps / Weight / Rest).
+/// exercise picker trigger, per-set row table (SET | REPS | WEIGHT), and REST stepper.
 ///
 /// Constitution Principle VI: WorkoutPalette accent for valid left-border only.
 struct ExerciseBlockRowView: View {
@@ -11,6 +11,7 @@ struct ExerciseBlockRowView: View {
     let index: Int
     let block: ExerciseBlock
     let canRemove: Bool
+    let exerciseName: String?   // supplied by parent from the API catalog
     let onPick: () -> Void
     let onRemove: () -> Void
     let onChange: (ExerciseBlock) -> Void
@@ -22,8 +23,10 @@ struct ExerciseBlockRowView: View {
             blockHeader
             exercisePickerTrigger
                 .padding(.top, 10)
-            stepperGrid
-                .padding(.top, 10)
+            setRowsTable
+                .padding(.top, 12)
+            restStepper
+                .padding(.top, 8)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 14)
@@ -105,10 +108,11 @@ struct ExerciseBlockRowView: View {
                         .font(.system(size: 14, design: .rounded).weight(.semibold))
                         .foregroundStyle(exerciseName != nil ? GrayscalePalette.primary : GrayscalePalette.secondary)
                         .lineLimit(1)
-                    if let muscle = selectedExercise?.primaryMuscle {
-                        Text(muscle)
+                    if exerciseName != nil {
+                        Text(block.exerciseId)
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundStyle(GrayscalePalette.secondary)
+                            .opacity(0)  // hidden — preserves layout height
                     }
                 }
 
@@ -130,58 +134,183 @@ struct ExerciseBlockRowView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Stepper grid
+    // MARK: - Set rows table
 
-    private var stepperGrid: some View {
-        HStack(spacing: 8) {
-            BMStepperView(
-                label: "Reps",
-                unit: "",
-                value: Double(block.targetReps),
-                step: 1,
-                min: 1, max: 50
-            ) { newValue in
-                var updated = block
-                updated.targetReps = Int(newValue)
-                onChange(updated)
+    private var setRowsTable: some View {
+        VStack(spacing: 0) {
+            // Column header
+            HStack(spacing: 0) {
+                Text("SET")
+                    .frame(width: 36, alignment: .leading)
+                Text("REPS")
+                    .frame(maxWidth: .infinity)
+                Text("WEIGHT")
+                    .frame(maxWidth: .infinity)
+                Spacer().frame(width: 32)
+            }
+            .font(.system(size: 9, design: .monospaced))
+            .foregroundStyle(GrayscalePalette.secondary)
+            .tracking(1.2)
+            .padding(.horizontal, 4)
+            .padding(.bottom, 6)
+
+            // Set rows
+            ForEach(Array(block.sets.enumerated()), id: \.element.id) { idx, set in
+                setRow(idx: idx, set: set)
+                if idx < block.sets.count - 1 {
+                    Divider()
+                        .padding(.vertical, 4)
+                }
             }
 
-            BMStepperView(
-                label: "Weight",
-                unit: "kg",
-                value: block.targetWeight,
-                step: 2.5,
-                min: 0, max: 500
-            ) { newValue in
+            // Add set button
+            Button {
                 var updated = block
-                updated.targetWeight = newValue
+                let last = updated.sets.last ?? SetConfig()
+                updated.sets.append(SetConfig(targetReps: last.targetReps, targetWeight: last.targetWeight))
                 onChange(updated)
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("Add set")
+                        .font(.system(size: 13, design: .rounded).weight(.semibold))
+                }
+                .foregroundStyle(GrayscalePalette.secondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 4)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 10)
+        .background(GrayscalePalette.background)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(GrayscalePalette.separator, lineWidth: 1)
+        )
+    }
+
+    private func setRow(idx: Int, set: SetConfig) -> some View {
+        HStack(spacing: 0) {
+            // Set number badge
+            ZStack {
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(GrayscalePalette.surface)
+                    .frame(width: 26, height: 26)
+                Text("\(idx + 1)")
+                    .font(.system(size: 11, design: .monospaced).weight(.bold))
+                    .foregroundStyle(GrayscalePalette.secondary)
+            }
+            .overlay(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .stroke(GrayscalePalette.separator, lineWidth: 1)
+            )
+            .frame(width: 36, alignment: .leading)
+
+            // Reps inline stepper
+            inlineStepper(value: Double(set.targetReps), step: 1, min: 1, max: 50, unit: "") { newValue in
+                var updated = block
+                updated.sets[idx].targetReps = Int(newValue)
+                onChange(updated)
+            }
+            .frame(maxWidth: .infinity)
+
+            // Weight inline stepper
+            inlineStepper(value: set.targetWeight, step: 2.5, min: 0, max: 500, unit: "kg") { newValue in
+                var updated = block
+                updated.sets[idx].targetWeight = newValue
+                onChange(updated)
+            }
+            .frame(maxWidth: .infinity)
+
+            // Remove button
+            Button {
+                var updated = block
+                updated.sets.remove(at: idx)
+                onChange(updated)
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(GrayscalePalette.secondary)
+                    .frame(width: 28, height: 28)
+            }
+            .buttonStyle(.plain)
+            .opacity(block.sets.count > 1 ? 1 : 0)
+            .disabled(block.sets.count <= 1)
+            .frame(width: 32)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func inlineStepper(value: Double, step: Double, min: Double, max: Double, unit: String, onChange: @escaping (Double) -> Void) -> some View {
+        HStack(spacing: 6) {
+            Button {
+                let next = Swift.max(min, value - step)
+                if next != value { onChange(next) }
+            } label: {
+                Image(systemName: "minus")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(GrayscalePalette.primary)
+                    .frame(width: 26, height: 26)
+                    .background(GrayscalePalette.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .disabled(value <= min)
+
+            HStack(spacing: 2) {
+                Text(value.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", value) : String(format: "%.1f", value))
+                    .font(.system(size: 15, design: .rounded).weight(.bold))
+                    .foregroundStyle(GrayscalePalette.primary)
+                    .frame(minWidth: 20)
+                if !unit.isEmpty {
+                    Text(unit)
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(GrayscalePalette.secondary)
+                }
             }
 
-            BMStepperView(
-                label: "Rest",
-                unit: "s",
-                value: Double(block.restSeconds),
-                step: 15,
-                min: 0, max: 600
-            ) { newValue in
-                var updated = block
-                updated.restSeconds = Int(newValue)
-                onChange(updated)
+            Button {
+                let next = Swift.min(max, value + step)
+                if next != value { onChange(next) }
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(GrayscalePalette.primary)
+                    .frame(width: 26, height: 26)
+                    .background(GrayscalePalette.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
             }
+            .buttonStyle(.plain)
+            .disabled(value >= max)
+        }
+    }
+
+    // MARK: - REST stepper (block-level)
+
+    private var restStepper: some View {
+        BMStepperView(
+            label: "Rest",
+            unit: "s",
+            value: Double(block.restSeconds),
+            step: 15,
+            min: 0, max: 600
+        ) { newValue in
+            var updated = block
+            updated.restSeconds = Int(newValue)
+            onChange(updated)
         }
     }
 
     // MARK: - Helpers
 
-    private var selectedExercise: Exercise? {
-        Exercise.catalog.first { $0.id == block.exerciseId }
-    }
-
-    private var exerciseName: String? { selectedExercise?.name }
-
     private var muscleLabel: String {
-        selectedExercise?.primaryMuscle.uppercased() ?? "PICK AN EXERCISE"
+        exerciseName != nil ? "" : "PICK AN EXERCISE"
     }
 }
 

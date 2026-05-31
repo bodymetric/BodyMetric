@@ -169,7 +169,8 @@ struct BodyMetricApp: App {
                 homeViewModel: makeHomeViewModel(),
                 authService: authService,
                 profileStore: profileStore,
-                networkClient: networkClient
+                networkClient: networkClient,
+                homeService: HomeService(networkClient: networkClient)
             )
             .transition(.opacity.combined(with: .scale(scale: 0.98)))
         }

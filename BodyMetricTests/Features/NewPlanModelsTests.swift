@@ -58,11 +58,21 @@ final class NewPlanModelsTests: XCTestCase {
         XCTAssertFalse(block.isValid, "Empty exerciseId must make block invalid")
     }
 
+    func test_setConfig_defaultValues() {
+        let set = SetConfig()
+        XCTAssertEqual(set.targetReps, 8)
+        XCTAssertEqual(set.targetWeight, 60.0)
+    }
+
+    func test_exerciseBlock_defaultSetsCount() {
+        XCTAssertEqual(ExerciseBlock().sets.count, 4)
+    }
+
     func test_exerciseBlock_isValidWithAllFieldsSet() {
         var block = ExerciseBlock()
         block.exerciseId = "bench"
-        block.targetReps = 8
-        block.targetWeight = 80.0
+        block.sets[0].targetReps = 8
+        block.sets[0].targetWeight = 80.0
         block.restSeconds = 90
         XCTAssertTrue(block.isValid)
     }
@@ -70,15 +80,15 @@ final class NewPlanModelsTests: XCTestCase {
     func test_exerciseBlock_isInvalidWhenRepsZero() {
         var block = ExerciseBlock()
         block.exerciseId = "bench"
-        block.targetReps = 0
+        block.sets[0].targetReps = 0
         XCTAssertFalse(block.isValid)
     }
 
     func test_exerciseBlock_isValidWhenWeightIsZero() {
         var block = ExerciseBlock()
         block.exerciseId = "plank"
-        block.targetReps = 10
-        block.targetWeight = 0
+        block.sets[0].targetReps = 10
+        block.sets[0].targetWeight = 0
         block.restSeconds = 60
         XCTAssertTrue(block.isValid, "Bodyweight exercises (weight=0) should be valid")
     }
@@ -86,8 +96,8 @@ final class NewPlanModelsTests: XCTestCase {
     func test_exerciseBlock_isValidWhenRestIsZero() {
         var block = ExerciseBlock()
         block.exerciseId = "bench"
-        block.targetReps = 8
-        block.targetWeight = 60
+        block.sets[0].targetReps = 8
+        block.sets[0].targetWeight = 60
         block.restSeconds = 0
         XCTAssertTrue(block.isValid, "Rest=0 is allowed")
     }
@@ -133,8 +143,8 @@ final class NewPlanModelsTests: XCTestCase {
         plan.sessionName = "Push Day"
         var block = ExerciseBlock()
         block.exerciseId = "bench"
-        block.targetReps = 8
-        block.targetWeight = 80
+        block.sets[0].targetReps = 8
+        block.sets[0].targetWeight = 80
         block.restSeconds = 90
         plan.blocks = [block]
         XCTAssertTrue(plan.isValid)
@@ -164,8 +174,8 @@ final class NewPlanModelsTests: XCTestCase {
     func test_workoutPlan_roundTripsWithCodable() throws {
         var block = ExerciseBlock()
         block.exerciseId = "squat"
-        block.targetReps = 5
-        block.targetWeight = 100
+        block.sets[0].targetReps = 5
+        block.sets[0].targetWeight = 100
         block.restSeconds = 180
         var dayPlan = DayPlan(day: .friday)
         dayPlan.sessionName = "Leg Day"

@@ -1,11 +1,17 @@
 import SwiftUI
 
 struct CheckInView: View {
-    let workout: WorkoutSession
-    let onBegin: (String) -> Void
+    let planId: Int
+    let planName: String
+    let numberOfExercises: Int
+    let estimatedMinutes: Int
+    let actualWeekNumber: Int
+    let service: any WorkoutExecutionServiceProtocol
 
     @Environment(\.dismiss) private var dismiss
 
+    @State private var viewModel = ReadyToLiftViewModel()
+    @State private var path = NavigationPath()
     @State private var mood: Mood? = nil
     @State private var warmups: [WarmupItem: Bool] = Dictionary(
         uniqueKeysWithValues: WarmupItem.allCases.map { ($0, false) }
@@ -48,126 +54,165 @@ struct CheckInView: View {
     }
 
     var body: some View {
-        ZStack {
-            GrayscalePalette.background.ignoresSafeArea()
+        NavigationStack(path: $path) {
+            ZStack {
+                GrayscalePalette.background.ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Program label
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("\(workout.program.uppercased()) · DAY \(workout.dayIndex)")
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundStyle(GrayscalePalette.secondary)
-                            .tracking(1.2)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        // Plan label
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("WEEK \(actualWeekNumber)")
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(GrayscalePalette.secondary)
+                                .tracking(1.2)
 
-                        Text("Ready to lift?")
-                            .font(.system(size: 30, design: .rounded).weight(.bold))
-                            .foregroundStyle(GrayscalePalette.primary)
-                            .tracking(-0.7)
+                            Text("Ready to lift?")
+                                .font(.system(size: 30, design: .rounded).weight(.bold))
+                                .foregroundStyle(GrayscalePalette.primary)
+                                .tracking(-0.7)
 
-                        Text("\(workout.name.lowercased()) — \(workout.exercises.count) exercises, about \(workout.estimatedMinutes) minutes.")
-                            .font(.system(size: 15))
-                            .foregroundStyle(GrayscalePalette.secondary)
-                            .lineSpacing(4)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 18)
-
-                    // Mood selector
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("HOW DO YOU FEEL?")
-                            .font(.system(size: 12, design: .monospaced).weight(.semibold))
-                            .foregroundStyle(GrayscalePalette.secondary)
-                            .tracking(1)
-
-                        HStack(spacing: 8) {
-                            ForEach(Mood.allCases, id: \.self) { m in
-                                MoodButton(m: m, selected: mood == m) { mood = m }
-                            }
+                            Text("\(planName.lowercased()) — \(numberOfExercises) exercises, about \(estimatedMinutes) minutes.")
+                                .font(.system(size: 15))
+                                .foregroundStyle(GrayscalePalette.secondary)
+                                .lineSpacing(4)
                         }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 22)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 18)
 
-                    // Warm-up checklist
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("WARM-UP")
-                            .font(.system(size: 12, design: .monospaced).weight(.semibold))
-                            .foregroundStyle(GrayscalePalette.secondary)
-                            .tracking(1)
+                        // Mood selector
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("HOW DO YOU FEEL?")
+                                .font(.system(size: 12, design: .monospaced).weight(.semibold))
+                                .foregroundStyle(GrayscalePalette.secondary)
+                                .tracking(1)
 
-                        VStack(spacing: 0) {
-                            ForEach(Array(WarmupItem.allCases.enumerated()), id: \.element) { i, item in
-                                WarmupRow(
-                                    item: item,
-                                    done: warmups[item] ?? false,
-                                    isLast: i == WarmupItem.allCases.count - 1
-                                ) {
-                                    warmups[item]?.toggle()
+                            HStack(spacing: 8) {
+                                ForEach(Mood.allCases, id: \.self) { m in
+                                    MoodButton(m: m, selected: mood == m) { mood = m }
                                 }
                             }
                         }
-                        .background(GrayscalePalette.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 22)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 22)
 
-                    // Begin CTA
-                    VStack(spacing: 14) {
-                        Button {
-                            guard let m = mood else { return }
-                            onBegin(m.rawValue)
-                        } label: {
-                            HStack(spacing: 8) {
-                                Text("Begin session")
-                                    .font(.system(size: 17, design: .rounded).weight(.bold))
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 15, weight: .bold))
+                        // Warm-up checklist
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("WARM-UP")
+                                .font(.system(size: 12, design: .monospaced).weight(.semibold))
+                                .foregroundStyle(GrayscalePalette.secondary)
+                                .tracking(1)
+
+                            VStack(spacing: 0) {
+                                ForEach(Array(WarmupItem.allCases.enumerated()), id: \.element) { i, item in
+                                    WarmupRow(
+                                        item: item,
+                                        done: warmups[item] ?? false,
+                                        isLast: i == WarmupItem.allCases.count - 1
+                                    ) {
+                                        warmups[item]?.toggle()
+                                    }
+                                }
                             }
-                            .foregroundStyle(mood != nil ? GrayscalePalette.background : GrayscalePalette.secondary)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 58)
-                            .background(mood != nil ? GrayscalePalette.primary : GrayscalePalette.disabled)
+                            .background(GrayscalePalette.surface)
                             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                            .shadow(color: mood != nil ? .black.opacity(0.12) : .clear, radius: 12, y: 4)
+                            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
                         }
-                        .disabled(mood == nil)
-                        .animation(.easeInOut(duration: 0.18), value: mood)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 22)
 
-                        Text(allWarmedUp ? "✓ WARMED UP — LET'S GO" : "warm-up optional but recommended")
-                            .font(.system(size: 12, design: .monospaced))
-                            .foregroundStyle(GrayscalePalette.secondary)
-                            .tracking(0.5)
+                        // Error banner
+                        if case .failed(let msg) = viewModel.loadState {
+                            Text(msg)
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundStyle(GrayscalePalette.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 20)
+                                .padding(.top, 12)
+                        }
+
+                        // Begin CTA
+                        VStack(spacing: 14) {
+                            Button {
+                                guard let m = mood else { return }
+                                Task {
+                                    await viewModel.beginSession(
+                                        planId: planId,
+                                        actualWeekNumber: actualWeekNumber,
+                                        feeling: m.rawValue,
+                                        using: service
+                                    )
+                                }
+                            } label: {
+                                Group {
+                                    if viewModel.isSubmitting {
+                                        ProgressView()
+                                            .tint(GrayscalePalette.background)
+                                    } else {
+                                        HStack(spacing: 8) {
+                                            Text("Begin session")
+                                                .font(.system(size: 17, design: .rounded).weight(.bold))
+                                            Image(systemName: "chevron.right")
+                                                .font(.system(size: 15, weight: .bold))
+                                        }
+                                    }
+                                }
+                                .foregroundStyle(mood != nil && !viewModel.isSubmitting ? GrayscalePalette.background : GrayscalePalette.secondary)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 58)
+                                .background(mood != nil && !viewModel.isSubmitting ? GrayscalePalette.primary : GrayscalePalette.surface)
+                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .shadow(color: mood != nil && !viewModel.isSubmitting ? .black.opacity(0.12) : .clear, radius: 12, y: 4)
+                            }
+                            .disabled(mood == nil || viewModel.isSubmitting)
+                            .animation(.easeInOut(duration: 0.18), value: mood)
+                            .animation(.easeInOut(duration: 0.18), value: viewModel.isSubmitting)
+
+                            Text(allWarmedUp ? "✓ WARMED UP — LET'S GO" : "warm-up optional but recommended")
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundStyle(GrayscalePalette.secondary)
+                                .tracking(0.5)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 22)
+                        .padding(.bottom, 60)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 22)
-                    .padding(.bottom, 60)
                 }
             }
-        }
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button { dismiss() } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(GrayscalePalette.primary)
-                        .frame(width: 36, height: 36)
-                        .background(GrayscalePalette.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(GrayscalePalette.primary)
+                            .frame(width: 36, height: 36)
+                            .background(GrayscalePalette.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
+                    }
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("READY TO LIFT")
+                        .font(.system(size: 13, design: .monospaced).weight(.semibold))
+                        .foregroundStyle(GrayscalePalette.secondary)
+                        .tracking(1)
                 }
             }
-            ToolbarItem(placement: .principal) {
-                Text("CHECK IN")
-                    .font(.system(size: 13, design: .monospaced).weight(.semibold))
-                    .foregroundStyle(GrayscalePalette.secondary)
-                    .tracking(1)
+            .navigationDestination(for: StartSessionResponse.self) { response in
+                ActiveSessionView(
+                    viewModel: ActiveSessionViewModel(
+                        workout: response.toWorkoutSession(),
+                        mood: response.feeling
+                    ),
+                    onComplete: { path.removeLast() }
+                )
+            }
+            .onChange(of: viewModel.sessionResponse) { _, response in
+                if let r = response { path.append(r) }
             }
         }
     }

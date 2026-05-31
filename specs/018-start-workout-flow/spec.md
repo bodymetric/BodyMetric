@@ -1,0 +1,109 @@
+# Feature Specification: Start Workout Flow
+
+**Feature Branch**: `018-start-workout-flow`  
+**Created**: 2026-05-18  
+**Status**: Draft  
+**Input**: User description: "Start Workout Flow — navigate to Ready to Lift screen, select feeling, begin session via API, navigate to workout execution screen."
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Navigate to Ready to Lift and Select Feeling (Priority: P1)
+
+A user with an active workout plan sees the "Start Workout" button on the home screen. They tap it and land on the "Ready to Lift" screen, which shows their plan name, number of exercises, and estimated duration. They answer the "How do you feel?" question by selecting one of the available feeling options. The "Begin Session" button remains disabled until a feeling is chosen.
+
+**Why this priority**: This is the gateway to every workout session. Without the navigation and feeling selection working correctly, the user cannot start any workout. It delivers standalone value as a pre-session check-in screen even before the API call is wired.
+
+**Independent Test**: Can be fully tested by pressing "Start Workout" on the home screen with a mock plan and verifying: the Ready to Lift screen appears with correct plan details, the Begin Session button is disabled initially, it becomes enabled after selecting a feeling, and the selected feeling value is always uppercase.
+
+**Acceptance Scenarios**:
+
+1. **Given** the user is on the home screen with an active workout plan, **When** they tap "Start Workout", **Then** the "Ready to Lift" screen opens displaying the plan name, number of exercises, and estimated time.
+2. **Given** the Ready to Lift screen is open, **When** no feeling has been selected, **Then** the "Begin Session" button is disabled.
+3. **Given** the Ready to Lift screen is open, **When** the user selects a feeling option, **Then** the "Begin Session" button becomes enabled.
+4. **Given** the user selects a feeling, **When** that selection is prepared for submission, **Then** the feeling value is always in uppercase regardless of how it was displayed.
+
+---
+
+### User Story 2 - Begin Session and Navigate to Workout Execution (Priority: P2)
+
+After selecting their feeling, the user taps "Begin Session". The app registers the workout session with the backend and navigates the user to the workout execution screen, which displays the exercise blocks generated for this specific session.
+
+**Why this priority**: Completing the session-start handshake with the backend and presenting the exercise list is the core purpose of this flow. Depends on US1 (feeling selection) being complete.
+
+**Independent Test**: Can be tested by simulating a successful session-start response and asserting that: the app navigates to the workout execution screen, exercise blocks from the response are displayed, and the plan ID and current week number are included in the request.
+
+**Acceptance Scenarios**:
+
+1. **Given** the user has selected a feeling, **When** they tap "Begin Session", **Then** the button shows a loading indicator and cannot be tapped again.
+2. **Given** the session-start request is in progress, **When** the backend responds with success, **Then** the user is navigated to the workout execution screen.
+3. **Given** the user is on the workout execution screen, **When** the screen loads, **Then** the exercise blocks for the current session are displayed in order.
+4. **Given** the session starts successfully, **When** the workout execution screen appears, **Then** it shows the exercises generated or assigned for this session.
+
+---
+
+### User Story 3 - Handle Session Start Failure Gracefully (Priority: P3)
+
+If the session-start request fails due to a network error or server error, the user sees a clear error message on the Ready to Lift screen and can try again without needing to re-select their feeling.
+
+**Why this priority**: Error resilience is critical for gym-floor UX — a failed request during a workout attempt must not leave the user stranded. Independently testable without the full success flow.
+
+**Independent Test**: Can be tested by simulating a failed session-start request and asserting that an error message is displayed, the Begin Session button is re-enabled, and the previously selected feeling is preserved.
+
+**Acceptance Scenarios**:
+
+1. **Given** the session-start request fails, **When** the error is received, **Then** an error message is displayed on the Ready to Lift screen.
+2. **Given** an error has occurred, **When** the error message is shown, **Then** the "Begin Session" button is re-enabled so the user can try again.
+3. **Given** a failure occurred, **When** the user views the screen, **Then** their previously selected feeling is still shown as selected.
+
+---
+
+### Edge Cases
+
+- What happens when the user navigates back from the Ready to Lift screen before selecting a feeling?
+- What happens if the user's current week number is unavailable (e.g., not yet generated by the server)?
+- What happens if the session-start response returns an empty exercise list?
+- What happens when the user taps "Start Workout" but their plan has become invalid between home screen load and navigation?
+- What happens if the network is lost between feeling selection and tapping "Begin Session"?
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST navigate the user from the home screen to the "Ready to Lift" screen when they tap the "Start Workout" button, passing the current workout plan ID, plan name, number of exercises, and estimated duration.
+- **FR-002**: The "Ready to Lift" screen MUST display the title "Ready to Lift", the question "How do you feel?", and the workout plan's key details (name, exercise count, estimated duration).
+- **FR-003**: The "Ready to Lift" screen MUST present a set of feeling options for the user to choose from before starting the session.
+- **FR-004**: The "Begin Session" button MUST be disabled by default and MUST only become enabled once the user selects a feeling option.
+- **FR-005**: System MUST convert the selected feeling value to uppercase before including it in the session-start request.
+- **FR-006**: System MUST prevent the user from submitting the session-start request more than once while a request is in progress by showing a loading state on the "Begin Session" button and disabling it.
+- **FR-007**: System MUST send a session-start request to the backend including the current workout plan ID, the current workout week number, and the selected feeling (uppercase) when the user taps "Begin Session".
+- **FR-008**: System MUST navigate the user to the workout execution screen upon a successful session-start response.
+- **FR-009**: The workout execution screen MUST display the exercise blocks returned by the session-start response, in the order provided.
+- **FR-010**: System MUST display an error message on the "Ready to Lift" screen if the session-start request fails.
+- **FR-011**: System MUST re-enable the "Begin Session" button and preserve the selected feeling after a failed session-start request, allowing the user to retry.
+
+### Key Entities
+
+- **WorkoutSession**: A single active workout occurrence initiated by the user. Identified by a server-assigned ID; carries the plan ID, week number, feeling, and the list of exercise blocks to execute.
+- **ExerciseBlock**: One exercise entry within a workout session, containing exercise details and target sets (reps, weight, rest time). Ordered by the sequence in which they should be performed.
+- **SessionFeeling**: The user's self-reported energy level before starting the session. Stored and transmitted as an uppercase string (e.g., "GOOD", "GREAT", "TIRED").
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: Users can navigate from the home screen to the "Ready to Lift" screen and select a feeling in under 15 seconds.
+- **SC-002**: The "Begin Session" button is enabled in 100% of cases only after a feeling is selected — never before.
+- **SC-003**: The feeling value submitted to the backend is uppercase in 100% of cases, regardless of how the option was displayed to the user.
+- **SC-004**: Users see a loading indicator within 300 ms of tapping "Begin Session" in 100% of cases.
+- **SC-005**: On a successful session start, the user reaches the workout execution screen with exercise blocks visible in under 3 seconds on a standard mobile connection.
+- **SC-006**: On session-start failure, an error message is shown and the "Begin Session" button is re-enabled within 300 ms of receiving the error in 100% of cases.
+
+## Assumptions
+
+- The "Start Workout" button is already present on the home screen workout card (feature 015/016); this feature wires its navigation action.
+- The current workout plan ID is available from the home screen data already loaded by the app.
+- The current workout week number is available from the existing plan data (already tracked server-side).
+- The feeling options are a fixed, predefined set (e.g., "Great", "Good", "Okay", "Tired", "Bad") — not user-configurable.
+- The workout execution screen (the screen after session start) is a new screen introduced by this feature; it does not yet exist.
+- Only one active session can be in progress at a time per user; concurrent session starts are not in scope.
+- The user must have an active plan to reach the Ready to Lift screen; this is already enforced by the "Start Workout" button only being visible when a plan exists.

@@ -1,6 +1,6 @@
 # BodyMetric Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-29
+Auto-generated from all feature plans. Last updated: 2026-05-28
 
 ## Active Technologies
 - Swift 5.10 + SwiftUI (UI), URLSession (networking), GoogleSignIn-iOS via SPM (auth), KeychainSwift via SPM (secure email storage), UserDefaults (weight/height cache) (002-user-profile-fetch)
@@ -21,6 +21,18 @@ Auto-generated from all feature plans. Last updated: 2026-04-29
 - Keychain (refresh token — existing); in-memory actor (access token — existing) (010-api-auth-session)
 - Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), URLSession via existing `NetworkClient`; no new SPM packages (011-wizard-day-persist)
 - No local persistence; all data saved to server (011-wizard-day-persist)
+- Swift 5.10 / iOS 17+ + Existing `TokenRefreshCoordinator`, `KeychainService`, `TokenStore`; no new SPM packages (011-wizard-day-persist)
+- iOS Keychain (refresh token); in-memory actor (access token) (011-wizard-day-persist)
+- Swift 5.10 / iOS 17+ + Swift `Codable`; no new packages (011-wizard-day-persist)
+- No persistence; catalog is in-memory for the wizard session (012-wizard-exercise-catalog)
+- Swift 5.10 / iOS 17+ + Swift `Codable`; no new SPM packages (014-workout-week-tracking)
+- No local persistence changes (014-workout-week-tracking)
+- No local persistence; home data is fetched on every screen visi (015-home-screen-data)
+- Swift 5.10 + SwiftUI (`@Observable`), URLSession via `NetworkClient` (existing) (019-home-api-numberofsets)
+- N/A — home data is server-fetched on every visit; no local persistence change (019-home-api-numberofsets)
+- Swift 5.10 + SwiftUI (`@Observable`), `@Bindable` — no new SPM packages (020-wizard-step2-per-set-rows)
+- In-memory during wizard; no new UserDefaults or server persistence changes (020-wizard-step2-per-set-rows)
+- Swift 5.10 + URLSession (via `NetworkClient`), `JSONDecoder` (Foundation) (020-wizard-step2-per-set-rows)
 
 - Swift 5.10 / iOS 17+ + SwiftUI (UI), URLSession (networking), GoogleSignIn-iOS via SPM (auth), Security framework / KeychainSwift via SPM (secure storage) (001-gym-workout-tracker)
 
@@ -40,9 +52,9 @@ tests/
 Swift 5.10 / iOS 17+: Follow standard conventions
 
 ## Recent Changes
-- 011-wizard-day-persist: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), URLSession via existing `NetworkClient`; no new SPM packages
-- 010-api-auth-session: Added Swift 5.10 / iOS 17+ + URLSession (native), KeychainSwift SPM package; no new dependencies
-- 009-menu-sign-out: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`), GoogleSignIn-iOS (already present); no new SPM packages
+- 020-wizard-step2-per-set-rows: Added Swift 5.10 + URLSession (via `NetworkClient`), `JSONDecoder` (Foundation)
+- 020-wizard-step2-per-set-rows: Added Swift 5.10 + SwiftUI (`@Observable`), `@Bindable` — no new SPM packages
+- 019-home-api-numberofsets: Added Swift 5.10 + SwiftUI (`@Observable`), URLSession via `NetworkClient` (existing)
 
 
 <!-- MANUAL ADDITIONS START -->

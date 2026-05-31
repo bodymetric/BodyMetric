@@ -90,8 +90,77 @@ final class WorkoutPlanService: WorkoutPlanServiceProtocol {
             throw WorkoutPlanError.serverError(http.statusCode)
         }
 
-        // Decode 201 body to return planId per day (needed for step-2 day-plan saves).
-        return try decodeArray(data: data)
+        // Try to decode 201 body; if the server returns a different format, return empty
+        // and let the caller fall back to fetchDays() to retrieve the planIds.
+        return (try? decodeArray(data: data)) ?? []
+    }
+
+    func fetchCurrentPlan() async throws -> CurrentWorkoutPlan {
+        guard let url = URL(string: "\(Self.baseURL)/current") else {
+            throw WorkoutPlanError.networkError(URLError(.badURL))
+        }
+
+        Logger.info("WorkoutPlanService: fetchCurrentPlan initiated", category: .network)
+
+        let data: Data
+        let http: HTTPURLResponse
+
+        do {
+            (data, http) = try await networkClient.data(for: URLRequest(url: url))
+        } catch {
+            Logger.error("WorkoutPlanService: fetchCurrentPlan network failure", error: error, category: .network)
+            throw WorkoutPlanError.networkError(error)
+        }
+
+        Logger.info("WorkoutPlanService: fetchCurrentPlan HTTP \(http.statusCode)", category: .network)
+
+        switch http.statusCode {
+        case 200:
+            do {
+                return try JSONDecoder().decode(CurrentWorkoutPlan.self, from: data)
+            } catch {
+                Logger.error("WorkoutPlanService: fetchCurrentPlan decode failure", error: error, category: .network)
+                throw WorkoutPlanError.decodingError
+            }
+        case 404:
+            throw WorkoutPlanError.notFound
+        default:
+            throw WorkoutPlanError.serverError(http.statusCode)
+        }
+    }
+
+    func updatePlan(id: Int, request: UpdateWorkoutPlanRequest) async throws {
+        guard let url = URL(string: "\(Self.baseURL)/\(id)") else {
+            throw WorkoutPlanError.networkError(URLError(.badURL))
+        }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "PUT"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        do {
+            urlRequest.httpBody = try JSONEncoder().encode(request)
+        } catch {
+            Logger.error("WorkoutPlanService: updatePlan encode failure", error: error, category: .network)
+            throw WorkoutPlanError.networkError(error)
+        }
+
+        Logger.info("WorkoutPlanService: updatePlan initiated planId:\(id)", category: .network)
+
+        let http: HTTPURLResponse
+
+        do {
+            (_, http) = try await networkClient.data(for: urlRequest)
+        } catch {
+            Logger.error("WorkoutPlanService: updatePlan network failure", error: error, category: .network)
+            throw WorkoutPlanError.networkError(error)
+        }
+
+        Logger.info("WorkoutPlanService: updatePlan HTTP \(http.statusCode)", category: .network)
+
+        guard [200, 204].contains(http.statusCode) else {
+            throw WorkoutPlanError.serverError(http.statusCode)
+        }
     }
 
     private func decodeArray(data: Data) throws -> [WorkoutPlanDayResponse] {

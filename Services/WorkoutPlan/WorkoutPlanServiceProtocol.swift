@@ -25,4 +25,21 @@ protocol WorkoutPlanServiceProtocol: AnyObject {
     /// - Throws: `WorkoutPlanError.serverError` if the server returns non-201,
     ///   `WorkoutPlanError.networkError` for transport failures.
     func saveDays(_ days: [WorkoutPlanDayRequest]) async throws -> [WorkoutPlanDayResponse]
+
+    /// Fetches the authenticated user's current active workout plan with all nested day plans
+    /// and exercise blocks. Used to pre-fill the wizard in edit mode (feature 017).
+    /// - Returns: `CurrentWorkoutPlan` with full nested structure.
+    /// - Throws: `WorkoutPlanError.notFound` on 404,
+    ///   `WorkoutPlanError.serverError` for other HTTP errors,
+    ///   `WorkoutPlanError.decodingError` for malformed responses,
+    ///   `WorkoutPlanError.networkError` for transport failures.
+    func fetchCurrentPlan() async throws -> CurrentWorkoutPlan
+
+    /// Updates the existing workout plan identified by `id` with the full replacement payload.
+    /// - Parameters:
+    ///   - id: The server-assigned plan ID to update.
+    ///   - request: Full updated plan with all days and exercise blocks.
+    /// - Throws: `WorkoutPlanError.serverError` for non-200/204 responses,
+    ///   `WorkoutPlanError.networkError` for encode or transport failures.
+    func updatePlan(id: Int, request: UpdateWorkoutPlanRequest) async throws
 }

@@ -1,20 +1,17 @@
 import SwiftUI
 
 struct TodayView: View {
-    let workout: WorkoutSession
-    let streak: WorkoutStreak
+    let viewModel: TodayViewModel
     let userName: String
     let networkClient: any NetworkClientProtocol
     let onSignOut: @MainActor () -> Void
+    let homeService: any HomeServiceProtocol
 
     @State private var path = NavigationPath()
     @State private var menuOpen = false
     @State private var showWizard = false
-
-    private enum Destination: Hashable {
-        case checkIn
-        case activeSession(mood: String)
-    }
+    @State private var showEditWizard = false
+    @State private var showCheckIn = false
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -27,35 +24,27 @@ struct TodayView: View {
                         streakRibbon
                             .padding(.horizontal, 20)
                             .padding(.top, 14)
-                        workoutHeroCard
+                        workoutSection
                             .padding(.horizontal, 20)
                             .padding(.top, 18)
-                        exerciseMenuSection
-                            .padding(.horizontal, 20)
-                            .padding(.top, 20)
+                        if !viewModel.exercisesForToday.isEmpty {
+                            exercisesCard
+                                .padding(.horizontal, 20)
+                                .padding(.top, 20)
+                        }
                         Spacer().frame(height: 120)
                     }
                 }
             }
-            .navigationDestination(for: Destination.self) { dest in
-                switch dest {
-                case .checkIn:
-                    CheckInView(workout: workout) { mood in
-                        path.append(Destination.activeSession(mood: mood))
-                    }
-                case .activeSession(let mood):
-                    ActiveSessionView(
-                        viewModel: ActiveSessionViewModel(workout: workout, mood: mood)
-                    ) {
-                        path = NavigationPath()
-                    }
-                }
+            .task {
+                await viewModel.loadHomeData(using: homeService)
             }
             .overlay {
                 HomeMenuView(
                     isPresented: $menuOpen,
                     activeDestination: .today,
                     userName: userName,
+                    hasActivePlan: viewModel.hasActivePlan,
                     onNavigate: { destination in
                         menuOpen = false
                         switch destination {
@@ -63,6 +52,8 @@ struct TodayView: View {
                             break
                         case .newWorkoutPlan:
                             showWizard = true
+                        case .editPlan:
+                            showEditWizard = true
                         }
                     },
                     onSignOut: onSignOut
@@ -71,8 +62,29 @@ struct TodayView: View {
             .fullScreenCover(isPresented: $showWizard) {
                 NewPlanWizardView(
                     service: WorkoutPlanService(networkClient: networkClient),
-                    dayConfigService: WorkoutDayPlanService(networkClient: networkClient)
+                    dayConfigService: WorkoutDayPlanService(networkClient: networkClient),
+                    exerciseService: ExerciseService(networkClient: networkClient)
                 )
+            }
+            .fullScreenCover(isPresented: $showEditWizard) {
+                NewPlanWizardView(
+                    service: WorkoutPlanService(networkClient: networkClient),
+                    dayConfigService: WorkoutDayPlanService(networkClient: networkClient),
+                    exerciseService: ExerciseService(networkClient: networkClient),
+                    editPlanId: viewModel.workoutPlan?.id
+                )
+            }
+            .fullScreenCover(isPresented: $showCheckIn) {
+                if let plan = viewModel.workoutPlan {
+                    CheckInView(
+                        planId: plan.id,
+                        planName: plan.name,
+                        numberOfExercises: plan.numberOfExercisesTotal,
+                        estimatedMinutes: plan.timeEstimateToFinish,
+                        actualWeekNumber: plan.actualWeekNumber ?? 1,
+                        service: WorkoutExecutionService(networkClient: networkClient)
+                    )
+                }
             }
         }
     }
@@ -93,7 +105,6 @@ struct TodayView: View {
                     .tracking(-0.6)
             }
             Spacer()
-            // Mascot chip — tapping opens the home menu (FR-001)
             Button {
                 menuOpen = true
             } label: {
@@ -115,11 +126,11 @@ struct TodayView: View {
         .padding(.bottom, 6)
     }
 
-    // MARK: - Streak ribbon
+    // MARK: - Streak ribbon (mock — not in GET /api/home yet)
 
     private var streakRibbon: some View {
-        HStack(spacing: 14) {
-            // Flame icon
+        let streak = WorkoutStreak.mockStreak
+        return HStack(spacing: 14) {
             ZStack {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(WorkoutPalette.accentSoft)
@@ -133,14 +144,13 @@ struct TodayView: View {
                 Text("\(streak.days)-day streak")
                     .font(.system(size: 17, design: .rounded).weight(.semibold))
                     .foregroundStyle(GrayscalePalette.primary)
-                Text("4 of 5 sessions this week")
+                Text("Keep it up!")
                     .font(.system(size: 13))
                     .foregroundStyle(GrayscalePalette.secondary)
             }
 
             Spacer()
 
-            // Week dots
             HStack(spacing: 4) {
                 ForEach(Array(zip(["M","T","W","T","F","S","S"], streak.weekDone)), id: \.0) { day, done in
                     VStack(spacing: 4) {
@@ -171,47 +181,85 @@ struct TodayView: View {
         .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
     }
 
-    // MARK: - Workout hero card
+    // MARK: - Workout section (skeleton / populated / empty)
 
-    private var workoutHeroCard: some View {
+    @ViewBuilder
+    private var workoutSection: some View {
+        switch viewModel.loadState {
+        case .idle, .loading:
+            workoutCardSkeleton
+
+        case .loaded:
+            if let plan = viewModel.workoutPlan {
+                populatedWorkoutCard(plan)
+            } else {
+                emptyWorkoutCard
+            }
+
+        case .failed(let message):
+            workoutCardError(message)
+        }
+    }
+
+    // MARK: - Skeleton
+
+    private var workoutCardSkeleton: some View {
+        RoundedRectangle(cornerRadius: 28, style: .continuous)
+            .fill(GrayscalePalette.surface)
+            .frame(height: 200)
+            .overlay(
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .stroke(GrayscalePalette.separator, lineWidth: 1)
+            )
+            .opacity(0.7)
+    }
+
+    // MARK: - Populated workout card
+
+    private func populatedWorkoutCard(_ plan: WorkoutDayPlanSummary) -> some View {
         ZStack(alignment: .topTrailing) {
-            // Decorative circle ornament
             Circle()
                 .fill(WorkoutPalette.accent.opacity(0.18))
                 .frame(width: 160, height: 160)
                 .offset(x: 40, y: -40)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text(workout.program.uppercased())
+                Text("TODAY'S WORKOUT")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(GrayscalePalette.background.opacity(0.55))
                     .tracking(1.2)
                     .padding(.top, 20)
 
-                Text(workout.name)
+                Text(plan.name)
                     .font(.system(size: 26, design: .rounded).weight(.bold))
                     .foregroundStyle(GrayscalePalette.background)
                     .tracking(-0.5)
                     .lineLimit(2)
                     .padding(.top, 4)
 
+                Text(plan.dayOfWeek.capitalized)
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundStyle(GrayscalePalette.background.opacity(0.65))
+                    .tracking(1.2)
+                    .padding(.top, 2)
+
                 HStack(spacing: 22) {
-                    StatBadge(value: "\(workout.exercises.count)", label: "exercises")
+                    StatBadge(value: "\(plan.numberOfExercisesTotal)", label: "exercises")
                     Rectangle().fill(GrayscalePalette.background.opacity(0.15)).frame(width: 1, height: 30)
-                    StatBadge(value: "\(workout.totalSets)", label: "sets")
+                    StatBadge(value: "\(plan.numberSetsTotal)", label: "sets")
                     Rectangle().fill(GrayscalePalette.background.opacity(0.15)).frame(width: 1, height: 30)
-                    StatBadge(value: "\(workout.estimatedMinutes)", label: "est. min")
+                    StatBadge(value: "\(plan.timeEstimateToFinish)", label: "est. min")
                 }
                 .padding(.top, 18)
                 .opacity(0.9)
 
                 Button {
-                    path.append(Destination.checkIn)
+                    showCheckIn = true
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "play.fill")
                             .font(.system(size: 14))
-                        Text("Start workout")
+                        Text("Start Workout")
                             .font(.system(size: 17, design: .rounded).weight(.bold))
                     }
                     .foregroundStyle(WorkoutPalette.onAccent)
@@ -231,10 +279,65 @@ struct TodayView: View {
         .shadow(color: .black.opacity(0.08), radius: 20, y: 6)
     }
 
-    // MARK: - Exercise menu
+    // MARK: - Empty workout card
 
-    private var exerciseMenuSection: some View {
-        VStack(spacing: 0) {
+    private var emptyWorkoutCard: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "dumbbell")
+                .font(.system(size: 36, weight: .light))
+                .foregroundStyle(GrayscalePalette.secondary)
+
+            Text("No workout plan registered")
+                .font(.system(size: 17, design: .rounded).weight(.semibold))
+                .foregroundStyle(GrayscalePalette.primary)
+                .multilineTextAlignment(.center)
+
+            Button {
+                showWizard = true
+            } label: {
+                Text("New Workout Plan")
+                    .font(.system(size: 15, design: .rounded).weight(.semibold))
+                    .foregroundStyle(WorkoutPalette.onAccent)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(WorkoutPalette.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(24)
+        .background(GrayscalePalette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
+    }
+
+    // MARK: - Error card
+
+    private func workoutCardError(_ message: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 28, weight: .light))
+                .foregroundStyle(GrayscalePalette.secondary)
+            Text(message)
+                .font(.system(size: 14))
+                .foregroundStyle(GrayscalePalette.secondary)
+                .multilineTextAlignment(.center)
+            Button("Retry") {
+                Task { await viewModel.reload(using: homeService) }
+            }
+            .font(.system(size: 14, design: .rounded).weight(.semibold))
+            .foregroundStyle(GrayscalePalette.primary)
+        }
+        .padding(24)
+        .background(GrayscalePalette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(GrayscalePalette.separator, lineWidth: 1))
+    }
+
+    // MARK: - Exercises card
+
+    private var exercisesCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("On the menu")
                     .font(.system(size: 13, design: .rounded).weight(.semibold))
@@ -242,14 +345,14 @@ struct TodayView: View {
                     .tracking(0.4)
                     .textCase(.uppercase)
                 Spacer()
-                Text("\(workout.exercises.count) lifts")
+                Text("\(viewModel.exercisesForToday.count) exercises")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundStyle(GrayscalePalette.secondary)
             }
             .padding(.bottom, 10)
 
             VStack(spacing: 0) {
-                ForEach(Array(workout.exercises.enumerated()), id: \.element.id) { i, ex in
+                ForEach(Array(viewModel.exercisesForToday.enumerated()), id: \.element.id) { i, ex in
                     HStack(spacing: 12) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -259,37 +362,22 @@ struct TodayView: View {
                                 .font(.system(size: 12, design: .monospaced).weight(.bold))
                                 .foregroundStyle(WorkoutPalette.accentInk)
                         }
-
-                        VStack(alignment: .leading, spacing: 1) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(ex.name)
                                 .font(.system(size: 15, design: .rounded).weight(.semibold))
                                 .foregroundStyle(GrayscalePalette.primary)
                                 .tracking(-0.2)
-                            let prevWeight = ex.sets[0].prevWeight
-                            Text("\(ex.sets.count) × \(ex.sets[0].targetReps)  ·  last \(formattedWeight(prevWeight))kg")
-                                .font(.system(size: 12, design: .monospaced))
+                            Text("\(ex.numberOfSets) sets")
+                                .font(.system(size: 11, design: .monospaced))
                                 .foregroundStyle(GrayscalePalette.secondary)
                         }
-
                         Spacer()
-
-                        if ex.pr != nil {
-                            Text("PR")
-                                .font(.system(size: 9, design: .monospaced).weight(.bold))
-                                .foregroundStyle(WorkoutPalette.accentInk)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 3)
-                                .background(WorkoutPalette.accentSoft)
-                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                                .tracking(1)
-                        }
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
 
-                    if i < workout.exercises.count - 1 {
-                        Divider()
-                            .padding(.leading, 58)
+                    if i < viewModel.exercisesForToday.count - 1 {
+                        Divider().padding(.leading, 58)
                     }
                 }
             }
@@ -307,9 +395,6 @@ struct TodayView: View {
         return f.string(from: Date())
     }
 
-    private func formattedWeight(_ w: Double) -> String {
-        w.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", w) : String(format: "%.1f", w)
-    }
 }
 
 // MARK: - Sub-views
@@ -333,7 +418,6 @@ private struct StatBadge: View {
     }
 }
 
-// Preview uses a no-op stub so Xcode canvas doesn't require a live NetworkClient.
 @MainActor
 private final class PreviewNetworkClientStub: NetworkClientProtocol {
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
@@ -341,12 +425,33 @@ private final class PreviewNetworkClientStub: NetworkClientProtocol {
     }
 }
 
+@MainActor
+private final class PreviewHomeServiceStub: HomeServiceProtocol {
+    func fetchHomeData() async throws -> HomeScreenData {
+        HomeScreenData(
+            currentWorkoutDayPlan: WorkoutDayPlanSummary(
+                id: 1,
+                name: "Chest and Triceps",
+                dayOfWeek: "SUNDAY",
+                numberOfExercisesTotal: 5,
+                numberSetsTotal: 15,
+                timeEstimateToFinish: 52,
+                actualWeekNumber: 1
+            ),
+            exercisesForToday: [
+                TodayExercise(id: 1, name: "Bench Press",       orderIndex: 1, sets: []),
+                TodayExercise(id: 2, name: "Tricep Extension",  orderIndex: 2, sets: []),
+            ]
+        )
+    }
+}
+
 #Preview {
     TodayView(
-        workout: .mockToday,
-        streak: .init(days: 12, weekDone: [true, true, false, true, true, false, false]),
+        viewModel: TodayViewModel(),
         userName: "Alex",
         networkClient: PreviewNetworkClientStub(),
-        onSignOut: {}
+        onSignOut: {},
+        homeService: PreviewHomeServiceStub()
     )
 }

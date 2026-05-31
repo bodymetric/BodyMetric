@@ -14,6 +14,7 @@ struct HomeMenuView: View {
     @Binding var isPresented: Bool
     var activeDestination: HomeMenuDestination = .today
     let userName: String
+    var hasActivePlan: Bool = false   // drives "New Workout Plan" / "My Plans" enabled state
     var onNavigate: (HomeMenuDestination) -> Void
     var onSignOut: (() -> Void)? = nil
 
@@ -167,11 +168,12 @@ struct HomeMenuView: View {
     @ViewBuilder
     private func menuItemRow(_ item: HomeMenuItem) -> some View {
         // Label color: secondary for the Exit sign-out row; primary for everything else.
+        let active = effectiveIsActive(for: item)
         let labelColor: Color = item.isSignOut ? GrayscalePalette.secondary : GrayscalePalette.primary
         let iconColor: Color = item.isPrimary ? WorkoutPalette.accentInk : GrayscalePalette.secondary
 
         Button {
-            guard item.isActive else { return }
+            guard active else { return }
             if item.isSignOut {
                 // Sign-out: close menu first, then invoke callback (spec FR-003/FR-004)
                 Logger.info("menu_sign_out_tapped")
@@ -212,11 +214,11 @@ struct HomeMenuView: View {
                 Spacer()
 
                 // Trailing indicator
-                if item.isActive && !item.isSignOut {
+                if active && !item.isSignOut {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(GrayscalePalette.secondary)
-                } else if !item.isActive {
+                } else if !active {
                     Text("SOON")
                         .font(.system(size: 9, design: .monospaced).weight(.bold))
                         .foregroundStyle(GrayscalePalette.secondary)
@@ -235,14 +237,26 @@ struct HomeMenuView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 10)
             .background(
-                (activeDestination == item.destination && !item.isSignOut)
+                (activeDestination == item.destination && !item.isSignOut && active)
                     ? GrayscalePalette.surface : .clear
             )
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .opacity(item.isActive ? 1 : 0.45)
+            .opacity(active ? 1 : 0.45)
         }
         .buttonStyle(.plain)
-        .disabled(!item.isActive)
+        .disabled(!active)
+    }
+
+    // MARK: - Dynamic item state
+
+    /// Overrides static `isActive` for plan-dependent menu items.
+    /// "New Workout Plan" is enabled when the user has NO active plan; "My Plans" when they DO.
+    private func effectiveIsActive(for item: HomeMenuItem) -> Bool {
+        switch item.id {
+        case "newPlan": return !hasActivePlan
+        case "myPlan": return hasActivePlan
+        default: return item.isActive
+        }
     }
 
     // MARK: - Dismiss

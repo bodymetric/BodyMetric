@@ -55,19 +55,22 @@ final class NetworkClientTests: XCTestCase {
                        "Authorization header must contain bearer token")
     }
 
-    func test_data_noToken_throwsNoToken() async throws {
+    // T001: renamed + updated — after fix, noToken path calls coordinator first.
+    // When coordinator also fails, throws .unauthorized (not .noToken).
+    func test_data_noToken_coordinatorFails_throwsUnauthorized() async throws {
         await mockTokenStore.set(accessToken: nil)
+        mockCoordinator.shouldThrow = true
         MockURLProtocol.requestHandler = { _ in
-            XCTFail("Request must NOT be sent when no token is available")
+            XCTFail("Request must NOT reach the server when refresh fails")
             let resp = HTTPURLResponse(url: self.testURL, statusCode: 200,
                                        httpVersion: nil, headerFields: nil)!
             return (Data(), resp)
         }
         do {
             _ = try await sut.data(for: URLRequest(url: testURL))
-            XCTFail("Expected NetworkError.noToken")
-        } catch NetworkError.noToken {
-            // expected
+            XCTFail("Expected NetworkError.unauthorized")
+        } catch NetworkError.unauthorized {
+            // expected — coordinator threw, so unauthorized (not noToken)
         }
     }
 
@@ -82,6 +85,47 @@ final class NetworkClientTests: XCTestCase {
         let (data, http) = try await sut.data(for: URLRequest(url: testURL))
         XCTAssertEqual(data, body)
         XCTAssertEqual(http.statusCode, 200)
+    }
+
+    // MARK: - noToken proactive refresh (T002 + T003 — fail before fix is applied)
+
+    // T002: no token → coordinator refreshes successfully → request proceeds with new token
+    func test_data_noToken_coordinatorRefreshSucceeds_requestProceedsWithNewToken() async throws {
+        await mockTokenStore.set(accessToken: nil)
+        // Coordinator populates the access token when called
+        mockCoordinator.onRefresh = { [weak self] in
+            await self?.mockTokenStore.set(accessToken: "refreshed-token")
+        }
+        var capturedAuth: String?
+        MockURLProtocol.requestHandler = { req in
+            capturedAuth = req.value(forHTTPHeaderField: "Authorization")
+            let resp = HTTPURLResponse(url: self.testURL, statusCode: 200,
+                                       httpVersion: nil, headerFields: nil)!
+            return (Data(), resp)
+        }
+        let (_, http) = try await sut.data(for: URLRequest(url: testURL))
+        XCTAssertEqual(http.statusCode, 200, "Request must succeed after proactive refresh")
+        XCTAssertEqual(capturedAuth, "Bearer refreshed-token",
+                       "Request must use the refreshed token in Authorization header")
+        XCTAssertTrue(mockCoordinator.refreshCalled,
+                      "Coordinator.refresh must be called when accessToken is nil")
+    }
+
+    // T003: no token → coordinator throws → throws .unauthorized
+    func test_data_noToken_coordinatorThrows_throwsUnauthorized() async throws {
+        await mockTokenStore.set(accessToken: nil)
+        mockCoordinator.shouldThrow = true
+        MockURLProtocol.requestHandler = { _ in
+            XCTFail("Request must NOT reach the server when refresh fails")
+            return (Data(), HTTPURLResponse(url: self.testURL, statusCode: 200,
+                                            httpVersion: nil, headerFields: nil)!)
+        }
+        do {
+            _ = try await sut.data(for: URLRequest(url: testURL))
+            XCTFail("Expected NetworkError.unauthorized")
+        } catch NetworkError.unauthorized {
+            // ✅ expected — refresh failed → unauthorized
+        }
     }
 
     // MARK: - US4: 401 reactive refresh + retry

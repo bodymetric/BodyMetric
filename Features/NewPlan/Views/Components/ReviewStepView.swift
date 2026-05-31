@@ -158,7 +158,7 @@ struct ReviewStepView: View {
                 .foregroundStyle(GrayscalePalette.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .lineLimit(1)
-            Text("\(block.targetReps)×\(formattedWeight(block.targetWeight))kg · \(block.restSeconds)s")
+            Text("\(block.sets.count) sets · \(block.restSeconds)s rest")
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(GrayscalePalette.secondary)
                 .lineLimit(1)
@@ -187,11 +187,5 @@ struct ReviewStepView: View {
         )
     }
 
-    // MARK: - Helpers
 
-    private func formattedWeight(_ w: Double) -> String {
-        w.truncatingRemainder(dividingBy: 1) == 0
-            ? String(format: "%.0f", w)
-            : String(format: "%.1f", w)
-    }
 }

@@ -2,12 +2,14 @@ import SwiftUI
 
 /// Bottom-sheet exercise picker for the New Plan wizard.
 ///
-/// Shows the 18-exercise catalog grouped by muscle with live search.
+/// Shows exercises from the API catalog grouped by muscle with live search.
+/// `exerciseCatalog` is loaded once by `NewPlanViewModel` and shared across all pickers.
 /// Tapping an exercise calls `onPick(exerciseId)` and dismisses the sheet.
 ///
 /// Constitution Principle VI: GrayscalePalette + WorkoutPalette for selected cell only.
 struct ExercisePickerSheetView: View {
 
+    let exerciseCatalog: [ExerciseCatalogGroup]
     let currentExerciseId: String
     let onPick: (String) -> Void
     @Environment(\.dismiss) private var dismiss
@@ -73,7 +75,7 @@ struct ExercisePickerSheetView: View {
     private var exerciseList: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                ForEach(filteredGroups, id: \.muscle) { group in
+                ForEach(filteredGroups) { group in
                     muscleSection(group)
                 }
             }
@@ -82,9 +84,9 @@ struct ExercisePickerSheetView: View {
     }
 
     @ViewBuilder
-    private func muscleSection(_ group: MuscleGroup) -> some View {
+    private func muscleSection(_ group: ExerciseCatalogGroup) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(group.muscle.uppercased())
+            Text(group.group.uppercased())
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(GrayscalePalette.secondary)
                 .tracking(1.2)
@@ -105,10 +107,11 @@ struct ExercisePickerSheetView: View {
     }
 
     @ViewBuilder
-    private func exerciseRow(ex: Exercise, isLast: Bool) -> some View {
-        let isSelected = ex.id == currentExerciseId
+    private func exerciseRow(ex: ApiExercise, isLast: Bool) -> some View {
+        let exIdString = String(ex.id)
+        let isSelected = exIdString == currentExerciseId
         Button {
-            onPick(ex.id)
+            onPick(exIdString)
             dismiss()
         } label: {
             HStack(spacing: 10) {
@@ -162,25 +165,16 @@ struct ExercisePickerSheetView: View {
 
     // MARK: - Filtered data
 
-    private struct MuscleGroup {
-        let muscle: String
-        let exercises: [Exercise]
-    }
-
-    private var filteredGroups: [MuscleGroup] {
+    private var filteredGroups: [ExerciseCatalogGroup] {
         let trimmed = query.trimmingCharacters(in: .whitespaces).lowercased()
-        let filtered = trimmed.isEmpty
-            ? Exercise.catalog
-            : Exercise.catalog.filter {
+        guard !trimmed.isEmpty else { return exerciseCatalog }
+        return exerciseCatalog.compactMap { group in
+            let filtered = group.exercises.filter {
                 $0.name.lowercased().contains(trimmed) ||
-                $0.primaryMuscle.lowercased().contains(trimmed)
-              }
-
-        var seen: [String: [Exercise]] = [:]
-        for ex in filtered {
-            seen[ex.primaryMuscle, default: []].append(ex)
+                group.group.lowercased().contains(trimmed)
+            }
+            return filtered.isEmpty ? nil :
+                ExerciseCatalogGroup(group: group.group, exercises: filtered)
         }
-        return seen.sorted { $0.key < $1.key }
-                   .map { MuscleGroup(muscle: $0.key, exercises: $0.value) }
     }
 }

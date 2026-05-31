@@ -53,8 +53,22 @@ final class NetworkClient: NetworkClientProtocol {
         }
 
         guard let token = await tokenStore.accessToken else {
-            Logger.warning("NetworkClient: no access token — request blocked", category: .network)
-            throw NetworkError.noToken
+            // Access token is nil (app restart or proactive timer cleared it).
+            // Attempt refresh using the Keychain refresh token before blocking.
+            // This mirrors the 401 handling path below (Constitution Principle VII).
+            Logger.info("NetworkClient: no access token — attempting refresh", category: .network)
+            traceEvent("token_refresh_on_no_token")
+            do {
+                try await coordinator.refresh(tokenStore: tokenStore)
+            } catch {
+                Logger.error("NetworkClient: refresh failed after no-token",
+                             error: error, category: .network)
+                throw NetworkError.unauthorized
+            }
+            guard let refreshedToken = await tokenStore.accessToken else {
+                throw NetworkError.unauthorized
+            }
+            return try await execute(request, bearerToken: refreshedToken)
         }
 
         let firstResponse = try await execute(request, bearerToken: token)

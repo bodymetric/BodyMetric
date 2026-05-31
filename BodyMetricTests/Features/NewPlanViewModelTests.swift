@@ -279,10 +279,7 @@ final class NewPlanViewModelAPITests: XCTestCase {
 
     func test_loadDays_success_setsLoadStateLoaded() async {
         mockService.daysToReturn = [
-            WorkoutPlanDayResponse(planId: 7, plannedWeekNumber: 7,
-                                   plannedDayOfWeek: "sunday", executionCount: 0,
-                                   dayNames: [], totalExercises: 0,
-                                   totalSets: 0, estimatedDurationMinutes: 0),
+            WorkoutPlanDayResponse(planId: 7, plannedDayOfWeek: "SUNDAY", executionCount: 0, dayNames: [], totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0),
         ]
         await sut.loadDays(using: mockService)
         XCTAssertEqual(sut.loadState, .loaded)
@@ -290,10 +287,7 @@ final class NewPlanViewModelAPITests: XCTestCase {
 
     func test_loadDays_success_preFillsSunday() async {
         mockService.daysToReturn = [
-            WorkoutPlanDayResponse(planId: 7, plannedWeekNumber: 7,
-                                   plannedDayOfWeek: "sunday", executionCount: 0,
-                                   dayNames: [], totalExercises: 0,
-                                   totalSets: 0, estimatedDurationMinutes: 0),
+            WorkoutPlanDayResponse(planId: 7, plannedDayOfWeek: "SUNDAY", executionCount: 0, dayNames: [], totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0),
         ]
         await sut.loadDays(using: mockService)
         XCTAssertEqual(sut.selectedDays, [.sunday])
@@ -301,14 +295,8 @@ final class NewPlanViewModelAPITests: XCTestCase {
 
     func test_loadDays_success_preFillsMondayAndFriday() async {
         mockService.daysToReturn = [
-            WorkoutPlanDayResponse(planId: 1, plannedWeekNumber: 1,
-                                   plannedDayOfWeek: "monday", executionCount: 0,
-                                   dayNames: [], totalExercises: 0,
-                                   totalSets: 0, estimatedDurationMinutes: 0),
-            WorkoutPlanDayResponse(planId: 5, plannedWeekNumber: 5,
-                                   plannedDayOfWeek: "friday", executionCount: 0,
-                                   dayNames: [], totalExercises: 0,
-                                   totalSets: 0, estimatedDurationMinutes: 0),
+            WorkoutPlanDayResponse(planId: 1, plannedDayOfWeek: "MONDAY", executionCount: 0, dayNames: [], totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0),
+            WorkoutPlanDayResponse(planId: 5, plannedDayOfWeek: "FRIDAY", executionCount: 0, dayNames: [], totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0),
         ]
         await sut.loadDays(using: mockService)
         XCTAssertEqual(sut.selectedDays, [.monday, .friday])
@@ -316,10 +304,7 @@ final class NewPlanViewModelAPITests: XCTestCase {
 
     func test_loadDays_invalidWeekNumber_ignoresEntry() async {
         mockService.daysToReturn = [
-            WorkoutPlanDayResponse(planId: 99, plannedWeekNumber: 0,
-                                   plannedDayOfWeek: "invalid", executionCount: 0,
-                                   dayNames: [], totalExercises: 0,
-                                   totalSets: 0, estimatedDurationMinutes: 0),
+            WorkoutPlanDayResponse(planId: 99, plannedDayOfWeek: "INVALID", executionCount: 0, dayNames: [], totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0),
         ]
         await sut.loadDays(using: mockService)
         // loadState is .empty because no valid days parsed, selectedDays stays empty
@@ -448,6 +433,27 @@ final class MockWorkoutPlanService: WorkoutPlanServiceProtocol {
         savedDays = days
         return savedDaysResponse
     }
+
+    // Feature 017: edit mode
+    var currentPlanToReturn: CurrentWorkoutPlan?
+    var fetchCurrentPlanCallCount = 0
+    var updatePlanShouldThrow = false
+    var lastUpdatePlanId: Int?
+    var lastUpdatePlanRequest: UpdateWorkoutPlanRequest?
+    var updatePlanCallCount = 0
+
+    func fetchCurrentPlan() async throws -> CurrentWorkoutPlan {
+        fetchCurrentPlanCallCount += 1
+        if let error = errorToThrow { throw error }
+        return currentPlanToReturn!
+    }
+
+    func updatePlan(id: Int, request: UpdateWorkoutPlanRequest) async throws {
+        updatePlanCallCount += 1
+        lastUpdatePlanId = id
+        lastUpdatePlanRequest = request
+        if updatePlanShouldThrow { throw WorkoutPlanError.serverError(400) }
+    }
 }
 
 // MARK: - Day config (step 2) tests (T004)
@@ -477,12 +483,8 @@ final class NewPlanViewModelDayConfigTests: XCTestCase {
 
     func test_saveDays_storesWorkoutPlanIdsFromResponse() async {
         sut.selectedDays = [.monday, .sunday]
-        let mondayResponse = WorkoutPlanDayResponse(planId: 10, plannedWeekNumber: 1,
-            plannedDayOfWeek: "monday", executionCount: 0, dayNames: [],
-            totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0)
-        let sundayResponse = WorkoutPlanDayResponse(planId: 77, plannedWeekNumber: 7,
-            plannedDayOfWeek: "sunday", executionCount: 0, dayNames: [],
-            totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0)
+        let mondayResponse = WorkoutPlanDayResponse(planId: 10, plannedDayOfWeek: "MONDAY", executionCount: 0, dayNames: [], totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0)
+        let sundayResponse = WorkoutPlanDayResponse(planId: 77, plannedDayOfWeek: "SUNDAY", executionCount: 0, dayNames: [], totalExercises: 0, totalSets: 0, estimatedDurationMinutes: 0)
         mockPlanService.savedDaysResponse = [mondayResponse, sundayResponse]
 
         await sut.saveDays(using: mockPlanService, onSuccess: {})
@@ -536,43 +538,39 @@ final class NewPlanViewModelDayConfigTests: XCTestCase {
         XCTAssertFalse(sut.isDayConfigSaving)
     }
 
-    // MARK: - saveDayConfig: exercise block failure
+    // MARK: - saveDayConfig: unified request (feature 013)
 
-    func test_saveDayConfig_blockFailure_onSuccessNotCalled() async {
+    func test_saveDayConfig_success_requestContainsExerciseBlocks() async {
         setupDayWithPlanId(day: .monday, planId: 5)
-        mockDayConfigService.saveExerciseBlockShouldThrow = true
-        var called = false
-        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: { called = true })
-        XCTAssertFalse(called)
+        await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: {})
+        XCTAssertEqual(mockDayConfigService.lastSavedRequest?.exerciseBlocks.count, 1,
+                       "Request must contain exercise blocks")
     }
 
-    func test_saveDayConfig_blockFailure_dayConfigSaveErrorNotNil() async {
+    func test_saveDayConfig_multipleBlocks_assignCorrectOrderIndex() async {
+        setupDayWithTwoBlocks(day: .wednesday, planId: 99)
+        await sut.saveDayConfig(for: .wednesday, using: mockDayConfigService, onSuccess: {})
+        let blocks = mockDayConfigService.lastSavedRequest?.exerciseBlocks
+        XCTAssertEqual(blocks?[0].orderIndex, 1)
+        XCTAssertEqual(blocks?[1].orderIndex, 2)
+    }
+
+    func test_saveDayConfig_exerciseBlock_hasCorrectTargetSet() async {
         setupDayWithPlanId(day: .monday, planId: 5)
-        mockDayConfigService.saveExerciseBlockShouldThrow = true
         await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: {})
-        XCTAssertNotNil(sut.dayConfigSaveError)
+        let sets = mockDayConfigService.lastSavedRequest?.exerciseBlocks[0].targetSets
+        XCTAssertEqual(sets?.count, 1)
+        XCTAssertEqual(sets?[0].orderIndex, 1)
     }
 
     // MARK: - Duplicate-tap guard
 
-    func test_saveDayConfig_isDayConfigSavingPreventsReeentry() async {
+    func test_saveDayConfig_isDayConfigSavingPreventsReentry() async {
         setupDayWithPlanId(day: .monday, planId: 5)
-        // Manually set saving flag to simulate in-progress
         sut.isDayConfigSaving = true
         var called = false
         await sut.saveDayConfig(for: .monday, using: mockDayConfigService, onSuccess: { called = true })
         XCTAssertFalse(called, "Re-entry must be blocked when isDayConfigSaving is true")
-    }
-
-    // MARK: - US3: sequential block save — second block fails
-
-    func test_saveDayConfig_secondBlockFails_onSuccessNotCalled() async {
-        setupDayWithTwoBlocks(day: .wednesday, planId: 99)
-        mockDayConfigService.saveExerciseBlockFailAtCallIndex = 1  // first ok, second fails
-        var called = false
-        await sut.saveDayConfig(for: .wednesday, using: mockDayConfigService, onSuccess: { called = true })
-        XCTAssertFalse(called)
-        XCTAssertNotNil(sut.dayConfigSaveError)
     }
 
     // MARK: - Helpers
@@ -603,26 +601,245 @@ final class NewPlanViewModelDayConfigTests: XCTestCase {
     }
 }
 
-// MARK: - MockWorkoutDayPlanService
+// MARK: - MockWorkoutDayPlanService (feature 013: unified single POST)
 
 @MainActor
 final class MockWorkoutDayPlanService: WorkoutDayPlanServiceProtocol {
-    var dayPlanResponseId: Int = 42
     var saveDayPlanShouldThrow = false
-    var saveExerciseBlockShouldThrow = false
-    var saveExerciseBlockFailAtCallIndex: Int? = nil
-    private var exerciseBlockCallCount = 0
+    var lastSavedRequest: WorkoutDayPlanRequest?
 
-    func saveDayPlan(workoutPlanId: Int, request: WorkoutDayPlanRequest) async throws -> WorkoutDayPlanResponse {
+    func saveDayPlan(workoutPlanId: Int, request: WorkoutDayPlanRequest) async throws {
+        lastSavedRequest = request
         if saveDayPlanShouldThrow { throw WorkoutPlanError.serverError(500) }
-        return WorkoutDayPlanResponse(workoutDayPlanId: dayPlanResponseId)
+    }
+}
+
+// MARK: - Exercise catalog tests (T003)
+
+@MainActor
+final class ExerciseCatalogViewModelTests: XCTestCase {
+
+    private var sut: NewPlanViewModel!
+    private var mockService: MockExerciseService!
+
+    override func setUp() async throws {
+        try await super.setUp()
+        mockService = MockExerciseService()
+        sut = NewPlanViewModel()
     }
 
-    func saveExerciseBlock(workoutDayPlanId: Int, request: ExerciseBlockPlanRequest) async throws {
-        defer { exerciseBlockCallCount += 1 }
-        if saveExerciseBlockShouldThrow { throw WorkoutPlanError.serverError(500) }
-        if let failAt = saveExerciseBlockFailAtCallIndex, exerciseBlockCallCount >= failAt {
-            throw WorkoutPlanError.serverError(500)
+    override func tearDown() async throws {
+        sut = nil
+        mockService = nil
+        try await super.tearDown()
+    }
+
+    func test_loadExerciseCatalog_success_setsLoadedState() async {
+        mockService.catalogToReturn = [
+            ExerciseCatalogGroup(group: "back", exercises: [ApiExercise(id: 26, name: "Back Extension")])
+        ]
+        await sut.loadExerciseCatalog(using: mockService)
+        XCTAssertEqual(sut.exerciseCatalogLoadState, .loaded)
+        XCTAssertEqual(sut.exerciseGroups.count, 1)
+        XCTAssertEqual(sut.exerciseGroups[0].group, "back")
+    }
+
+    func test_loadExerciseCatalog_failure_setsFailedState() async {
+        mockService.errorToThrow = WorkoutPlanError.serverError(500)
+        await sut.loadExerciseCatalog(using: mockService)
+        if case .failed = sut.exerciseCatalogLoadState { /* ✅ */ } else {
+            XCTFail("Expected .failed, got \(sut.exerciseCatalogLoadState)")
         }
+        XCTAssertTrue(sut.exerciseGroups.isEmpty)
+    }
+
+    func test_loadExerciseCatalog_calledTwice_fetchesOnce() async {
+        mockService.catalogToReturn = [
+            ExerciseCatalogGroup(group: "back", exercises: [ApiExercise(id: 26, name: "Back Extension")])
+        ]
+        await sut.loadExerciseCatalog(using: mockService)
+        await sut.loadExerciseCatalog(using: mockService)
+        XCTAssertEqual(mockService.fetchCount, 1, "Catalog must only be fetched once (single-load guard)")
+    }
+
+    func test_exerciseName_returnsCorrectName() async {
+        mockService.catalogToReturn = [
+            ExerciseCatalogGroup(group: "back", exercises: [ApiExercise(id: 26, name: "Back Extension")])
+        ]
+        await sut.loadExerciseCatalog(using: mockService)
+        XCTAssertEqual(sut.exerciseName(for: "26"), "Back Extension")
+        XCTAssertNil(sut.exerciseName(for: "999"))
+        XCTAssertNil(sut.exerciseName(for: ""))
+    }
+
+    func test_reloadExerciseCatalog_fetchesAgain() async {
+        mockService.catalogToReturn = [
+            ExerciseCatalogGroup(group: "back", exercises: [])
+        ]
+        await sut.loadExerciseCatalog(using: mockService)
+        await sut.reloadExerciseCatalog(using: mockService)
+        XCTAssertEqual(mockService.fetchCount, 2, "Reload must bypass the single-load guard")
+    }
+}
+
+// MARK: - Edit mode tests (feature 017)
+
+@MainActor
+final class NewPlanViewModelEditModeTests: XCTestCase {
+
+    private var sut: NewPlanViewModel!
+    private var mockService: MockWorkoutPlanService!
+
+    override func setUp() async throws {
+        try await super.setUp()
+        mockService = MockWorkoutPlanService()
+        sut = NewPlanViewModel()
+    }
+
+    override func tearDown() async throws {
+        sut = nil
+        mockService = nil
+        try await super.tearDown()
+    }
+
+    // MARK: - loadCurrentPlan: success
+
+    func test_loadCurrentPlan_prefillsAllState() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        await sut.loadCurrentPlan(using: mockService)
+
+        XCTAssertEqual(sut.planId, 123)
+        XCTAssertTrue(sut.selectedDays.contains(.monday))
+        XCTAssertEqual(sut.dayPlans[.monday]?.sessionName, "Chest Day")
+        XCTAssertEqual(sut.dayPlans[.monday]?.blocks.first?.exerciseId, "26")
+        XCTAssertEqual(sut.dayPlans[.monday]?.blocks.first?.restSeconds, 90)
+        XCTAssertEqual(sut.dayPlans[.monday]?.blocks.first?.targetReps, 10)
+        XCTAssertEqual(sut.dayPlans[.monday]?.blocks.first?.targetWeight, 60.0)
+        XCTAssertEqual(sut.workoutPlanIds[.monday], 456)
+        XCTAssertTrue(sut.isEditMode)
+        XCTAssertEqual(sut.editPlanLoadState, .loaded)
+    }
+
+    func test_loadCurrentPlan_setsEditModeTrue() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        await sut.loadCurrentPlan(using: mockService)
+        XCTAssertTrue(sut.isEditMode)
+    }
+
+    // MARK: - loadCurrentPlan: not found
+
+    func test_loadCurrentPlan_notFound_setsFailedState() async {
+        mockService.errorToThrow = WorkoutPlanError.notFound
+        await sut.loadCurrentPlan(using: mockService)
+        XCTAssertEqual(sut.editPlanLoadState, .failed("No active plan found."))
+        XCTAssertNil(sut.planId)
+    }
+
+    // MARK: - loadCurrentPlan: network error
+
+    func test_loadCurrentPlan_networkError_setsFailedState() async {
+        mockService.errorToThrow = WorkoutPlanError.networkError(URLError(.notConnectedToInternet))
+        await sut.loadCurrentPlan(using: mockService)
+        if case .failed = sut.editPlanLoadState { /* ✅ */ } else {
+            XCTFail("Expected .failed, got \(sut.editPlanLoadState)")
+        }
+        XCTAssertNil(sut.planId)
+    }
+
+    // MARK: - loadCurrentPlan: re-entry guard
+
+    func test_loadCurrentPlan_reentryGuard_doesNotFetchTwice() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        sut.editPlanLoadState = .loading
+        await sut.loadCurrentPlan(using: mockService)
+        XCTAssertEqual(mockService.fetchCurrentPlanCallCount, 0)
+    }
+
+    // MARK: - updatePlan: success
+
+    func test_updatePlan_success_callsOnSuccess() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        await sut.loadCurrentPlan(using: mockService)
+
+        var onSuccessCalled = false
+        await sut.updatePlan(using: mockService) { onSuccessCalled = true }
+        XCTAssertTrue(onSuccessCalled)
+        XCTAssertFalse(sut.isSaving)
+    }
+
+    func test_updatePlan_success_callsServiceWithCorrectPlanId() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        await sut.loadCurrentPlan(using: mockService)
+
+        await sut.updatePlan(using: mockService) {}
+        XCTAssertEqual(mockService.lastUpdatePlanId, 123)
+    }
+
+    func test_updatePlan_request_containsSelectedDay() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        await sut.loadCurrentPlan(using: mockService)
+
+        await sut.updatePlan(using: mockService) {}
+        XCTAssertEqual(mockService.lastUpdatePlanRequest?.days.count, 1)
+        XCTAssertEqual(mockService.lastUpdatePlanRequest?.days.first?.plannedDayOfWeek, "monday")
+    }
+
+    // MARK: - updatePlan: failure
+
+    func test_updatePlan_serverError_setsSaveErrorMessage() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        await sut.loadCurrentPlan(using: mockService)
+        mockService.updatePlanShouldThrow = true
+
+        await sut.updatePlan(using: mockService) {}
+        XCTAssertNotNil(sut.saveErrorMessage)
+        XCTAssertFalse(sut.isSaving)
+    }
+
+    func test_updatePlan_serverError_onSuccessNotCalled() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        await sut.loadCurrentPlan(using: mockService)
+        mockService.updatePlanShouldThrow = true
+
+        var called = false
+        await sut.updatePlan(using: mockService) { called = true }
+        XCTAssertFalse(called)
+    }
+
+    // MARK: - updatePlan: re-entry guard
+
+    func test_updatePlan_reentryGuard_doesNotCallServiceTwice() async {
+        mockService.currentPlanToReturn = makeFixturePlan()
+        await sut.loadCurrentPlan(using: mockService)
+        sut.isSaving = true
+
+        await sut.updatePlan(using: mockService) {}
+        XCTAssertEqual(mockService.updatePlanCallCount, 0)
+    }
+
+    // MARK: - Helpers
+
+    private func makeFixturePlan() -> CurrentWorkoutPlan {
+        let set = CurrentTargetSet(orderIndex: 1, targetReps: 10, targetWeight: 60.0)
+        let block = CurrentExerciseBlock(exerciseId: 26, orderIndex: 1, restSeconds: 90, targetSets: [set])
+        let day = CurrentWorkoutPlanDay(id: 456, plannedDayOfWeek: "MONDAY",
+                                        name: "Chest Day", orderIndex: 0,
+                                        exerciseBlocks: [block])
+        return CurrentWorkoutPlan(id: 123, days: [day])
+    }
+}
+
+// MARK: - MockExerciseService
+
+@MainActor
+final class MockExerciseService: ExerciseServiceProtocol {
+    var catalogToReturn: [ExerciseCatalogGroup] = []
+    var errorToThrow: Error?
+    var fetchCount = 0
+
+    func fetchExerciseCatalog() async throws -> [ExerciseCatalogGroup] {
+        fetchCount += 1
+        if let error = errorToThrow { throw error }
+        return catalogToReturn
     }
 }

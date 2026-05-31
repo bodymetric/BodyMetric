@@ -9,6 +9,7 @@ import Foundation
 enum HomeMenuDestination: Equatable, Hashable, Identifiable {
     case today
     case newWorkoutPlan
+    case editPlan
 
     var id: Self { self }
 }
@@ -78,13 +79,13 @@ struct HomeMenuItem: Identifiable {
             destination: .newWorkoutPlan
         ),
         HomeMenuItem(
-            id: "myPlans",
-            label: "My Plans",
-            subtitle: "Saved routines",
+            id: "myPlan",
+            label: "My Plan",
+            subtitle: "Edit your routine",
             iconName: "dumbbell.fill",
-            isActive: false,
+            isActive: true,
             isPrimary: false,
-            destination: nil
+            destination: .editPlan
         ),
         HomeMenuItem(
             id: "history",

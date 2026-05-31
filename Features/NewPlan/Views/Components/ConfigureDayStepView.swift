@@ -13,6 +13,7 @@ struct ConfigureDayStepView: View {
     let day: DayOfWeek
     let dayIndex: Int
     let totalDays: Int
+    let exerciseService: any ExerciseServiceProtocol
 
     // MARK: - Body
 
@@ -30,15 +31,27 @@ struct ConfigureDayStepView: View {
                     .transition(.opacity)
             }
 
+            // Exercise catalog error banner (feature 012)
+            if case .failed(let msg) = viewModel.exerciseCatalogLoadState {
+                exerciseCatalogErrorBanner(msg)
+                    .padding(.top, 12)
+                    .transition(.opacity)
+            }
+
             blockSection
                 .padding(.top, 18)
         }
         .animation(.bmFade, value: viewModel.dayConfigSaveError != nil)
+        .animation(.bmFade, value: viewModel.exerciseCatalogLoadState == .failed(""))
+        .task {
+            await viewModel.loadExerciseCatalog(using: exerciseService)
+        }
         .sheet(item: Binding(
             get: { viewModel.activePickerBlockId.map { PickerID(id: $0) } },
             set: { viewModel.activePickerBlockId = $0?.id }
         )) { pickerID in
             ExercisePickerSheetView(
+                exerciseCatalog: viewModel.exerciseGroups,
                 currentExerciseId: viewModel.dayPlans[day]?.blocks
                     .first(where: { $0.id == pickerID.id })?.exerciseId ?? "",
                 onPick: { exerciseId in
@@ -134,6 +147,7 @@ struct ConfigureDayStepView: View {
                             index: idx,
                             block: block,
                             canRemove: blocks.count > 1,
+                            exerciseName: viewModel.exerciseName(for: block.exerciseId),
                             onPick: {
                                 viewModel.activePickerBlockId = block.id
                             },
@@ -175,6 +189,35 @@ struct ConfigureDayStepView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Exercise catalog error banner (feature 012)
+
+    private func exerciseCatalogErrorBanner(_ message: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "wifi.slash")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(GrayscalePalette.primary)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(message)
+                    .font(.system(size: 13, design: .rounded))
+                    .foregroundStyle(GrayscalePalette.primary)
+                Button("Retry") {
+                    Task { await viewModel.reloadExerciseCatalog(using: exerciseService) }
+                }
+                .font(.system(size: 13, design: .rounded).weight(.semibold))
+                .foregroundStyle(GrayscalePalette.primary)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(GrayscalePalette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(GrayscalePalette.separator, lineWidth: 1)
+        )
     }
 
     // MARK: - Step-2 save error banner (feature 011, spec FR-010/FR-011)

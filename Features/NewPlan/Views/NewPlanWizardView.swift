@@ -14,6 +14,8 @@ struct NewPlanWizardView: View {
 
     let service: any WorkoutPlanServiceProtocol
     let dayConfigService: any WorkoutDayPlanServiceProtocol
+    let exerciseService: any ExerciseServiceProtocol
+    var editPlanId: Int? = nil
 
     @State private var viewModel = NewPlanViewModel()
     @State private var store = WorkoutPlanStore()
@@ -33,6 +35,19 @@ struct NewPlanWizardView: View {
                 stepBody
 
                 wizardFooter
+            }
+
+            if viewModel.editPlanLoadState == .loading {
+                ZStack {
+                    GrayscalePalette.background.ignoresSafeArea()
+                    ProgressView()
+                        .tint(GrayscalePalette.primary)
+                }
+            }
+        }
+        .task {
+            if editPlanId != nil {
+                await viewModel.loadCurrentPlan(using: service)
             }
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingSuccess) {
@@ -70,7 +85,7 @@ struct NewPlanWizardView: View {
             .accessibilityLabel("Back")
 
             VStack(alignment: .leading, spacing: 1) {
-                Text("NEW PLAN · STEP \(viewModel.currentStep) OF \(viewModel.totalSteps)")
+                Text("\(viewModel.isEditMode ? "EDIT PLAN" : "NEW PLAN") · STEP \(viewModel.currentStep) OF \(viewModel.totalSteps)")
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(GrayscalePalette.secondary)
                     .tracking(1.2)
@@ -107,7 +122,8 @@ struct NewPlanWizardView: View {
                             viewModel: viewModel,
                             day: day,
                             dayIndex: viewModel.currentStep - 2,
-                            totalDays: viewModel.orderedSelectedDays.count
+                            totalDays: viewModel.orderedSelectedDays.count,
+                            exerciseService: exerciseService
                         )
                     }
                 }
@@ -168,17 +184,25 @@ struct NewPlanWizardView: View {
     private func continueButton(enabled: Bool, isSaving: Bool = false) -> some View {
         Button {
             if viewModel.currentStep == 1 {
-                // Step 1: POST selected days first, then advance on success (FR-009 feature 008)
-                Task {
-                    await viewModel.saveDays(using: service) {
-                        viewModel.advance()
+                if viewModel.isEditMode {
+                    viewModel.advance()
+                } else {
+                    // Step 1: POST selected days first, then advance on success (FR-009 feature 008)
+                    Task {
+                        await viewModel.saveDays(using: service) {
+                            viewModel.advance()
+                        }
                     }
                 }
             } else if let day = viewModel.currentDayOfWeek {
-                // Steps 2…N: POST day plan + exercise blocks, then advance (FR-006–FR-009 feature 011)
-                Task {
-                    await viewModel.saveDayConfig(for: day, using: dayConfigService) {
-                        viewModel.advance()
+                if viewModel.isEditMode {
+                    viewModel.advance()
+                } else {
+                    // Steps 2…N: POST day plan + exercise blocks, then advance (FR-006–FR-009 feature 011)
+                    Task {
+                        await viewModel.saveDayConfig(for: day, using: dayConfigService) {
+                            viewModel.advance()
+                        }
                     }
                 }
             } else {
@@ -214,7 +238,15 @@ struct NewPlanWizardView: View {
 
     private func finishButton(enabled: Bool) -> some View {
         Button {
-            viewModel.finish(store: store)
+            if viewModel.isEditMode {
+                Task {
+                    await viewModel.updatePlan(using: service) {
+                        viewModel.isPresentingSuccess = true
+                    }
+                }
+            } else {
+                viewModel.finish(store: store)
+            }
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "checkmark")

@@ -1,9 +1,9 @@
 import Foundation
 
-/// Persists step-2 wizard data: training day plans and exercise blocks.
+/// Persists step-2 wizard data: unified day plan with embedded exercise blocks.
 ///
-/// Uses `NetworkClientProtocol` so bearer token injection and 401 handling
-/// are handled centrally by `NetworkClient` (Constitution Principle VII).
+/// Feature 013: single POST per day (replaces two-step save from feature 011).
+/// Accepts both 200 and 201 as success. Response body is not consumed.
 ///
 /// Constitution Principle I: pure Swift, URLSession only (via NetworkClient).
 /// Constitution Principle III: status codes logged; no tokens or PII in logs.
@@ -26,7 +26,7 @@ final class WorkoutDayPlanService: WorkoutDayPlanServiceProtocol {
 
     // MARK: - WorkoutDayPlanServiceProtocol
 
-    func saveDayPlan(workoutPlanId: Int, request: WorkoutDayPlanRequest) async throws -> WorkoutDayPlanResponse {
+    func saveDayPlan(workoutPlanId: Int, request: WorkoutDayPlanRequest) async throws {
         guard let url = URL(string: "\(Self.baseURL)/workout-plans/\(workoutPlanId)/days") else {
             throw WorkoutPlanError.networkError(URLError(.badURL))
         }
@@ -42,13 +42,15 @@ final class WorkoutDayPlanService: WorkoutDayPlanServiceProtocol {
             throw WorkoutPlanError.networkError(error)
         }
 
-        Logger.info("WorkoutDayPlanService: saveDayPlan initiated workoutPlanId:\(workoutPlanId)", category: .network)
+        Logger.info(
+            "WorkoutDayPlanService: saveDayPlan initiated workoutPlanId:\(workoutPlanId) blocks:\(request.exerciseBlocks.count)",
+            category: .network
+        )
 
-        let data: Data
         let http: HTTPURLResponse
 
         do {
-            (data, http) = try await networkClient.data(for: urlRequest)
+            (_, http) = try await networkClient.data(for: urlRequest)
         } catch {
             Logger.error("WorkoutDayPlanService: saveDayPlan network failure", error: error, category: .network)
             throw WorkoutPlanError.networkError(error)
@@ -56,48 +58,8 @@ final class WorkoutDayPlanService: WorkoutDayPlanServiceProtocol {
 
         Logger.info("WorkoutDayPlanService: saveDayPlan HTTP \(http.statusCode)", category: .network)
 
-        guard http.statusCode == 201 else {
-            throw WorkoutPlanError.serverError(http.statusCode)
-        }
-
-        do {
-            return try JSONDecoder().decode(WorkoutDayPlanResponse.self, from: data)
-        } catch {
-            Logger.error("WorkoutDayPlanService: saveDayPlan decode failure", error: error, category: .network)
-            throw WorkoutPlanError.decodingError
-        }
-    }
-
-    func saveExerciseBlock(workoutDayPlanId: Int, request: ExerciseBlockPlanRequest) async throws {
-        guard let url = URL(string: "\(Self.baseURL)/workout-day-plans/\(workoutDayPlanId)/exercise-blocks") else {
-            throw WorkoutPlanError.networkError(URLError(.badURL))
-        }
-
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        do {
-            urlRequest.httpBody = try JSONEncoder().encode(request)
-        } catch {
-            Logger.error("WorkoutDayPlanService: saveExerciseBlock encode failure", error: error, category: .network)
-            throw WorkoutPlanError.networkError(error)
-        }
-
-        Logger.info("WorkoutDayPlanService: saveExerciseBlock initiated workoutDayPlanId:\(workoutDayPlanId)", category: .network)
-
-        let http: HTTPURLResponse
-
-        do {
-            (_, http) = try await networkClient.data(for: urlRequest)
-        } catch {
-            Logger.error("WorkoutDayPlanService: saveExerciseBlock network failure", error: error, category: .network)
-            throw WorkoutPlanError.networkError(error)
-        }
-
-        Logger.info("WorkoutDayPlanService: saveExerciseBlock HTTP \(http.statusCode)", category: .network)
-
-        guard http.statusCode == 201 else {
+        // Accept 200 OK and 201 Created (spec FR-005)
+        guard [200, 201].contains(http.statusCode) else {
             throw WorkoutPlanError.serverError(http.statusCode)
         }
     }

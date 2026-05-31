@@ -1,49 +1,55 @@
 import Foundation
 
-// MARK: - POST request for /api/workout-plans/{workoutPlanId}/days
+// MARK: - POST /api/workout-plans/{workoutPlanId}/days (unified request — feature 013)
 
-/// Request body for creating a named training day within a workout plan.
+/// One target set within an exercise block.
+struct TargetSetRequest: Codable {
+    let orderIndex: Int
+    let targetReps: Int
+    let targetWeight: Double
+}
+
+/// One exercise block within a day plan.
+///
+/// Maps `ExerciseBlock.sets` to a `targetSets` array where each entry is one `SetConfig`.
+/// `isOptional` defaults to `false` (v1; UI toggle is future scope).
+struct ExerciseBlockRequest: Codable {
+    let exerciseId: Int
+    let orderIndex: Int
+    let restSeconds: Int
+    let isOptional: Bool
+    let targetSets: [TargetSetRequest]
+
+    init(block: ExerciseBlock, orderIndex: Int) {
+        self.exerciseId  = Int(block.exerciseId) ?? 0
+        self.orderIndex  = orderIndex
+        self.restSeconds = block.restSeconds
+        self.isOptional  = false
+        self.targetSets  = block.sets.enumerated().map { idx, set in
+            TargetSetRequest(
+                orderIndex: idx + 1,
+                targetReps: set.targetReps,
+                targetWeight: set.targetWeight
+            )
+        }
+    }
+}
+
+/// Unified request body for `POST /api/workout-plans/{workoutPlanId}/days`.
+///
+/// Replaces the previous two-step save (separate day + exercise-block POSTs from feature 011).
 struct WorkoutDayPlanRequest: Codable {
     let name: String
     let orderIndex: Int
     let isActive: Bool
+    let exerciseBlocks: [ExerciseBlockRequest]
 }
 
-// MARK: - POST response from /api/workout-plans/{workoutPlanId}/days
+// MARK: - POST response (kept for forward compatibility; not consumed by client in v1)
 
-/// Response from creating a training day.
-/// `workoutDayPlanId` is required for the subsequent exercise-block POSTs.
 struct WorkoutDayPlanResponse: Decodable, Identifiable {
     let workoutDayPlanId: Int
     var id: Int { workoutDayPlanId }
-}
-
-// MARK: - POST request for /api/workout-day-plans/{workoutDayPlanId}/exercise-blocks
-
-/// Request body for saving a single exercise block within a training day.
-///
-/// ⚠️ Field names are assumed based on existing ExerciseBlock model conventions.
-///    Verify against live API and update CodingKeys if needed.
-struct ExerciseBlockPlanRequest: Codable {
-    let exerciseId: String
-    let targetReps: Int
-    let targetWeightKg: Double
-    let restSeconds: Int
-
-    init(block: ExerciseBlock) {
-        self.exerciseId = block.exerciseId
-        self.targetReps = block.targetReps
-        self.targetWeightKg = block.targetWeight
-        self.restSeconds = block.restSeconds
-    }
-
-    // ⚠️ Update these keys once confirmed against live API
-    private enum CodingKeys: String, CodingKey {
-        case exerciseId     = "exerciseId"
-        case targetReps     = "targetReps"
-        case targetWeightKg = "targetWeightKg"
-        case restSeconds    = "restSeconds"
-    }
 }
 
 // MARK: - DayOfWeek → orderIndex

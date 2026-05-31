@@ -3,8 +3,9 @@ import XCTest
 
 /// Unit tests for WorkoutDayPlanService.
 ///
-/// Constitution Principle II: written before implementation (TDD).
-/// Uses MockNetworkClient from TestHelpers — no real network.
+/// Feature 013: saveDayPlan now accepts a unified request with embedded exerciseBlocks.
+/// saveExerciseBlock has been removed (exercise blocks are nested in the day request).
+/// Accepts both 200 and 201 as success responses.
 @MainActor
 final class WorkoutDayPlanServiceTests: XCTestCase {
 
@@ -23,41 +24,79 @@ final class WorkoutDayPlanServiceTests: XCTestCase {
         try await super.tearDown()
     }
 
-    // MARK: - saveDayPlan: success
+    // MARK: - saveDayPlan: success (Void return)
 
-    func test_saveDayPlan_201_returnsDecodedResponse() async throws {
-        let json = """
-        {"workoutDayPlanId": 42}
-        """.data(using: .utf8)!
-        mockClient.responseData = json
+    func test_saveDayPlan_201_doesNotThrow() async throws {
+        mockClient.responseData = Data()
         mockClient.responseStatus = 201
 
-        let request = WorkoutDayPlanRequest(name: "Peito e Tríceps", orderIndex: 0, isActive: true)
-        let response = try await sut.saveDayPlan(workoutPlanId: 7, request: request)
-
-        XCTAssertEqual(response.workoutDayPlanId, 42)
+        let request = makeRequest(name: "Peito e Tríceps")
+        try await sut.saveDayPlan(workoutPlanId: 7, request: request)
     }
 
-    func test_saveDayPlan_201_sendsCorrectURL() async throws {
-        let json = """{"workoutDayPlanId": 1}""".data(using: .utf8)!
-        mockClient.responseData = json
+    func test_saveDayPlan_200_doesNotThrow() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 200
+
+        let request = makeRequest(name: "Back Day")
+        try await sut.saveDayPlan(workoutPlanId: 7, request: request)
+    }
+
+    func test_saveDayPlan_sendsCorrectURL() async throws {
+        mockClient.responseData = Data()
         mockClient.responseStatus = 201
 
-        let request = WorkoutDayPlanRequest(name: "Back", orderIndex: 0, isActive: true)
-        _ = try await sut.saveDayPlan(workoutPlanId: 99, request: request)
+        let request = makeRequest(name: "Back")
+        try await sut.saveDayPlan(workoutPlanId: 99, request: request)
 
         let url = mockClient.capturedRequests.last?.url?.absoluteString
         XCTAssertTrue(url?.contains("/api/workout-plans/99/days") == true,
                       "URL must contain correct path with workoutPlanId")
     }
 
+    func test_saveDayPlan_sendsPostMethod() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 201
+
+        let request = makeRequest(name: "Test")
+        try await sut.saveDayPlan(workoutPlanId: 1, request: request)
+
+        XCTAssertEqual(mockClient.capturedRequests.last?.httpMethod, "POST")
+    }
+
+    func test_saveDayPlan_requestBodyContainsExerciseBlocks() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 201
+
+        var block = ExerciseBlock()
+        block.exerciseId = "26"
+        block.sets = [SetConfig(targetReps: 12, targetWeight: 80)]
+        block.restSeconds = 60
+        let blockRequest = ExerciseBlockRequest(block: block, orderIndex: 1)
+        let request = WorkoutDayPlanRequest(
+            name: "Chest Day",
+            orderIndex: 0,
+            isActive: true,
+            exerciseBlocks: [blockRequest]
+        )
+        try await sut.saveDayPlan(workoutPlanId: 1, request: request)
+
+        let body = try XCTUnwrap(mockClient.capturedRequests.last?.httpBody)
+        let decoded = try JSONDecoder().decode(WorkoutDayPlanRequest.self, from: body)
+        XCTAssertEqual(decoded.exerciseBlocks.count, 1)
+        XCTAssertEqual(decoded.exerciseBlocks[0].exerciseId, 26)
+        XCTAssertEqual(decoded.exerciseBlocks[0].targetSets[0].targetReps, 12)
+    }
+
+    // MARK: - saveDayPlan: errors
+
     func test_saveDayPlan_404_throwsServerError() async throws {
         mockClient.responseData = Data()
         mockClient.responseStatus = 404
 
-        let request = WorkoutDayPlanRequest(name: "Test", orderIndex: 0, isActive: true)
+        let request = makeRequest(name: "Test")
         do {
-            _ = try await sut.saveDayPlan(workoutPlanId: 1, request: request)
+            try await sut.saveDayPlan(workoutPlanId: 1, request: request)
             XCTFail("Expected WorkoutPlanError.serverError")
         } catch WorkoutPlanError.serverError(let code) {
             XCTAssertEqual(code, 404)
@@ -68,66 +107,18 @@ final class WorkoutDayPlanServiceTests: XCTestCase {
         mockClient.responseData = Data()
         mockClient.responseStatus = 500
 
-        let request = WorkoutDayPlanRequest(name: "Test", orderIndex: 0, isActive: true)
+        let request = makeRequest(name: "Test")
         do {
-            _ = try await sut.saveDayPlan(workoutPlanId: 1, request: request)
+            try await sut.saveDayPlan(workoutPlanId: 1, request: request)
             XCTFail("Expected WorkoutPlanError.serverError")
         } catch WorkoutPlanError.serverError(let code) {
             XCTAssertEqual(code, 500)
         }
     }
 
-    func test_saveDayPlan_sendsPostMethod() async throws {
-        mockClient.responseData = """{"workoutDayPlanId": 1}""".data(using: .utf8)!
-        mockClient.responseStatus = 201
+    // MARK: - Helpers
 
-        let request = WorkoutDayPlanRequest(name: "Test", orderIndex: 0, isActive: true)
-        _ = try await sut.saveDayPlan(workoutPlanId: 1, request: request)
-
-        XCTAssertEqual(mockClient.capturedRequests.last?.httpMethod, "POST")
-    }
-
-    // MARK: - saveExerciseBlock: success
-
-    func test_saveExerciseBlock_201_doesNotThrow() async throws {
-        mockClient.responseData = Data()
-        mockClient.responseStatus = 201
-
-        var block = ExerciseBlock()
-        block.exerciseId = "bench"
-        block.targetReps = 8
-        block.targetWeight = 80
-        block.restSeconds = 90
-        let request = ExerciseBlockPlanRequest(block: block)
-        try await sut.saveExerciseBlock(workoutDayPlanId: 42, request: request)
-    }
-
-    func test_saveExerciseBlock_201_sendsCorrectURL() async throws {
-        mockClient.responseData = Data()
-        mockClient.responseStatus = 201
-
-        var block = ExerciseBlock()
-        block.exerciseId = "squat"
-        let request = ExerciseBlockPlanRequest(block: block)
-        try await sut.saveExerciseBlock(workoutDayPlanId: 55, request: request)
-
-        let url = mockClient.capturedRequests.last?.url?.absoluteString
-        XCTAssertTrue(url?.contains("/api/workout-day-plans/55/exercise-blocks") == true,
-                      "URL must contain correct path with workoutDayPlanId")
-    }
-
-    func test_saveExerciseBlock_400_throwsServerError() async throws {
-        mockClient.responseData = Data()
-        mockClient.responseStatus = 400
-
-        var block = ExerciseBlock()
-        block.exerciseId = "bench"
-        let request = ExerciseBlockPlanRequest(block: block)
-        do {
-            try await sut.saveExerciseBlock(workoutDayPlanId: 1, request: request)
-            XCTFail("Expected WorkoutPlanError.serverError")
-        } catch WorkoutPlanError.serverError(let code) {
-            XCTAssertEqual(code, 400)
-        }
+    private func makeRequest(name: String) -> WorkoutDayPlanRequest {
+        WorkoutDayPlanRequest(name: name, orderIndex: 0, isActive: true, exerciseBlocks: [])
     }
 }

@@ -24,6 +24,15 @@ final class NewPlanViewModel {
         case failed(String)
     }
 
+    // MARK: - Edit plan load state (feature 017)
+
+    enum EditPlanLoadState: Equatable {
+        case idle
+        case loading
+        case loaded
+        case failed(String)
+    }
+
     // MARK: - State
 
     var selectedDays: Set<DayOfWeek> = []
@@ -31,6 +40,14 @@ final class NewPlanViewModel {
     var currentStep: Int = 1
     var activePickerBlockId: UUID? = nil
     var isPresentingSuccess: Bool = false
+
+    // MARK: - Edit mode state (feature 017)
+
+    /// Server-assigned plan ID; non-nil when the wizard is in edit mode.
+    var planId: Int? = nil
+    var editPlanLoadState: EditPlanLoadState = .idle
+
+    var isEditMode: Bool { planId != nil }
 
     // MARK: - API state (step 1)
 
@@ -44,6 +61,12 @@ final class NewPlanViewModel {
     var workoutPlanIds: [DayOfWeek: Int] = [:]
     var isDayConfigSaving: Bool = false
     var dayConfigSaveError: String? = nil
+
+    // MARK: - Exercise catalog (feature 012)
+
+    /// Loaded once when step 2 first appears; shared across all exercise pickers.
+    var exerciseGroups: [ExerciseCatalogGroup] = []
+    var exerciseCatalogLoadState: ExerciseCatalogLoadState = .idle
 
     // MARK: - Derived
 
@@ -97,9 +120,16 @@ final class NewPlanViewModel {
 
         do {
             let days = try await service.fetchDays()
-            // Map plannedWeekNumber (Int) → DayOfWeek; invalid values are silently ignored.
-            let mapped = Set(days.compactMap { DayOfWeek(rawValue: $0.plannedWeekNumber) })
+            // Map plannedDayOfWeek string → DayOfWeek; invalid values are silently ignored.
+            // (plannedWeekNumber is the ISO week of the year, not the day of week)
+            let mapped = Set(days.compactMap { DayOfWeek(fromApiString: $0.plannedDayOfWeek) })
             selectedDays = mapped
+            // Seed dayPlans for every pre-filled day — mirrors what toggleDay() does.
+            // Without this, addBlock() and isStepValid() silently fail on step 2
+            // because they guard on dayPlans[day] != nil.
+            for day in mapped where dayPlans[day] == nil {
+                dayPlans[day] = DayPlan(day: day)
+            }
             loadState = mapped.isEmpty ? .empty : .loaded
             let event = mapped.isEmpty ? "wizard_days_load_empty" : "wizard_days_load_success"
             Logger.info("\(event) count:\(mapped.count)")
@@ -127,10 +157,14 @@ final class NewPlanViewModel {
 
         let requests = orderedSelectedDays.map(\.toRequest)
         do {
-            let savedDays = try await service.saveDays(requests)
-            // Store planId per DayOfWeek for use in step-2 day-plan saves (feature 011).
+            var savedDays = try await service.saveDays(requests)
+            // If the POST response body didn't include the plans (empty), fall back to GET
+            // to retrieve the planIds needed for step-2 day-plan POSTs.
+            if savedDays.isEmpty {
+                savedDays = (try? await service.fetchDays()) ?? []
+            }
             for response in savedDays {
-                if let day = DayOfWeek(rawValue: response.plannedWeekNumber) {
+                if let day = DayOfWeek(fromApiString: response.plannedDayOfWeek) {
                     workoutPlanIds[day] = response.planId
                 }
             }
@@ -161,24 +195,17 @@ final class NewPlanViewModel {
         Logger.info("wizard_day_config_save_started day:\(day.shortLabel)")
 
         do {
-            // 1. Save the day plan (FR-006)
-            let dayRequest = WorkoutDayPlanRequest(
+            // Unified single POST: day + all exercise blocks in one request (feature 013)
+            let request = WorkoutDayPlanRequest(
                 name: plan.sessionName,
                 orderIndex: day.orderIndex,
-                isActive: true
+                isActive: true,
+                exerciseBlocks: plan.blocks.enumerated().map { idx, block in
+                    ExerciseBlockRequest(block: block, orderIndex: idx + 1)
+                }
             )
-            let dayResponse = try await service.saveDayPlan(workoutPlanId: planId, request: dayRequest)
-            Logger.info("wizard_day_plan_saved workoutDayPlanId:\(dayResponse.workoutDayPlanId)")
-
-            // 2. Save each exercise block sequentially (FR-007; intentional: not parallel — see research.md)
-            for block in plan.blocks {
-                let blockRequest = ExerciseBlockPlanRequest(block: block)
-                try await service.saveExerciseBlock(
-                    workoutDayPlanId: dayResponse.workoutDayPlanId,
-                    request: blockRequest
-                )
-            }
-            Logger.info("wizard_exercise_blocks_saved count:\(plan.blocks.count)")
+            try await service.saveDayPlan(workoutPlanId: planId, request: request)
+            Logger.info("wizard_day_plan_saved day:\(day.shortLabel) blockCount:\(plan.blocks.count)")
 
             onSuccess()
         } catch {
@@ -186,6 +213,36 @@ final class NewPlanViewModel {
             dayConfigSaveError = "Could not save your workout day. Please try again."
         }
         isDayConfigSaving = false
+    }
+
+    // MARK: - Exercise catalog (feature 012)
+
+    /// Loads the exercise catalogue once per wizard session.
+    /// Subsequent calls are no-ops if `exerciseGroups` is already populated (single-load guard).
+    func loadExerciseCatalog(using service: any ExerciseServiceProtocol) async {
+        guard exerciseGroups.isEmpty else { return }
+        exerciseCatalogLoadState = .loading
+        Logger.info("exercise_catalog_load_started")
+        do {
+            exerciseGroups = try await service.fetchExerciseCatalog()
+            exerciseCatalogLoadState = .loaded
+            Logger.info("exercise_catalog_load_success groupCount:\(exerciseGroups.count)")
+        } catch {
+            Logger.error("exercise_catalog_load_failed", error: error)
+            exerciseCatalogLoadState = .failed("Could not load exercises. Please try again.")
+        }
+    }
+
+    /// Forces a re-fetch of the catalogue (e.g., after the user taps Retry).
+    func reloadExerciseCatalog(using service: any ExerciseServiceProtocol) async {
+        exerciseGroups = []
+        await loadExerciseCatalog(using: service)
+    }
+
+    /// Returns the display name for a given `exerciseId` string (e.g., "26") from the loaded catalog.
+    func exerciseName(for exerciseId: String) -> String? {
+        guard let id = Int(exerciseId) else { return nil }
+        return exerciseGroups.flatMap(\.exercises).first { $0.id == id }?.name
     }
 
     // MARK: - Navigation
@@ -239,6 +296,83 @@ final class NewPlanViewModel {
         guard dayIndex >= 0, dayIndex < orderedSelectedDays.count else { return false }
         let day = orderedSelectedDays[dayIndex]
         return dayPlans[day]?.isValid == true
+    }
+
+    // MARK: - Edit mode actions (feature 017)
+
+    /// Pre-fills all wizard state from the server's current active plan.
+    /// Called on wizard appear when `editPlanId` is non-nil.
+    func loadCurrentPlan(using service: any WorkoutPlanServiceProtocol) async {
+        guard editPlanLoadState != .loading else { return }
+        editPlanLoadState = .loading
+        Logger.info("edit_plan_load_started")
+
+        do {
+            let plan = try await service.fetchCurrentPlan()
+            planId = plan.id
+            let days = Set(plan.days.compactMap { DayOfWeek(fromApiString: $0.plannedDayOfWeek) })
+            selectedDays = days
+
+            for apiDay in plan.days {
+                guard let day = DayOfWeek(fromApiString: apiDay.plannedDayOfWeek) else { continue }
+                workoutPlanIds[day] = apiDay.id
+                let blocks = apiDay.exerciseBlocks
+                    .sorted { $0.orderIndex < $1.orderIndex }
+                    .map { block -> ExerciseBlock in
+                        var b = ExerciseBlock()
+                        b.exerciseId  = String(block.exerciseId)
+                        b.restSeconds = block.restSeconds
+                        b.sets = block.targetSets
+                            .sorted { $0.orderIndex < $1.orderIndex }
+                            .map { SetConfig(targetReps: $0.targetReps, targetWeight: $0.targetWeight) }
+                        if b.sets.isEmpty { b.sets = [SetConfig()] }
+                        return b
+                    }
+                dayPlans[day] = DayPlan(day: day, sessionName: apiDay.name, blocks: blocks)
+            }
+            editPlanLoadState = .loaded
+            Logger.info("edit_plan_load_success planId:\(plan.id) dayCount:\(plan.days.count)")
+        } catch WorkoutPlanError.notFound {
+            editPlanLoadState = .failed("No active plan found.")
+            Logger.info("edit_plan_load_not_found")
+        } catch {
+            Logger.error("edit_plan_load_failed", error: error)
+            editPlanLoadState = .failed("Could not load your plan. Please try again.")
+        }
+    }
+
+    /// Sends a unified PUT to update the existing plan. Used at wizard completion in edit mode.
+    func updatePlan(
+        using service: any WorkoutPlanServiceProtocol,
+        onSuccess: @MainActor @Sendable () -> Void
+    ) async {
+        guard let id = planId, !isSaving else { return }
+        isSaving = true
+        saveErrorMessage = nil
+        Logger.info("edit_plan_update_started planId:\(id)")
+
+        let dayRequests = orderedSelectedDays.compactMap { day -> UpdateWorkoutPlanDayRequest? in
+            guard let plan = dayPlans[day] else { return nil }
+            return UpdateWorkoutPlanDayRequest(
+                plannedDayOfWeek: day.fullLabel.lowercased(),
+                name: plan.sessionName,
+                orderIndex: day.orderIndex,
+                isActive: true,
+                exerciseBlocks: plan.blocks.enumerated().map { idx, block in
+                    ExerciseBlockRequest(block: block, orderIndex: idx + 1)
+                }
+            )
+        }
+
+        do {
+            try await service.updatePlan(id: id, request: UpdateWorkoutPlanRequest(days: dayRequests))
+            Logger.info("edit_plan_update_success planId:\(id)")
+            onSuccess()
+        } catch {
+            Logger.error("edit_plan_update_failed", error: error)
+            saveErrorMessage = "Could not update your plan. Please try again."
+        }
+        isSaving = false
     }
 
     // MARK: - Finish

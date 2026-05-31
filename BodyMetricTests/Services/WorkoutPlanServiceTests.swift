@@ -3,7 +3,7 @@ import XCTest
 
 /// Unit tests for WorkoutPlanService.
 ///
-/// Constitution Principle II: written before implementation (TDD).
+/// Feature 014: `plannedWeekNumber` removed from all payloads.
 /// Uses MockNetworkClient from TestHelpers — no real network.
 @MainActor
 final class WorkoutPlanServiceTests: XCTestCase {
@@ -29,16 +29,7 @@ final class WorkoutPlanServiceTests: XCTestCase {
 
     func test_fetchDays_200_returnsDecodedArray() async throws {
         let json = """
-        [{
-            "planId": 7,
-            "plannedWeekNumber": 7,
-            "plannedDayOfWeek": "sunday",
-            "executionCount": 0,
-            "dayNames": ["Costa e bíceps"],
-            "totalExercises": 0,
-            "totalSets": 0,
-            "estimatedDurationMinutes": 0
-        }]
+        [{"planId":7,"plannedDayOfWeek":"SUNDAY","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
         """.data(using: .utf8)!
         mockClient.responseData = json
         mockClient.responseStatus = 200
@@ -47,8 +38,31 @@ final class WorkoutPlanServiceTests: XCTestCase {
 
         XCTAssertEqual(result.count, 1)
         XCTAssertEqual(result[0].planId, 7)
-        XCTAssertEqual(result[0].plannedWeekNumber, 7)
-        XCTAssertEqual(result[0].plannedDayOfWeek, "sunday")
+        XCTAssertEqual(result[0].plannedDayOfWeek, "SUNDAY")
+    }
+
+    func test_fetchDays_200_withActualWeekNumber_decodesCorrectly() async throws {
+        let json = """
+        [{"planId":7,"plannedDayOfWeek":"SUNDAY","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0,"actualWeekNumber":3}]
+        """.data(using: .utf8)!
+        mockClient.responseData = json
+        mockClient.responseStatus = 200
+
+        let result = try await sut.fetchDays()
+
+        XCTAssertEqual(result[0].actualWeekNumber, 3)
+    }
+
+    func test_fetchDays_200_missingActualWeekNumber_decodesAsNil() async throws {
+        let json = """
+        [{"planId":7,"plannedDayOfWeek":"SUNDAY","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
+        """.data(using: .utf8)!
+        mockClient.responseData = json
+        mockClient.responseStatus = 200
+
+        let result = try await sut.fetchDays()
+
+        XCTAssertNil(result[0].actualWeekNumber)
     }
 
     func test_fetchDays_200_emptyArray_returnsEmpty() async throws {
@@ -56,7 +70,6 @@ final class WorkoutPlanServiceTests: XCTestCase {
         mockClient.responseStatus = 200
 
         let result = try await sut.fetchDays()
-
         XCTAssertTrue(result.isEmpty)
     }
 
@@ -118,16 +131,15 @@ final class WorkoutPlanServiceTests: XCTestCase {
     // MARK: - saveDays: success
 
     func test_saveDays_201_doesNotThrow() async throws {
-        // T003: saveDays now returns [WorkoutPlanDayResponse]; response body must decode correctly
         let json = """
-        [{"planId":1,"plannedWeekNumber":1,"plannedDayOfWeek":"monday","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
+        [{"planId":1,"plannedDayOfWeek":"MONDAY","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
         """.data(using: .utf8)!
         mockClient.responseData = json
         mockClient.responseStatus = 201
 
         let days = [
-            WorkoutPlanDayRequest(plannedWeekNumber: "1", plannedDayOfWeek: "monday"),
-            WorkoutPlanDayRequest(plannedWeekNumber: "7", plannedDayOfWeek: "sunday"),
+            WorkoutPlanDayRequest(plannedDayOfWeek: "monday"),
+            WorkoutPlanDayRequest(plannedDayOfWeek: "sunday"),
         ]
         let result = try await sut.saveDays(days)
         XCTAssertFalse(result.isEmpty, "saveDays must return decoded [WorkoutPlanDayResponse]")
@@ -135,27 +147,26 @@ final class WorkoutPlanServiceTests: XCTestCase {
 
     func test_saveDays_201_returnsDecodedDayResponses() async throws {
         let json = """
-        [{"planId":7,"plannedWeekNumber":7,"plannedDayOfWeek":"sunday","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
+        [{"planId":7,"plannedDayOfWeek":"SUNDAY","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
         """.data(using: .utf8)!
         mockClient.responseData = json
         mockClient.responseStatus = 201
 
-        let days = [WorkoutPlanDayRequest(plannedWeekNumber: "7", plannedDayOfWeek: "sunday")]
+        let days = [WorkoutPlanDayRequest(plannedDayOfWeek: "sunday")]
         let result = try await sut.saveDays(days)
 
         XCTAssertEqual(result.count, 1)
         XCTAssertEqual(result[0].planId, 7)
-        XCTAssertEqual(result[0].plannedWeekNumber, 7)
     }
 
     func test_saveDays_201_sendsCorrectJSONBody() async throws {
         let json = """
-        [{"planId":3,"plannedWeekNumber":3,"plannedDayOfWeek":"wednesday","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
+        [{"planId":3,"plannedDayOfWeek":"WEDNESDAY","executionCount":0,"dayNames":[],"totalExercises":0,"totalSets":0,"estimatedDurationMinutes":0}]
         """.data(using: .utf8)!
         mockClient.responseData = json
         mockClient.responseStatus = 201
 
-        let days = [WorkoutPlanDayRequest(plannedWeekNumber: "3", plannedDayOfWeek: "wednesday")]
+        let days = [WorkoutPlanDayRequest(plannedDayOfWeek: "wednesday")]
         _ = try await sut.saveDays(days)
 
         let capturedRequest = try XCTUnwrap(mockClient.capturedRequests.last)
@@ -163,7 +174,6 @@ final class WorkoutPlanServiceTests: XCTestCase {
         let body = try XCTUnwrap(capturedRequest.httpBodyData)
         let decoded = try JSONDecoder().decode([WorkoutPlanDayRequest].self, from: body)
         XCTAssertEqual(decoded.count, 1)
-        XCTAssertEqual(decoded[0].plannedWeekNumber, "3")
         XCTAssertEqual(decoded[0].plannedDayOfWeek, "wednesday")
     }
 
@@ -173,7 +183,7 @@ final class WorkoutPlanServiceTests: XCTestCase {
         mockClient.responseData = Data()
         mockClient.responseStatus = 400
 
-        let days = [WorkoutPlanDayRequest(plannedWeekNumber: "1", plannedDayOfWeek: "monday")]
+        let days = [WorkoutPlanDayRequest(plannedDayOfWeek: "monday")]
 
         do {
             try await sut.saveDays(days)
@@ -187,7 +197,7 @@ final class WorkoutPlanServiceTests: XCTestCase {
         mockClient.responseData = Data()
         mockClient.responseStatus = 500
 
-        let days = [WorkoutPlanDayRequest(plannedWeekNumber: "1", plannedDayOfWeek: "monday")]
+        let days = [WorkoutPlanDayRequest(plannedDayOfWeek: "monday")]
 
         do {
             try await sut.saveDays(days)
@@ -196,13 +206,156 @@ final class WorkoutPlanServiceTests: XCTestCase {
             XCTAssertEqual(code, 500)
         }
     }
+
+    // MARK: - fetchCurrentPlan: success
+
+    func test_fetchCurrentPlan_200_decodesCorrectly() async throws {
+        let json = """
+        {
+          "id": 123,
+          "days": [
+            {
+              "id": 456,
+              "plannedDayOfWeek": "MONDAY",
+              "name": "Chest Day",
+              "orderIndex": 0,
+              "exerciseBlocks": [
+                {
+                  "exerciseId": 26,
+                  "orderIndex": 1,
+                  "restSeconds": 90,
+                  "targetSets": [{"orderIndex": 1, "targetReps": 10, "targetWeight": 60.0}]
+                }
+              ]
+            }
+          ]
+        }
+        """.data(using: .utf8)!
+        mockClient.responseData = json
+        mockClient.responseStatus = 200
+
+        let result = try await sut.fetchCurrentPlan()
+
+        XCTAssertEqual(result.id, 123)
+        XCTAssertEqual(result.days.count, 1)
+        XCTAssertEqual(result.days[0].id, 456)
+        XCTAssertEqual(result.days[0].plannedDayOfWeek, "MONDAY")
+        XCTAssertEqual(result.days[0].name, "Chest Day")
+        XCTAssertEqual(result.days[0].exerciseBlocks[0].exerciseId, 26)
+        XCTAssertEqual(result.days[0].exerciseBlocks[0].targetSets[0].targetReps, 10)
+        XCTAssertEqual(result.days[0].exerciseBlocks[0].targetSets[0].targetWeight, 60.0)
+    }
+
+    func test_fetchCurrentPlan_404_throwsNotFound() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 404
+
+        do {
+            _ = try await sut.fetchCurrentPlan()
+            XCTFail("Expected WorkoutPlanError.notFound")
+        } catch WorkoutPlanError.notFound {
+            // ✅
+        }
+    }
+
+    func test_fetchCurrentPlan_500_throwsServerError() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 500
+
+        do {
+            _ = try await sut.fetchCurrentPlan()
+            XCTFail("Expected WorkoutPlanError.serverError")
+        } catch WorkoutPlanError.serverError(let code) {
+            XCTAssertEqual(code, 500)
+        }
+    }
+
+    func test_fetchCurrentPlan_sendsGETRequestToCurrentEndpoint() async throws {
+        let json = """
+        {"id": 1, "days": []}
+        """.data(using: .utf8)!
+        mockClient.responseData = json
+        mockClient.responseStatus = 200
+
+        _ = try await sut.fetchCurrentPlan()
+
+        XCTAssertEqual(mockClient.capturedRequests.last?.httpMethod, "GET")
+        let url = mockClient.capturedRequests.last?.url?.absoluteString
+        XCTAssertTrue(url?.contains("/workout-plans/current") == true)
+    }
+
+    func test_fetchCurrentPlan_networkError_throwsNetworkError() async throws {
+        mockClient.errorToThrow = URLError(.notConnectedToInternet)
+
+        do {
+            _ = try await sut.fetchCurrentPlan()
+            XCTFail("Expected WorkoutPlanError.networkError")
+        } catch WorkoutPlanError.networkError {
+            // ✅
+        }
+    }
+
+    // MARK: - updatePlan: success
+
+    func test_updatePlan_200_doesNotThrow() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 200
+
+        let request = UpdateWorkoutPlanRequest(days: [])
+        try await sut.updatePlan(id: 123, request: request)
+        // no throw = pass
+    }
+
+    func test_updatePlan_204_doesNotThrow() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 204
+
+        let request = UpdateWorkoutPlanRequest(days: [])
+        try await sut.updatePlan(id: 123, request: request)
+    }
+
+    func test_updatePlan_400_throwsServerError() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 400
+
+        let request = UpdateWorkoutPlanRequest(days: [])
+        do {
+            try await sut.updatePlan(id: 123, request: request)
+            XCTFail("Expected WorkoutPlanError.serverError")
+        } catch WorkoutPlanError.serverError(let code) {
+            XCTAssertEqual(code, 400)
+        }
+    }
+
+    func test_updatePlan_sendsPUTRequestWithCorrectPlanId() async throws {
+        mockClient.responseData = Data()
+        mockClient.responseStatus = 200
+
+        let request = UpdateWorkoutPlanRequest(days: [])
+        try await sut.updatePlan(id: 123, request: request)
+
+        XCTAssertEqual(mockClient.capturedRequests.last?.httpMethod, "PUT")
+        let url = mockClient.capturedRequests.last?.url?.absoluteString
+        XCTAssertTrue(url?.contains("/workout-plans/123") == true)
+    }
+
+    func test_updatePlan_networkError_throwsNetworkError() async throws {
+        mockClient.errorToThrow = URLError(.notConnectedToInternet)
+
+        let request = UpdateWorkoutPlanRequest(days: [])
+        do {
+            try await sut.updatePlan(id: 123, request: request)
+            XCTFail("Expected WorkoutPlanError.networkError")
+        } catch WorkoutPlanError.networkError {
+            // ✅
+        }
+    }
 }
 
 // MARK: - URLRequest body helper
 
 private extension URLRequest {
     var httpBodyData: Data? {
-        // For tests, the body may be in httpBodyStream
         if let data = httpBody { return data }
         guard let stream = httpBodyStream else { return nil }
         stream.open()
