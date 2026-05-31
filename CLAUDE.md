@@ -1,6 +1,6 @@
 # BodyMetric Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-05-28
+Auto-generated from all feature plans. Last updated: 2026-05-31
 
 ## Active Technologies
 - Swift 5.10 + SwiftUI (UI), URLSession (networking), GoogleSignIn-iOS via SPM (auth), KeychainSwift via SPM (secure email storage), UserDefaults (weight/height cache) (002-user-profile-fetch)
@@ -33,6 +33,8 @@ Auto-generated from all feature plans. Last updated: 2026-05-28
 - Swift 5.10 + SwiftUI (`@Observable`), `@Bindable` — no new SPM packages (020-wizard-step2-per-set-rows)
 - In-memory during wizard; no new UserDefaults or server persistence changes (020-wizard-step2-per-set-rows)
 - Swift 5.10 + URLSession (via `NetworkClient`), `JSONDecoder` (Foundation) (020-wizard-step2-per-set-rows)
+- Swift 5.10 + URLSession via `NetworkClient` (existing); no new SPM packages (021-wizard-day-save)
+- N/A — all data is sent to the server; no local persistence changes (021-wizard-day-save)
 
 - Swift 5.10 / iOS 17+ + SwiftUI (UI), URLSession (networking), GoogleSignIn-iOS via SPM (auth), Security framework / KeychainSwift via SPM (secure storage) (001-gym-workout-tracker)
 
@@ -52,9 +54,9 @@ tests/
 Swift 5.10 / iOS 17+: Follow standard conventions
 
 ## Recent Changes
+- 021-wizard-day-save: Added Swift 5.10 + URLSession via `NetworkClient` (existing); no new SPM packages
 - 020-wizard-step2-per-set-rows: Added Swift 5.10 + URLSession (via `NetworkClient`), `JSONDecoder` (Foundation)
 - 020-wizard-step2-per-set-rows: Added Swift 5.10 + SwiftUI (`@Observable`), `@Bindable` — no new SPM packages
-- 019-home-api-numberofsets: Added Swift 5.10 + SwiftUI (`@Observable`), URLSession via `NetworkClient` (existing)
 
 
 <!-- MANUAL ADDITIONS START -->
