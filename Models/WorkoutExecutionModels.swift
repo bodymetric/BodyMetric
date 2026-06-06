@@ -14,65 +14,56 @@ struct StartSessionRequest: Codable {
 // MARK: - POST /api/work-executions/start response DTOs
 
 /// Top-level response from a successful session-start call.
-struct StartSessionResponse: Decodable, Hashable {
-    let id: String
-    let planId: Int
-    let actualWeekNumber: Int
-    let feeling: String
-    let exercises: [SessionExercise]
+struct StartWorkoutResponse: Decodable, Hashable {
+    let workExecutionId: Int
+    let workoutPlanId: Int
+    let workoutPlanName: String
+    let totalNumberOfSets: Int
+    let exerciseBlockPlans: [ExerciseBlockPlan]
 }
 
-/// One exercise entry in the session response.
-struct SessionExercise: Decodable, Identifiable, Hashable {
-    let id: String
-    let name: String
-    let muscle: String
+/// One exercise block in the session response.
+struct ExerciseBlockPlan: Decodable, Hashable {
+    let exerciseBlockPlanId: Int
+    let exerciseId: Int
+    let exerciseName: String
+    let orderIndex: Int
     let restSeconds: Int
-    let sets: [SessionSet]
-    let pr: SessionPR?
+    let isOptional: Bool
+    let numberOfSets: Int
+    let targetSets: [TargetSet]
 }
 
-/// One target set within a session exercise.
-struct SessionSet: Decodable, Hashable {
+/// One target set within an exercise block.
+struct TargetSet: Decodable, Hashable {
+    let targetSetId: Int
+    let orderIndex: Int
     let targetReps: Int
-    let prevWeight: Double
-    let prevReps: Int
+    let targetWeight: Double
 }
 
-/// Previous-best record for an exercise, if available.
-struct SessionPR: Decodable, Hashable {
-    let weight: Double
-    let reps: Int
-}
+// MARK: - StartWorkoutResponse → WorkoutSession mapping
 
-// MARK: - StartSessionResponse → WorkoutSession mapping
-
-extension StartSessionResponse {
+extension StartWorkoutResponse {
 
     /// Maps the API session response to the in-memory `WorkoutSession` used by `ActiveSessionViewModel`.
     func toWorkoutSession() -> WorkoutSession {
         WorkoutSession(
-            id: id,
-            name: "",
-            program: "Week \(actualWeekNumber)",
-            dayIndex: actualWeekNumber,
-            estimatedMinutes: 0,
-            exercises: exercises.map { ex in
-                WorkoutExercise(
-                    id: ex.id,
-                    name: ex.name,
-                    muscle: ex.muscle,
-                    restSeconds: ex.restSeconds,
-                    sets: ex.sets.map { s in
-                        WorkoutSet(
-                            targetReps: s.targetReps,
-                            prevWeight: s.prevWeight,
-                            prevReps: s.prevReps
-                        )
-                    },
-                    pr: ex.pr.map { PRRecord(weight: $0.weight, reps: $0.reps) }
-                )
-            }
+            id: workExecutionId,
+            name: workoutPlanName,
+            exercises: exerciseBlockPlans
+                .sorted { $0.orderIndex < $1.orderIndex }
+                .map { block in
+                    WorkoutExercise(
+                        exerciseBlockPlanId: block.exerciseBlockPlanId,
+                        id: block.exerciseId,
+                        name: block.exerciseName,
+                        restSeconds: block.restSeconds,
+                        sets: block.targetSets
+                            .sorted { $0.orderIndex < $1.orderIndex }
+                            .map { WorkoutSet(targetReps: $0.targetReps, targetWeight: $0.targetWeight) }
+                    )
+                }
         )
     }
 }

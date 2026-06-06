@@ -39,6 +39,10 @@ struct TodayView: View {
             .task {
                 await viewModel.loadHomeData(using: homeService)
             }
+            .onChange(of: showCheckIn) { old, new in
+                guard old && !new else { return }
+                Task { await viewModel.reload(using: homeService) }
+            }
             .overlay {
                 HomeMenuView(
                     isPresented: $menuOpen,
@@ -59,14 +63,18 @@ struct TodayView: View {
                     onSignOut: onSignOut
                 )
             }
-            .fullScreenCover(isPresented: $showWizard) {
+            .fullScreenCover(isPresented: $showWizard, onDismiss: {
+                Task { await viewModel.reload(using: homeService) }
+            }) {
                 NewPlanWizardView(
                     service: WorkoutPlanService(networkClient: networkClient),
                     dayConfigService: WorkoutDayPlanService(networkClient: networkClient),
                     exerciseService: ExerciseService(networkClient: networkClient)
                 )
             }
-            .fullScreenCover(isPresented: $showEditWizard) {
+            .fullScreenCover(isPresented: $showEditWizard, onDismiss: {
+                Task { await viewModel.reload(using: homeService) }
+            }) {
                 NewPlanWizardView(
                     service: WorkoutPlanService(networkClient: networkClient),
                     dayConfigService: WorkoutDayPlanService(networkClient: networkClient),

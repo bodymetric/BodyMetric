@@ -21,7 +21,7 @@ final class ReadyToLiftViewModel {
     // MARK: - State
 
     var loadState: LoadState = .idle
-    var sessionResponse: StartSessionResponse? = nil
+    var sessionResponse: StartWorkoutResponse? = nil
 
     // MARK: - Derived
 

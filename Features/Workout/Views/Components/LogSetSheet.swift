@@ -25,7 +25,7 @@ struct LogSetSheet: View {
     }
 
     private var volumeDelta: Double {
-        weight * Double(reps) - initial.prevWeight * Double(initial.prevReps)
+        weight * Double(reps) - initial.targetWeight * Double(initial.targetReps)
     }
 
     private var weightLabel: String {
@@ -95,7 +95,7 @@ struct LogSetSheet: View {
                 // vs-last line
                 let sign = volumeDelta >= 0
                 HStack(spacing: 4) {
-                    Text("last time: \(String(format: "%.1f", initial.prevWeight)) × \(initial.prevReps)")
+                    Text("target: \(String(format: "%.1f", initial.targetWeight)) × \(initial.targetReps)")
                     Text(sign ? "▲" : "▼")
                     Text("\(Int(abs(volumeDelta)))kg vol")
                         .fontWeight(.bold)

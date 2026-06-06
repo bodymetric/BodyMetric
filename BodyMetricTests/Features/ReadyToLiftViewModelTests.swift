@@ -36,7 +36,7 @@ final class ReadyToLiftViewModelTests: XCTestCase {
         mockService.responseToReturn = makeFixtureResponse()
         await sut.beginSession(planId: 4, actualWeekNumber: 1, feeling: "ok", using: mockService)
         XCTAssertNotNil(sut.sessionResponse)
-        XCTAssertEqual(sut.sessionResponse?.id, "exec-1")
+        XCTAssertEqual(sut.sessionResponse?.workExecutionId, 9)
     }
 
     func test_beginSession_success_setsLoadStateIdle() async {
@@ -129,23 +129,51 @@ final class ReadyToLiftViewModelTests: XCTestCase {
         XCTAssertEqual(session.exercises[0].restSeconds, 90)
     }
 
-    func test_fixtureResponse_toWorkoutSession_mapsWeekNumber() {
+    func test_fixtureResponse_toWorkoutSession_mapsPlanName() {
         let response = makeFixtureResponse()
         let session = response.toWorkoutSession()
-        XCTAssertEqual(session.dayIndex, 1)
+        XCTAssertEqual(session.name, "Push Day")
+    }
+
+    func test_fixtureResponse_toWorkoutSession_mapsWorkExecutionId() {
+        let response = makeFixtureResponse()
+        let session = response.toWorkoutSession()
+        XCTAssertEqual(session.id, 9)
+    }
+
+    func test_fixtureResponse_toWorkoutSession_sortsByOrderIndex() {
+        let sets = [
+            TargetSet(targetSetId: 2, orderIndex: 2, targetReps: 6, targetWeight: 70),
+            TargetSet(targetSetId: 1, orderIndex: 1, targetReps: 8, targetWeight: 60)
+        ]
+        let block = ExerciseBlockPlan(
+            exerciseBlockPlanId: 1, exerciseId: 113, exerciseName: "Bench Press",
+            orderIndex: 1, restSeconds: 90, isOptional: false, numberOfSets: 2, targetSets: sets
+        )
+        let response = StartWorkoutResponse(
+            workExecutionId: 9, workoutPlanId: 188, workoutPlanName: "Push Day",
+            totalNumberOfSets: 2, exerciseBlockPlans: [block]
+        )
+        let session = response.toWorkoutSession()
+        XCTAssertEqual(session.exercises[0].sets[0].targetReps, 8, "orderIndex 1 should be first")
+        XCTAssertEqual(session.exercises[0].sets[1].targetReps, 6, "orderIndex 2 should be second")
     }
 
     // MARK: - Helpers
 
-    private func makeFixtureResponse() -> StartSessionResponse {
+    private func makeFixtureResponse() -> StartWorkoutResponse {
         let sets = [
-            SessionSet(targetReps: 8, prevWeight: 80, prevReps: 8),
-            SessionSet(targetReps: 8, prevWeight: 80, prevReps: 7)
+            TargetSet(targetSetId: 1, orderIndex: 1, targetReps: 8, targetWeight: 80),
+            TargetSet(targetSetId: 2, orderIndex: 2, targetReps: 8, targetWeight: 80)
         ]
-        let ex = SessionExercise(id: "ex-1", name: "Bench Press", muscle: "Chest",
-                                  restSeconds: 90, sets: sets, pr: nil)
-        return StartSessionResponse(id: "exec-1", planId: 4, actualWeekNumber: 1,
-                                     feeling: "OK", exercises: [ex])
+        let block = ExerciseBlockPlan(
+            exerciseBlockPlanId: 72, exerciseId: 113, exerciseName: "Bench Press",
+            orderIndex: 1, restSeconds: 90, isOptional: false, numberOfSets: 2, targetSets: sets
+        )
+        return StartWorkoutResponse(
+            workExecutionId: 9, workoutPlanId: 4, workoutPlanName: "Push Day",
+            totalNumberOfSets: 2, exerciseBlockPlans: [block]
+        )
     }
 }
 
@@ -153,12 +181,12 @@ final class ReadyToLiftViewModelTests: XCTestCase {
 
 @MainActor
 final class MockWorkoutExecutionService: WorkoutExecutionServiceProtocol {
-    var responseToReturn: StartSessionResponse?
+    var responseToReturn: StartWorkoutResponse?
     var errorToThrow: Error?
     var lastRequest: StartSessionRequest?
     var callCount = 0
 
-    func startSession(_ request: StartSessionRequest) async throws -> StartSessionResponse {
+    func startSession(_ request: StartSessionRequest) async throws -> StartWorkoutResponse {
         callCount += 1
         lastRequest = request
         if let error = errorToThrow { throw error }

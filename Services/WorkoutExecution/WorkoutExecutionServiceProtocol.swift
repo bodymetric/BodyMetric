@@ -12,5 +12,5 @@ protocol WorkoutExecutionServiceProtocol: AnyObject {
     ///
     /// - Parameter request: Session parameters — planId, actualWeekNumber, and uppercase feeling.
     /// - Returns: Session response containing the generated exercise blocks.
-    func startSession(_ request: StartSessionRequest) async throws -> StartSessionResponse
+    func startSession(_ request: StartSessionRequest) async throws -> StartWorkoutResponse
 }

@@ -147,13 +147,12 @@ struct ReviewStepView: View {
 
     @ViewBuilder
     private func blockSummaryRow(index: Int, block: ExerciseBlock) -> some View {
-        let exercise = Exercise.catalog.first { $0.id == block.exerciseId }
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text(String(format: "%02d", index + 1))
                 .font(.system(size: 12, design: .monospaced))
                 .foregroundStyle(GrayscalePalette.secondary)
                 .frame(width: 16)
-            Text(exercise?.name ?? "No exercise")
+            Text(viewModel.exerciseName(for: block.exerciseId) ?? "No exercise")
                 .font(.system(size: 13, design: .rounded).weight(.medium))
                 .foregroundStyle(GrayscalePalette.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)

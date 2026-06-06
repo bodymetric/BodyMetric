@@ -31,13 +31,13 @@ final class WorkoutExecutionServiceTests: XCTestCase {
 
         let result = try await sut.startSession(fixtureRequest)
 
-        XCTAssertEqual(result.id, "exec-1")
-        XCTAssertEqual(result.planId, 4)
-        XCTAssertEqual(result.actualWeekNumber, 1)
-        XCTAssertEqual(result.feeling, "OK")
-        XCTAssertEqual(result.exercises.count, 1)
-        XCTAssertEqual(result.exercises[0].sets.count, 2)
-        XCTAssertEqual(result.exercises[0].name, "Bench Press")
+        XCTAssertEqual(result.workExecutionId, 9)
+        XCTAssertEqual(result.workoutPlanId, 188)
+        XCTAssertEqual(result.workoutPlanName, "Push Day")
+        XCTAssertEqual(result.totalNumberOfSets, 4)
+        XCTAssertEqual(result.exerciseBlockPlans.count, 1)
+        XCTAssertEqual(result.exerciseBlockPlans[0].targetSets.count, 2)
+        XCTAssertEqual(result.exerciseBlockPlans[0].exerciseName, "Inverted Row")
     }
 
     func test_startSession_201_doesNotThrow() async throws {
@@ -45,26 +45,25 @@ final class WorkoutExecutionServiceTests: XCTestCase {
         mockClient.responseStatus = 201
 
         let result = try await sut.startSession(fixtureRequest)
-        XCTAssertEqual(result.id, "exec-1")
+        XCTAssertEqual(result.workExecutionId, 9)
     }
 
-    func test_startSession_decodesExercisePR() async throws {
-        let json = """
-        {
-          "id": "exec-2", "planId": 4, "actualWeekNumber": 1, "feeling": "HIGH",
-          "exercises": [{
-            "id": "ex-1", "name": "Bench Press", "muscle": "Chest", "restSeconds": 120,
-            "sets": [{"targetReps": 8, "prevWeight": 80.0, "prevReps": 8}],
-            "pr": {"weight": 82.5, "reps": 6}
-          }]
-        }
-        """.data(using: .utf8)!
-        mockClient.responseData = json
+    func test_startSession_decodesTargetSets() async throws {
+        mockClient.responseData = fixtureJSON
         mockClient.responseStatus = 200
 
         let result = try await sut.startSession(fixtureRequest)
-        XCTAssertEqual(result.exercises[0].pr?.weight, 82.5)
-        XCTAssertEqual(result.exercises[0].pr?.reps, 6)
+        let firstSet = result.exerciseBlockPlans[0].targetSets.first
+        XCTAssertEqual(firstSet?.targetReps, 8)
+        XCTAssertEqual(firstSet?.targetWeight, 60.0)
+    }
+
+    func test_startSession_decodesIsOptional() async throws {
+        mockClient.responseData = fixtureJSON
+        mockClient.responseStatus = 200
+
+        let result = try await sut.startSession(fixtureRequest)
+        XCTAssertFalse(result.exerciseBlockPlans[0].isOptional)
     }
 
     // MARK: - startSession: errors
@@ -138,34 +137,36 @@ final class WorkoutExecutionServiceTests: XCTestCase {
         let bodyData = mockClient.capturedRequests.last?.httpBodyData
         let decoded = try XCTUnwrap(bodyData.flatMap { try? JSONDecoder().decode(StartSessionRequest.self, from: $0) })
         XCTAssertEqual(decoded.feeling, "OK")
-        XCTAssertEqual(decoded.planId, 4)
+        XCTAssertEqual(decoded.planId, 188)
         XCTAssertEqual(decoded.actualWeekNumber, 1)
     }
 
     // MARK: - Helpers
 
     private var fixtureRequest: StartSessionRequest {
-        StartSessionRequest(planId: 4, actualWeekNumber: 1, feeling: "OK")
+        StartSessionRequest(planId: 188, actualWeekNumber: 1, feeling: "OK")
     }
 
     private var fixtureJSON: Data {
         """
         {
-          "id": "exec-1",
-          "planId": 4,
-          "actualWeekNumber": 1,
-          "feeling": "OK",
-          "exercises": [
+          "workExecutionId": 9,
+          "workoutPlanId": 188,
+          "workoutPlanName": "Push Day",
+          "totalNumberOfSets": 4,
+          "exerciseBlockPlans": [
             {
-              "id": "ex-1",
-              "name": "Bench Press",
-              "muscle": "Chest",
+              "exerciseBlockPlanId": 72,
+              "exerciseId": 113,
+              "exerciseName": "Inverted Row",
+              "orderIndex": 1,
               "restSeconds": 90,
-              "sets": [
-                {"targetReps": 8, "prevWeight": 80.0, "prevReps": 8},
-                {"targetReps": 8, "prevWeight": 80.0, "prevReps": 7}
-              ],
-              "pr": null
+              "isOptional": false,
+              "numberOfSets": 4,
+              "targetSets": [
+                {"targetSetId": 109, "orderIndex": 1, "targetReps": 8, "targetWeight": 60.0},
+                {"targetSetId": 110, "orderIndex": 2, "targetReps": 8, "targetWeight": 60.0}
+              ]
             }
           ]
         }

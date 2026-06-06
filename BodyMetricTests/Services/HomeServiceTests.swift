@@ -88,6 +88,18 @@ final class HomeServiceTests: XCTestCase {
         XCTAssertNil(result.exercisesForToday)
     }
 
+    func test_fetchHomeData_urlContainsCurrentDayOfWeek() async throws {
+        mockClient.responseData = "{}".data(using: .utf8)!
+        mockClient.responseStatus = 200
+
+        _ = try? await sut.fetchHomeData()
+
+        let urlString = mockClient.capturedRequests.last?.url?.absoluteString ?? ""
+        XCTAssertTrue(urlString.contains("currentDayOfWeek="), "URL must contain currentDayOfWeek query param")
+        let validDays = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
+        XCTAssertTrue(validDays.contains(where: { urlString.contains($0) }), "currentDayOfWeek must be an uppercase English weekday name")
+    }
+
     func test_fetchHomeData_sendsGETRequest() async throws {
         mockClient.responseData = "{}".data(using: .utf8)!
         mockClient.responseStatus = 200

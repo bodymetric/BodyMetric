@@ -80,7 +80,7 @@ struct LoginView: View {
                         .font(.system(size: 20))
                         .symbolRenderingMode(.monochrome)
 
-                    Text("Sign in with Google2")
+                    Text("Sign in with Google")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .foregroundStyle(GrayscalePalette.primary)

@@ -202,13 +202,14 @@ struct CheckInView: View {
                         .tracking(1)
                 }
             }
-            .navigationDestination(for: StartSessionResponse.self) { response in
+            .navigationDestination(for: StartWorkoutResponse.self) { response in
                 ActiveSessionView(
                     viewModel: ActiveSessionViewModel(
+                        workExecutionId: response.workExecutionId,
                         workout: response.toWorkoutSession(),
-                        mood: response.feeling
+                        mood: mood?.rawValue.uppercased() ?? ""
                     ),
-                    onComplete: { path.removeLast() }
+                    onComplete: { dismiss() }
                 )
             }
             .onChange(of: viewModel.sessionResponse) { _, response in

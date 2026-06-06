@@ -3,34 +3,24 @@ import Foundation
 // MARK: - Workout session
 
 struct WorkoutSession {
-    let id: String
+    let id: Int
     let name: String
-    let program: String
-    let dayIndex: Int
-    let estimatedMinutes: Int
     let exercises: [WorkoutExercise]
 
     var totalSets: Int { exercises.reduce(0) { $0 + $1.sets.count } }
 }
 
 struct WorkoutExercise {
-    let id: String
+    let exerciseBlockPlanId: Int
+    let id: Int
     let name: String
-    let muscle: String
     let restSeconds: Int
     let sets: [WorkoutSet]
-    let pr: PRRecord?
 }
 
 struct WorkoutSet {
     let targetReps: Int
-    let prevWeight: Double
-    let prevReps: Int
-}
-
-struct PRRecord {
-    let weight: Double
-    let reps: Int
+    let targetWeight: Double
 }
 
 // MARK: - Session progress
@@ -40,12 +30,11 @@ struct SetProgress {
     var weight: Double
     var reps: Int
     let targetReps: Int
-    let prevWeight: Double
-    let prevReps: Int
+    let targetWeight: Double
 }
 
 struct ExerciseProgress {
-    let id: String
+    let id: Int
     var sets: [SetProgress]
 
     var allDone: Bool { sets.allSatisfy(\.done) }
@@ -85,65 +74,60 @@ struct LogTarget: Equatable {
 
 extension WorkoutSession {
     static let mockToday = WorkoutSession(
-        id: "w-push-1",
+        id: 0,
         name: "Push Day · Chest & Triceps",
-        program: "PPL · Week 5",
-        dayIndex: 28,
-        estimatedMinutes: 52,
         exercises: [
             WorkoutExercise(
-                id: "e1", name: "Barbell Bench Press", muscle: "Chest",
+                exerciseBlockPlanId: 0,
+                id: 1, name: "Barbell Bench Press",
                 restSeconds: 120,
                 sets: [
-                    WorkoutSet(targetReps: 8, prevWeight: 80, prevReps: 8),
-                    WorkoutSet(targetReps: 8, prevWeight: 80, prevReps: 8),
-                    WorkoutSet(targetReps: 6, prevWeight: 80, prevReps: 7),
-                    WorkoutSet(targetReps: 6, prevWeight: 80, prevReps: 6),
-                ],
-                pr: PRRecord(weight: 82.5, reps: 6)
+                    WorkoutSet(targetReps: 8, targetWeight: 80),
+                    WorkoutSet(targetReps: 8, targetWeight: 80),
+                    WorkoutSet(targetReps: 6, targetWeight: 80),
+                    WorkoutSet(targetReps: 6, targetWeight: 80),
+                ]
             ),
             WorkoutExercise(
-                id: "e2", name: "Incline Dumbbell Press", muscle: "Upper Chest",
+                exerciseBlockPlanId: 0,
+                id: 2, name: "Incline Dumbbell Press",
                 restSeconds: 90,
                 sets: [
-                    WorkoutSet(targetReps: 10, prevWeight: 28, prevReps: 10),
-                    WorkoutSet(targetReps: 10, prevWeight: 28, prevReps: 10),
-                    WorkoutSet(targetReps: 8,  prevWeight: 28, prevReps: 9),
-                ],
-                pr: nil
+                    WorkoutSet(targetReps: 10, targetWeight: 28),
+                    WorkoutSet(targetReps: 10, targetWeight: 28),
+                    WorkoutSet(targetReps: 8,  targetWeight: 28),
+                ]
             ),
             WorkoutExercise(
-                id: "e3", name: "Cable Chest Fly", muscle: "Chest",
+                exerciseBlockPlanId: 0,
+                id: 3, name: "Cable Chest Fly",
                 restSeconds: 75,
                 sets: [
-                    WorkoutSet(targetReps: 12, prevWeight: 16, prevReps: 12),
-                    WorkoutSet(targetReps: 12, prevWeight: 16, prevReps: 12),
-                    WorkoutSet(targetReps: 12, prevWeight: 16, prevReps: 12),
-                ],
-                pr: nil
+                    WorkoutSet(targetReps: 12, targetWeight: 16),
+                    WorkoutSet(targetReps: 12, targetWeight: 16),
+                    WorkoutSet(targetReps: 12, targetWeight: 16),
+                ]
             ),
             WorkoutExercise(
-                id: "e4", name: "Overhead Tricep Extension", muscle: "Triceps",
+                exerciseBlockPlanId: 0,
+                id: 4, name: "Overhead Tricep Extension",
                 restSeconds: 60,
                 sets: [
-                    WorkoutSet(targetReps: 12, prevWeight: 22.5, prevReps: 12),
-                    WorkoutSet(targetReps: 12, prevWeight: 22.5, prevReps: 12),
-                    WorkoutSet(targetReps: 10, prevWeight: 22.5, prevReps: 10),
-                ],
-                pr: nil
+                    WorkoutSet(targetReps: 12, targetWeight: 22.5),
+                    WorkoutSet(targetReps: 12, targetWeight: 22.5),
+                    WorkoutSet(targetReps: 10, targetWeight: 22.5),
+                ]
             ),
             WorkoutExercise(
-                id: "e5", name: "Tricep Pushdown", muscle: "Triceps",
+                exerciseBlockPlanId: 0,
+                id: 5, name: "Tricep Pushdown",
                 restSeconds: 60,
                 sets: [
-                    WorkoutSet(targetReps: 15, prevWeight: 30, prevReps: 15),
-                    WorkoutSet(targetReps: 12, prevWeight: 30, prevReps: 13),
-                    WorkoutSet(targetReps: 10, prevWeight: 30, prevReps: 12),
-                ],
-                pr: nil
+                    WorkoutSet(targetReps: 15, targetWeight: 30),
+                    WorkoutSet(targetReps: 12, targetWeight: 30),
+                    WorkoutSet(targetReps: 10, targetWeight: 30),
+                ]
             ),
         ]
     )
-
-    
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Success screen shown after the wizard finishes and the plan is saved.
 ///
-/// "Back to home" → onHome(); "Plan another week" → onRestart().
+/// "Back to home" → onHome().
 ///
 /// Constitution Principle VI: WorkoutPalette accent for mascot halo + CTA;
 ///   all structural colors via GrayscalePalette.
@@ -10,7 +10,6 @@ struct PlanSavedView: View {
 
     let dayCount: Int
     let onHome: () -> Void
-    let onRestart: () -> Void
 
     // MARK: - Body
 
@@ -112,27 +111,16 @@ struct PlanSavedView: View {
     // MARK: - Buttons
 
     private var actionButtons: some View {
-        VStack(spacing: 8) {
-            Button(action: onHome) {
-                Text("Back to home")
-                    .font(.system(size: 17, design: .rounded).weight(.bold))
-                    .foregroundStyle(GrayscalePalette.background)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 54)
-                    .background(GrayscalePalette.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
-            }
-            .buttonStyle(.plain)
-
-            Button(action: onRestart) {
-                Text("Plan another week")
-                    .font(.system(size: 14, design: .rounded).weight(.semibold))
-                    .foregroundStyle(GrayscalePalette.secondary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-            }
-            .buttonStyle(.plain)
+        Button(action: onHome) {
+            Text("Back to home")
+                .font(.system(size: 17, design: .rounded).weight(.bold))
+                .foregroundStyle(GrayscalePalette.background)
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .background(GrayscalePalette.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
         }
+        .buttonStyle(.plain)
     }
 }

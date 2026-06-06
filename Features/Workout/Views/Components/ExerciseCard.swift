@@ -39,24 +39,12 @@ struct ExerciseCard: View {
                             .font(.system(size: 16, design: .rounded).weight(.bold))
                             .foregroundStyle(GrayscalePalette.primary)
                             .strikethrough(progress.allDone)
-                        Text("\(progress.doneCount)/\(progress.sets.count) sets · \(exercise.muscle)")
+                        Text("\(progress.doneCount)/\(progress.sets.count) sets")
                             .font(.system(size: 12, design: .monospaced))
                             .foregroundStyle(GrayscalePalette.secondary)
                     }
 
                     Spacer()
-
-                    // PR badge
-                    if let pr = exercise.pr, !progress.allDone {
-                        Text("PR \(formattedWeight(pr.weight))kg")
-                            .font(.system(size: 9, design: .monospaced).weight(.bold))
-                            .foregroundStyle(WorkoutPalette.accentInk)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 3)
-                            .background(WorkoutPalette.accentSoft)
-                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                            .tracking(1)
-                    }
 
                     // Chevron when collapsed
                     if !expanded {
@@ -78,7 +66,7 @@ struct ExerciseCard: View {
                     HStack {
                         Text("SET")
                             .frame(width: 38, alignment: .leading)
-                        Text("PREVIOUS")
+                        Text("TARGET")
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Text("KG")
                             .frame(width: 72, alignment: .center)
@@ -166,8 +154,8 @@ struct SetRowView: View {
                 }
                 .frame(width: 38, alignment: .leading)
 
-                // Previous
-                Text("\(formattedWeight(set.prevWeight))kg × \(set.prevReps)")
+                // Target
+                Text("\(formattedWeight(set.targetWeight))kg × \(set.targetReps)")
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundStyle(set.done ? WorkoutPalette.accentInk : GrayscalePalette.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)

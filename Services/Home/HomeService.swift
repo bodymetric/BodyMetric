@@ -21,10 +21,23 @@ final class HomeService: HomeServiceProtocol {
         self.networkClient = networkClient
     }
 
+    // MARK: - Helpers
+
+    private static func currentDayOfWeekString() -> String {
+        let f = DateFormatter()
+        f.dateFormat = "EEEE"
+        f.locale = Locale(identifier: "en_US")
+        return f.string(from: Date()).uppercased()
+    }
+
     // MARK: - HomeServiceProtocol
 
     func fetchHomeData() async throws -> HomeScreenData {
-        guard let url = URL(string: Self.baseURL) else {
+        var components = URLComponents(string: Self.baseURL)!
+        components.queryItems = [
+            URLQueryItem(name: "currentDayOfWeek", value: Self.currentDayOfWeekString())
+        ]
+        guard let url = components.url else {
             throw WorkoutPlanError.networkError(URLError(.badURL))
         }
 

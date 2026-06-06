@@ -89,6 +89,23 @@ final class TodayViewModelTests: XCTestCase {
         XCTAssertEqual(mockService.fetchCount, 0, "Re-entry while loading must be blocked")
     }
 
+    // MARK: - reload
+
+    func test_reload_setsLoadedStateAfterSuccess() async {
+        sut.loadState = .failed("old error")
+        mockService.dataToReturn = makeHomeData(withPlan: true, exercises: 1)
+        await sut.reload(using: mockService)
+        if case .loaded = sut.loadState { /* ✅ */ } else {
+            XCTFail("Expected .loaded after reload, got \(sut.loadState)")
+        }
+    }
+
+    func test_reload_callsFetchService() async {
+        mockService.dataToReturn = makeHomeData(withPlan: false, exercises: 0)
+        await sut.reload(using: mockService)
+        XCTAssertEqual(mockService.fetchCount, 1)
+    }
+
     // MARK: - exercisesForToday ordering
 
     func test_exercisesForToday_sortedByOrderIndex() async {

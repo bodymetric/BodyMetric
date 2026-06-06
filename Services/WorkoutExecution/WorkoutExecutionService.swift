@@ -26,7 +26,7 @@ final class WorkoutExecutionService: WorkoutExecutionServiceProtocol {
 
     // MARK: - WorkoutExecutionServiceProtocol
 
-    func startSession(_ request: StartSessionRequest) async throws -> StartSessionResponse {
+    func startSession(_ request: StartSessionRequest) async throws -> StartWorkoutResponse {
         guard let url = URL(string: "\(Self.baseURL)/start") else {
             throw WorkoutPlanError.networkError(URLError(.badURL))
         }
@@ -64,7 +64,7 @@ final class WorkoutExecutionService: WorkoutExecutionServiceProtocol {
         }
 
         do {
-            return try JSONDecoder().decode(StartSessionResponse.self, from: data)
+            return try JSONDecoder().decode(StartWorkoutResponse.self, from: data)
         } catch {
             Logger.error("WorkoutExecutionService: startSession decode failure", error: error, category: .network)
             throw WorkoutPlanError.decodingError

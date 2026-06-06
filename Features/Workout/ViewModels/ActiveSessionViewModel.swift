@@ -7,6 +7,7 @@ final class ActiveSessionViewModel {
 
     // MARK: - Session data
 
+    let workExecutionId: Int
     let workout: WorkoutSession
     let mood: String
 
@@ -47,7 +48,8 @@ final class ActiveSessionViewModel {
 
     // MARK: - Init
 
-    init(workout: WorkoutSession, mood: String) {
+    init(workExecutionId: Int, workout: WorkoutSession, mood: String) {
+        self.workExecutionId = workExecutionId
         self.workout = workout
         self.mood = mood
         self.progress = workout.exercises.map { ex in
@@ -56,11 +58,10 @@ final class ActiveSessionViewModel {
                 sets: ex.sets.map { s in
                     SetProgress(
                         done: false,
-                        weight: s.prevWeight,
+                        weight: s.targetWeight,
                         reps: s.targetReps,
                         targetReps: s.targetReps,
-                        prevWeight: s.prevWeight,
-                        prevReps: s.prevReps
+                        targetWeight: s.targetWeight
                     )
                 }
             )

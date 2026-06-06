@@ -46,18 +46,19 @@ struct NewPlanWizardView: View {
             }
         }
         .task {
-            if editPlanId != nil {
-                await viewModel.loadCurrentPlan(using: service)
-            }
+            async let planLoad: Void = editPlanId != nil ? viewModel.loadCurrentPlan(using: service) : ()
+            async let catalogLoad: Void = viewModel.loadExerciseCatalog(using: exerciseService)
+            _ = await (planLoad, catalogLoad)
         }
         .fullScreenCover(isPresented: $viewModel.isPresentingSuccess) {
             PlanSavedView(
                 dayCount: viewModel.orderedSelectedDays.count,
-                onHome: { dismiss() },
-                onRestart: { [self] in
-                    viewModel = NewPlanViewModel()
-                }
+                onHome: { viewModel.isPresentingSuccess = false }
             )
+        }
+        .onChange(of: viewModel.isPresentingSuccess) { old, new in
+            guard old && !new else { return }
+            dismiss()
         }
         .accessibilityIdentifier("newPlanWizard")
     }
