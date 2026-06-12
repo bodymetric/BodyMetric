@@ -157,6 +157,7 @@ final class WorkoutExecutionServiceTests: XCTestCase {
           "exerciseBlockPlans": [
             {
               "exerciseBlockPlanId": 72,
+              "exerciseBlockExecutionId": 301,
               "exerciseId": 113,
               "exerciseName": "Inverted Row",
               "orderIndex": 1,

@@ -147,7 +147,7 @@ final class ReadyToLiftViewModelTests: XCTestCase {
             TargetSet(targetSetId: 1, orderIndex: 1, targetReps: 8, targetWeight: 60)
         ]
         let block = ExerciseBlockPlan(
-            exerciseBlockPlanId: 1, exerciseId: 113, exerciseName: "Bench Press",
+            exerciseBlockPlanId: 1, exerciseBlockExecutionId: 301, exerciseId: 113, exerciseName: "Bench Press",
             orderIndex: 1, restSeconds: 90, isOptional: false, numberOfSets: 2, targetSets: sets
         )
         let response = StartWorkoutResponse(
@@ -167,7 +167,7 @@ final class ReadyToLiftViewModelTests: XCTestCase {
             TargetSet(targetSetId: 2, orderIndex: 2, targetReps: 8, targetWeight: 80)
         ]
         let block = ExerciseBlockPlan(
-            exerciseBlockPlanId: 72, exerciseId: 113, exerciseName: "Bench Press",
+            exerciseBlockPlanId: 72, exerciseBlockExecutionId: 301, exerciseId: 113, exerciseName: "Bench Press",
             orderIndex: 1, restSeconds: 90, isOptional: false, numberOfSets: 2, targetSets: sets
         )
         return StartWorkoutResponse(

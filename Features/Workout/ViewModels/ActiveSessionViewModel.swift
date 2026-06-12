@@ -27,6 +27,8 @@ final class ActiveSessionViewModel {
     // MARK: - Log sheet
 
     private(set) var logTarget: LogTarget? = nil
+    private(set) var isSubmittingLog: Bool = false
+    private(set) var logError: String? = nil
 
     // MARK: - Rest timer
 
@@ -41,6 +43,10 @@ final class ActiveSessionViewModel {
 
     private(set) var completionStats: WorkoutCompletionStats? = nil
 
+    // MARK: - Services
+
+    private let performedSetService: any PerformedSetServiceProtocol
+
     // MARK: - Timers
 
     private var sessionTimer: Timer?
@@ -48,10 +54,11 @@ final class ActiveSessionViewModel {
 
     // MARK: - Init
 
-    init(workExecutionId: Int, workout: WorkoutSession, mood: String) {
+    init(workExecutionId: Int, workout: WorkoutSession, mood: String, performedSetService: any PerformedSetServiceProtocol) {
         self.workExecutionId = workExecutionId
         self.workout = workout
         self.mood = mood
+        self.performedSetService = performedSetService
         self.progress = workout.exercises.map { ex in
             ExerciseProgress(
                 id: ex.id,
@@ -91,7 +98,32 @@ final class ActiveSessionViewModel {
         logTarget = nil
     }
 
-    func commitSet(exIdx: Int, setIdx: Int, weight: Double, reps: Int) {
+    func commitSet(exIdx: Int, setIdx: Int, weight: Double, reps: Int) async {
+        guard reps > 0 else {
+            logError = "Reps must be at least 1"
+            return
+        }
+        guard !isSubmittingLog else { return }
+
+        isSubmittingLog = true
+        logError = nil
+
+        let executionId = workout.exercises[exIdx].exerciseBlockExecutionId
+
+        do {
+            try await performedSetService.logPerformedSet(
+                exerciseBlockExecutionId: executionId,
+                weight: weight,
+                reps: reps
+            )
+        } catch {
+            Logger.error("ActiveSessionViewModel: commitSet failed executionId:\(executionId)", error: error, category: .network)
+            logError = "Failed to log set. Please try again."
+            isSubmittingLog = false
+            return
+        }
+
+        isSubmittingLog = false
         progress[exIdx].sets[setIdx].done   = true
         progress[exIdx].sets[setIdx].weight = weight
         progress[exIdx].sets[setIdx].reps   = reps
@@ -99,12 +131,10 @@ final class ActiveSessionViewModel {
 
         startRest(seconds: workout.exercises[exIdx].restSeconds)
 
-        // Advance to next exercise if current is fully done
         if progress[exIdx].allDone, exIdx + 1 < progress.count {
             activeExIdx = exIdx + 1
         }
 
-        // Check session complete
         if progress.allSatisfy(\.allDone) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
                 guard let self else { return }

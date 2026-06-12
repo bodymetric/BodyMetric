@@ -90,7 +90,8 @@ struct TodayView: View {
                         numberOfExercises: plan.numberOfExercisesTotal,
                         estimatedMinutes: plan.timeEstimateToFinish,
                         actualWeekNumber: plan.actualWeekNumber ?? 1,
-                        service: WorkoutExecutionService(networkClient: networkClient)
+                        service: WorkoutExecutionService(networkClient: networkClient),
+                        performedSetService: PerformedSetService(networkClient: networkClient)
                     )
                 }
             }

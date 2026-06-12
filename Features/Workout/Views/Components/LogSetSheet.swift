@@ -6,6 +6,8 @@ struct LogSetSheet: View {
     let exerciseName: String
     let onClose: () -> Void
     let onCommit: (Double, Int) -> Void
+    let isLoading: Bool
+    let error: String?
 
     @State private var weight: Double
     @State private var reps: Int
@@ -14,12 +16,15 @@ struct LogSetSheet: View {
     enum Field { case weight, reps }
 
     init(target: LogTarget, initial: SetProgress, exerciseName: String,
-         onClose: @escaping () -> Void, onCommit: @escaping (Double, Int) -> Void) {
+         onClose: @escaping () -> Void, onCommit: @escaping (Double, Int) -> Void,
+         isLoading: Bool, error: String?) {
         self.target = target
         self.initial = initial
         self.exerciseName = exerciseName
         self.onClose = onClose
         self.onCommit = onCommit
+        self.isLoading = isLoading
+        self.error = error
         _weight = State(initialValue: initial.weight)
         _reps   = State(initialValue: initial.reps)
     }
@@ -127,15 +132,32 @@ struct LogSetSheet: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
 
+                // Error label
+                if let error {
+                    Text(error)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundStyle(GrayscalePalette.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 10)
+                }
+
                 // Log button
                 Button {
                     onCommit(weight, reps)
                 } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 15, weight: .bold))
-                        Text("Log set")
-                            .font(.system(size: 17, design: .rounded).weight(.bold))
+                    Group {
+                        if isLoading {
+                            ProgressView()
+                                .tint(WorkoutPalette.onAccent)
+                        } else {
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 15, weight: .bold))
+                                Text("Log set")
+                                    .font(.system(size: 17, design: .rounded).weight(.bold))
+                            }
+                        }
                     }
                     .foregroundStyle(WorkoutPalette.onAccent)
                     .frame(maxWidth: .infinity)
@@ -144,6 +166,7 @@ struct LogSetSheet: View {
                     .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .shadow(color: .black.opacity(0.16), radius: 12, y: 4)
                 }
+                .disabled(isLoading)
                 .padding(.horizontal, 20)
                 .padding(.top, 14)
                 .padding(.bottom, 36)

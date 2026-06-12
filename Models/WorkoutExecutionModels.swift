@@ -25,6 +25,7 @@ struct StartWorkoutResponse: Decodable, Hashable {
 /// One exercise block in the session response.
 struct ExerciseBlockPlan: Decodable, Hashable {
     let exerciseBlockPlanId: Int
+    let exerciseBlockExecutionId: Int
     let exerciseId: Int
     let exerciseName: String
     let orderIndex: Int
@@ -56,6 +57,7 @@ extension StartWorkoutResponse {
                 .map { block in
                     WorkoutExercise(
                         exerciseBlockPlanId: block.exerciseBlockPlanId,
+                        exerciseBlockExecutionId: block.exerciseBlockExecutionId,
                         id: block.exerciseId,
                         name: block.exerciseName,
                         restSeconds: block.restSeconds,

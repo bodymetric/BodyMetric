@@ -7,6 +7,7 @@ struct CheckInView: View {
     let estimatedMinutes: Int
     let actualWeekNumber: Int
     let service: any WorkoutExecutionServiceProtocol
+    let performedSetService: any PerformedSetServiceProtocol
 
     @Environment(\.dismiss) private var dismiss
 
@@ -207,7 +208,8 @@ struct CheckInView: View {
                     viewModel: ActiveSessionViewModel(
                         workExecutionId: response.workExecutionId,
                         workout: response.toWorkoutSession(),
-                        mood: mood?.rawValue.uppercased() ?? ""
+                        mood: mood?.rawValue.uppercased() ?? "",
+                        performedSetService: performedSetService
                     ),
                     onComplete: { dismiss() }
                 )

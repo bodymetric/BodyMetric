@@ -46,13 +46,17 @@ struct ActiveSessionView: View {
                     exerciseName: ex.name,
                     onClose: { viewModel.closeLog() },
                     onCommit: { weight, reps in
-                        viewModel.commitSet(
-                            exIdx: target.exIdx,
-                            setIdx: target.setIdx,
-                            weight: weight,
-                            reps: reps
-                        )
-                    }
+                        Task {
+                            await viewModel.commitSet(
+                                exIdx: target.exIdx,
+                                setIdx: target.setIdx,
+                                weight: weight,
+                                reps: reps
+                            )
+                        }
+                    },
+                    isLoading: viewModel.isSubmittingLog,
+                    error: viewModel.logError
                 )
                 .animation(.bmSpring, value: viewModel.logTarget != nil)
             }

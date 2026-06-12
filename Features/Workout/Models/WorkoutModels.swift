@@ -12,6 +12,7 @@ struct WorkoutSession {
 
 struct WorkoutExercise {
     let exerciseBlockPlanId: Int
+    let exerciseBlockExecutionId: Int
     let id: Int
     let name: String
     let restSeconds: Int
@@ -79,6 +80,7 @@ extension WorkoutSession {
         exercises: [
             WorkoutExercise(
                 exerciseBlockPlanId: 0,
+                exerciseBlockExecutionId: 0,
                 id: 1, name: "Barbell Bench Press",
                 restSeconds: 120,
                 sets: [
@@ -90,6 +92,7 @@ extension WorkoutSession {
             ),
             WorkoutExercise(
                 exerciseBlockPlanId: 0,
+                exerciseBlockExecutionId: 0,
                 id: 2, name: "Incline Dumbbell Press",
                 restSeconds: 90,
                 sets: [
@@ -100,6 +103,7 @@ extension WorkoutSession {
             ),
             WorkoutExercise(
                 exerciseBlockPlanId: 0,
+                exerciseBlockExecutionId: 0,
                 id: 3, name: "Cable Chest Fly",
                 restSeconds: 75,
                 sets: [
@@ -110,6 +114,7 @@ extension WorkoutSession {
             ),
             WorkoutExercise(
                 exerciseBlockPlanId: 0,
+                exerciseBlockExecutionId: 0,
                 id: 4, name: "Overhead Tricep Extension",
                 restSeconds: 60,
                 sets: [
@@ -120,6 +125,7 @@ extension WorkoutSession {
             ),
             WorkoutExercise(
                 exerciseBlockPlanId: 0,
+                exerciseBlockExecutionId: 0,
                 id: 5, name: "Tricep Pushdown",
                 restSeconds: 60,
                 sets: [
