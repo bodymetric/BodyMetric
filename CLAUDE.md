@@ -1,6 +1,6 @@
 # BodyMetric Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-06-11
+Auto-generated from all feature plans. Last updated: 2026-06-21
 
 ## Active Technologies
 - Swift 5.10 + SwiftUI (UI), URLSession (networking), GoogleSignIn-iOS via SPM (auth), KeychainSwift via SPM (secure email storage), UserDefaults (weight/height cache) (002-user-profile-fetch)
@@ -44,6 +44,9 @@ Auto-generated from all feature plans. Last updated: 2026-06-11
 - N/A — all data in-memory for the session lifetime; no persistence changes (025-start-workout-execution)
 - Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`, `@Bindable`), URLSession via existing `NetworkClient`; no new SPM packages (026-log-set-performed)
 - N/A — all data sent to server; no local persistence changes (026-log-set-performed)
+- Swift 5.10 + Foundation (`JSONDecoder`, `URLSession`); SwiftUI (`@Observable`); no new SPM packages (026-log-set-performed)
+- N/A — fix is purely in-memory model and networking layer (026-log-set-performed)
+- Swift 5.10 + Foundation (`JSONDecoder`); SwiftUI (`@Observable`); no new SPM packages (027-start-session-execution-id)
 
 - Swift 5.10 / iOS 17+ + SwiftUI (UI), URLSession (networking), GoogleSignIn-iOS via SPM (auth), Security framework / KeychainSwift via SPM (secure storage) (001-gym-workout-tracker)
 
@@ -63,9 +66,9 @@ tests/
 Swift 5.10 / iOS 17+: Follow standard conventions
 
 ## Recent Changes
+- 027-start-session-execution-id: Added Swift 5.10 + Foundation (`JSONDecoder`); SwiftUI (`@Observable`); no new SPM packages
+- 026-log-set-performed: Added Swift 5.10 + Foundation (`JSONDecoder`, `URLSession`); SwiftUI (`@Observable`); no new SPM packages
 - 026-log-set-performed: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`, `@Bindable`), URLSession via existing `NetworkClient`; no new SPM packages
-- 025-start-workout-execution: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Observable`, `NavigationStack`, `NavigationPath`), URLSession via `NetworkClient` (existing); no new SPM packages
-- 024-remove-plan-another-week: Added Swift 5.10 / iOS 17+ + SwiftUI (`@Bindable`, `View`) — no new dependencies
 
 
 <!-- MANUAL ADDITIONS START -->

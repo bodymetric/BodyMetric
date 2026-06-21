@@ -1,8 +1,51 @@
-# Research: Log Set Performed
+# Research: Fix Begin Session Decode Failure (026 Bug Fix)
 
 **Feature**: `026-log-set-performed`  
-**Date**: 2026-06-11  
+**Date**: 2026-06-13  
 **Status**: Complete — all decisions resolved
+
+---
+
+## Decision 1: How to handle a missing `exerciseBlockExecutionId` in the decode layer
+
+**Decision**: Change `ExerciseBlockPlan.exerciseBlockExecutionId` from `Int` to `Int?`.
+
+**Rationale**: The backend's `POST /api/work-executions/start` response does not include `exerciseBlockExecutionId`. A non-optional `Int` property causes `JSONDecoder` to throw `DecodingError.keyNotFound`, which propagates as a fatal decode failure and prevents the session from starting. Making the field `Int?` allows decoding to succeed when the key is absent (Swift's `Decodable` synthesis treats missing optional keys as `nil`). This is the minimal, non-breaking fix that unblocks session start immediately.
+
+**Alternatives considered**:
+- *Custom `init(from decoder:)` with `decodeIfPresent`*: Functionally equivalent but requires boilerplate. The synthesized `Decodable` conformance for `Int?` achieves the same result with zero extra code.
+- *Require the backend to add the field*: Correct long-term, but does not unblock the user. The server-side change is outside the app's control and may take time.
+
+---
+
+## Decision 2: How to propagate `exerciseBlockExecutionId` into `WorkoutExercise`
+
+**Decision**: Keep `WorkoutExercise.exerciseBlockExecutionId` as a non-optional `Int`; map it with `block.exerciseBlockExecutionId ?? 0` in `toWorkoutSession()`.
+
+**Rationale**: `WorkoutExercise` is an in-memory view model type. Making it `Int?` would propagate optionality through `commitSet`, `progress`, and test fixtures — widening the change surface unnecessarily. Using `0` as a sentinel value is safe because server-generated IDs are always positive integers. The sentinel is detectable and guarded against in `commitSet`.
+
+**Alternatives considered**:
+- *Make `WorkoutExercise.exerciseBlockExecutionId: Int?` all the way through*: More semantically precise but spreads optionality into the view model and test doubles. Rejected in favour of the sentinel pattern.
+
+---
+
+## Decision 3: How to handle the case where `exerciseBlockExecutionId == 0` at log time
+
+**Decision**: In `commitSet`, add a guard before the service call: `guard executionId > 0 else { logError = "..."; return }`.
+
+**Rationale**: Prevents a meaningless call to `POST /api/exercise-block-executions/0/performed-sets` that would fail with a server error. The user gets a clear, actionable message instead of a cryptic network error. The guard is logged at `.error` severity (Constitution Principle III — silent failures are a defect).
+
+**Alternatives considered**:
+- *Silent no-op*: Violates Constitution Principle III.
+- *Disable "Log set" button when executionId == 0*: Requires UI changes in `ActiveSessionView` and `LogSetSheet`. More surface area than a VM-layer guard. Rejected.
+
+---
+
+## Decision 4: Test fixture strategy
+
+**Decision**: Remove `"exerciseBlockExecutionId"` from JSON fixtures in `WorkoutExecutionServiceTests`; remove `exerciseBlockExecutionId: 301` from `ExerciseBlockPlan(...)` calls in `ReadyToLiftViewModelTests`; add a new test in `ActiveSessionViewModelTests` for the `executionId == 0` guard path.
+
+**Rationale**: JSON fixture change proves decoding succeeds without the field. Model fixture change proves the optionality works at the Swift level. The new VM test locks in the guard behaviour.
 
 ---
 

@@ -115,6 +115,40 @@ final class WorkoutExecutionServiceTests: XCTestCase {
         }
     }
 
+    func test_startSession_missingExecutionId_throwsDecodingError() async throws {
+        let jsonMissingId = """
+        {
+          "workExecutionId": 9,
+          "workoutPlanId": 188,
+          "workoutPlanName": "Push Day",
+          "totalNumberOfSets": 4,
+          "exerciseBlockPlans": [
+            {
+              "exerciseBlockPlanId": 72,
+              "exerciseId": 113,
+              "exerciseName": "Inverted Row",
+              "orderIndex": 1,
+              "restSeconds": 90,
+              "isOptional": false,
+              "numberOfSets": 4,
+              "targetSets": [
+                {"targetSetId": 109, "orderIndex": 1, "targetReps": 8, "targetWeight": 60.0}
+              ]
+            }
+          ]
+        }
+        """.data(using: .utf8)!
+        mockClient.responseData = jsonMissingId
+        mockClient.responseStatus = 200
+
+        do {
+            _ = try await sut.startSession(fixtureRequest)
+            XCTFail("Expected WorkoutPlanError.decodingError when exerciseBlockExecutionId is absent")
+        } catch WorkoutPlanError.decodingError {
+            // ✅ Server omitting exerciseBlockExecutionId must be treated as an error
+        }
+    }
+
     // MARK: - startSession: request shape
 
     func test_startSession_sendsPOSTToCorrectURL() async throws {

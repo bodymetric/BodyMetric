@@ -95,6 +95,35 @@ final class ActiveSessionViewModelTests: XCTestCase {
         XCTAssertFalse(sut.progress[0].sets[0].done)
     }
 
+    func test_commitSet_zeroExecutionId_setsLogErrorNoNetworkCall() async {
+        let sessionWithNoId = WorkoutSession(
+            id: 9,
+            name: "Push Day",
+            exercises: [
+                WorkoutExercise(
+                    exerciseBlockPlanId: 72,
+                    exerciseBlockExecutionId: 0,
+                    id: 113,
+                    name: "Bench Press",
+                    restSeconds: 90,
+                    sets: [WorkoutSet(targetReps: 8, targetWeight: 80)]
+                )
+            ]
+        )
+        let sutNoId = ActiveSessionViewModel(
+            workExecutionId: 9,
+            workout: sessionWithNoId,
+            mood: "OK",
+            performedSetService: mockService
+        )
+        await sutNoId.commitSet(exIdx: 0, setIdx: 0, weight: 70.0, reps: 8)
+
+        XCTAssertEqual(mockService.callCount, 0, "No network call when executionId is 0")
+        XCTAssertNotNil(sutNoId.logError)
+        XCTAssertFalse(sutNoId.progress[0].sets[0].done)
+        XCTAssertFalse(sutNoId.isSubmittingLog)
+    }
+
     // MARK: - Correct ID used
 
     func test_commitSet_usesCorrectExerciseBlockExecutionId() async {

@@ -1,7 +1,55 @@
-# Quickstart: Log Set Performed
+# Quickstart: Fix Begin Session Decode Failure (026 Bug Fix)
 
 **Feature**: `026-log-set-performed`  
-**Date**: 2026-06-11
+**Date**: 2026-06-13 (updated)
+
+---
+
+## Scenario 1 — Session starts when backend omits exerciseBlockExecutionId (happy path, current backend)
+
+**Given** the backend returns `exerciseBlockPlans` without `exerciseBlockExecutionId`:
+```json
+{ "exerciseBlockPlanId": 93, "exerciseId": 113, "exerciseName": "Inverted Row", ... }
+```
+**When** the user taps "Begin session"  
+**Then** the session starts successfully; `exerciseBlockExecutionId` defaults to `0` in `WorkoutExercise`
+
+---
+
+## Scenario 2 — Session starts when backend includes exerciseBlockExecutionId (future backend)
+
+**Given** the backend returns `exerciseBlockPlans` with `exerciseBlockExecutionId`:
+```json
+{ "exerciseBlockPlanId": 93, "exerciseBlockExecutionId": 301, "exerciseId": 113, ... }
+```
+**When** the user taps "Begin session"  
+**Then** the session starts; `exerciseBlockExecutionId` is `301` in `WorkoutExercise`; logging a set calls `POST .../301/performed-sets`
+
+---
+
+## Scenario 3 — Log set guarded when executionId is 0
+
+**Given** the session started with `exerciseBlockExecutionId == 0` (backend omitted it)  
+**When** the user taps "Log set"  
+**Then** an error message is shown: "Cannot log set: session data is incomplete. Please end and restart the session."  
+**And** no network request is sent
+
+---
+
+## Scenario 4 — Log set succeeds when executionId is valid
+
+**Given** the session started with `exerciseBlockExecutionId == 301`  
+**When** the user enters weight and reps and taps "Log set"  
+**Then** `POST /api/exercise-block-executions/301/performed-sets` is called with correct weight and reps  
+**And** the set row is marked done
+
+---
+
+## Scenario 5 — Decode does not fail on pre-existing sessions without the field
+
+**Given** a test JSON fixture that mirrors the current backend response (no `exerciseBlockExecutionId` key)  
+**When** `WorkoutExecutionService.startSession` decodes the response  
+**Then** no `DecodingError` is thrown; the returned `StartWorkoutResponse` has blocks with `exerciseBlockExecutionId == nil` (decoded) → `0` (mapped)
 
 ---
 

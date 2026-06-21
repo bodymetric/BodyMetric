@@ -1,7 +1,51 @@
-# Data Model: Log Set Performed
+# Data Model: Fix Begin Session Decode Failure (026 Bug Fix)
 
 **Feature**: `026-log-set-performed`  
-**Date**: 2026-06-11
+**Date**: 2026-06-13 (updated)
+
+---
+
+## Changed Entity: ExerciseBlockPlan (Decodable)
+
+| Field | Type (before) | Type (after) | Source | Notes |
+|-------|---------------|--------------|--------|-------|
+| `exerciseBlockPlanId` | `Int` | `Int` | JSON | Unchanged |
+| `exerciseBlockExecutionId` | `Int` | `Int?` | JSON | **Changed** — backend may omit this field; nil when absent |
+| `exerciseId` | `Int` | `Int` | JSON | Unchanged |
+| `exerciseName` | `String` | `String` | JSON | Unchanged |
+| `orderIndex` | `Int` | `Int` | JSON | Unchanged |
+| `restSeconds` | `Int` | `Int` | JSON | Unchanged |
+| `isOptional` | `Bool` | `Bool` | JSON | Unchanged |
+| `numberOfSets` | `Int` | `Int` | JSON | Unchanged |
+| `targetSets` | `[TargetSet]` | `[TargetSet]` | JSON | Unchanged |
+
+---
+
+## Unchanged Entity: WorkoutExercise (in-memory)
+
+| Field | Type | Source | Notes |
+|-------|------|--------|-------|
+| `exerciseBlockPlanId` | `Int` | `ExerciseBlockPlan.exerciseBlockPlanId` | Unchanged |
+| `exerciseBlockExecutionId` | `Int` | `ExerciseBlockPlan.exerciseBlockExecutionId ?? 0` | **Mapping changed** — defaults to 0 when server omits the field |
+| `id` | `Int` | `ExerciseBlockPlan.exerciseId` | Unchanged |
+| `name` | `String` | `ExerciseBlockPlan.exerciseName` | Unchanged |
+| `restSeconds` | `Int` | `ExerciseBlockPlan.restSeconds` | Unchanged |
+| `sets` | `[WorkoutSet]` | `ExerciseBlockPlan.targetSets` | Unchanged |
+
+---
+
+## State Transition: commitSet guard
+
+```
+exerciseBlockExecutionId == 0
+    → logError = "Cannot log set: session data is incomplete."
+    → return (no API call)
+
+exerciseBlockExecutionId > 0
+    → proceed to PerformedSetService.logPerformedSet(...)
+```
+
+The `== 0` sentinel is only reachable when the backend does not yet include `exerciseBlockExecutionId` in the start-session response. Once the backend adds the field, the guard becomes unreachable.
 
 ---
 

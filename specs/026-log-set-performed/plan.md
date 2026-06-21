@@ -1,23 +1,23 @@
-# Implementation Plan: Log Set Performed
+# Implementation Plan: Fix Begin Session Decode Failure (026 Bug Fix)
 
-**Branch**: `026-log-set-performed` | **Date**: 2026-06-11 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `/specs/026-log-set-performed/spec.md`
+**Branch**: `026-log-set-performed` | **Date**: 2026-06-13 | **Spec**: [spec.md](spec.md)  
+**Input**: Bug report — `POST /api/work-executions/start` response is missing `exerciseBlockExecutionId`; app fails to decode and shows "Could not read the server response."
 
 ## Summary
 
-When the user taps "Log set" for an exercise block execution in the active workout screen, the app calls `POST /api/exercise-block-executions/{exerciseBlockExecutionId}/performed-sets` with the user-entered weight and reps. The `exerciseBlockExecutionId` is returned by the server in the start-session response alongside `exerciseBlockPlanId`. The feature adds a `PerformedSetService`, extends the existing start-session response shape to include `exerciseBlockExecutionId`, and wires the log-set button in `LogSetSheet` through `ActiveSessionViewModel` to call the new endpoint.
+Feature 026 added `let exerciseBlockExecutionId: Int` (non-optional) to `ExerciseBlockPlan`. The backend's start-session response does not include this field, so `JSONDecoder` throws `DecodingError.keyNotFound`, which propagates as a decode failure and prevents the session from starting. The fix makes the field optional at the decode boundary (`ExerciseBlockPlan`), maps it with a `?? 0` fallback into `WorkoutExercise`, and adds a guard in `commitSet` that prevents calling the log-set API when the execution ID is unavailable.
 
 ## Technical Context
 
-**Language/Version**: Swift 5.10 / iOS 17+  
-**Primary Dependencies**: SwiftUI (`@Observable`, `@Bindable`), URLSession via existing `NetworkClient`; no new SPM packages  
-**Storage**: N/A — all data sent to server; no local persistence changes  
-**Testing**: XCTest (`@MainActor` test classes); MockNetworkClient (existing); new `MockPerformedSetService`  
+**Language/Version**: Swift 5.10  
+**Primary Dependencies**: Foundation (`JSONDecoder`, `URLSession`); SwiftUI (`@Observable`); no new SPM packages  
+**Storage**: N/A — fix is purely in-memory model and networking layer  
+**Testing**: XCTest (`@MainActor` test classes)  
 **Target Platform**: iOS 17+  
-**Project Type**: iOS mobile app  
-**Performance Goals**: Log-set tap → server confirmation visible within 300 ms (Constitution Principle V)  
-**Constraints**: No tokens or PII in logs (Constitution Principles III/VII); grayscale UI only (Principle VI)  
-**Scale/Scope**: One API call per set logged; no batching needed
+**Project Type**: Mobile app (iOS)  
+**Performance Goals**: Decode must succeed in < 50 ms (same as before)  
+**Constraints**: Must not break existing 026 tests; must not introduce new non-optional fields without server support  
+**Scale/Scope**: 3 files modified; 2 test files updated; no new files
 
 ## Constitution Check
 
@@ -25,13 +25,13 @@ When the user taps "Log set" for an exercise block execution in the active worko
 
 | Principle | Requirement | Status | Notes |
 |-----------|-------------|--------|-------|
-| I. Swift-Native Code | All product code in Swift; SPM for dependencies | ✅ | Pure Swift; no new packages |
-| II. Comprehensive Testing | TDD; ≥ 90% coverage; tests before implementation | ✅ | New service tests + VM tests written before implementation |
-| III. Error Logging | Errors logged with timestamp, severity, location, context; no PII | ✅ | `Logger.error` on catch sites; no weight/rep values in log messages |
-| IV. Interaction Tracing | Meaningful interactions traced; no PII in events | ✅ | `log_set_performed` trace event with exerciseIdx, setIdx (no weight/reps) |
-| V. User-Friendly, Simple & Fast | Single primary action; ≤ 300 ms feedback; fewest taps | ✅ | Button disables during submission; error banner in-sheet; no extra screens |
-| VI. Grayscale Visual Design | All UI colors grayscale; semantic meaning via shape/text | ✅ | Error text uses `GrayscalePalette.secondary`; no new color values |
-| VII. Token Security & Session Management | Bearer token via NetworkClient; tokens only in Keychain; never in logs | ✅ | `NetworkClient` attaches bearer token centrally; no token handling in new code |
+| I. Swift-Native Code | All product code in Swift; SPM for dependencies | ✅ | Pure Swift fix; no new dependencies |
+| II. Comprehensive Testing | TDD; ≥ 90% coverage; tests before implementation | ✅ | Existing tests updated; guard path covered by new test case |
+| III. Error Logging | All errors logged with timestamp, severity, location, context; no PII | ✅ | `commitSet` guard logs executionId absence; no PII in logs |
+| IV. Interaction Tracing | All meaningful interactions traced; no PII in events | ✅ | No new interactions introduced; fix is transparent to user |
+| V. User-Friendly, Simple & Fast | Single primary action per screen; critical path minimal taps; < 1 s launch; < 300 ms feedback | ✅ | Session start now succeeds; fallback error message is clear and actionable |
+| VI. Grayscale Visual Design | All UI colors must be grayscale; semantic meaning via shape/icon/text only | ✅ | No new UI; existing error label (grayscale) reused |
+| VII. Token Security & Session Management | Bearer token in Authorization header; tokens in Keychain only; deleted on logout/expiry | ✅ | No auth changes; existing NetworkClient handles token attachment |
 
 ## Project Structure
 
@@ -39,75 +39,35 @@ When the user taps "Log set" for an exercise block execution in the active worko
 
 ```text
 specs/026-log-set-performed/
-├── plan.md              ← this file
-├── research.md
-├── data-model.md
-├── quickstart.md
-├── contracts/
-│   └── performed-set-api.md
-└── tasks.md             (generated by /speckit-tasks)
+├── plan.md              ← This file
+├── research.md          ← Phase 0 output
+├── data-model.md        ← Phase 1 output
+├── quickstart.md        ← Phase 1 output
+├── contracts/           ← Phase 1 output
+│   └── start-session-api.md
+└── tasks.md             ← Phase 2 output (/speckit-tasks)
 ```
 
-### Source Code
+### Source Code (affected files)
 
 ```text
 Models/
-├── WorkoutExecutionModels.swift        ← MODIFIED: ExerciseBlockPlan gains exerciseBlockExecutionId
-└── PerformedSetModels.swift            ← NEW: LogPerformedSetRequest DTO
-
-Services/WorkoutExecution/
-├── WorkoutExecutionService.swift       (unchanged)
-├── WorkoutExecutionServiceProtocol.swift (unchanged)
-├── PerformedSetServiceProtocol.swift   ← NEW
-└── PerformedSetService.swift           ← NEW
+└── WorkoutExecutionModels.swift       ← ExerciseBlockPlan: Int → Int?
 
 Features/Workout/
 ├── Models/
-│   └── WorkoutModels.swift             ← MODIFIED: WorkoutExercise gains exerciseBlockExecutionId
-├── ViewModels/
-│   └── ActiveSessionViewModel.swift    ← MODIFIED: async commitSet, isSubmittingLog, logError, service injection
-└── Views/
-    ├── ActiveSessionView.swift         ← MODIFIED: read VM state, pass to LogSetSheet
-    ├── CheckInView.swift               ← MODIFIED: add performedSetService param, pass to ActiveSessionViewModel
-    ├── TodayView.swift                 ← MODIFIED: pass PerformedSetService to CheckInView
-    └── Components/
-        └── LogSetSheet.swift           ← MODIFIED: add isLoading: Bool, error: String?
+│   └── WorkoutModels.swift            ← WorkoutExercise: exerciseBlockExecutionId stays Int (mapped with ?? 0)
+└── ViewModels/
+    └── ActiveSessionViewModel.swift   ← commitSet: guard executionId > 0
 
 BodyMetricTests/
 ├── Features/
-│   ├── ReadyToLiftViewModelTests.swift ← MODIFIED: add exerciseBlockExecutionId to ExerciseBlockPlan fixture
-│   └── ActiveSessionViewModelTests.swift ← NEW
+│   ├── ReadyToLiftViewModelTests.swift       ← fixture: exerciseBlockExecutionId removed or set to nil
+│   └── ActiveSessionViewModelTests.swift     ← new test: guard fires when executionId == 0
 └── Services/
-    ├── PerformedSetServiceTests.swift  ← NEW
-    └── WorkoutExecutionServiceTests.swift ← MODIFIED: add exerciseBlockExecutionId to JSON fixture
+    └── WorkoutExecutionServiceTests.swift    ← JSON fixture: remove exerciseBlockExecutionId key
 ```
 
-**Structure Decision**: iOS mobile app, single-project layout. New service follows the established `{Name}ServiceProtocol` + `{Name}Service` + `Mock{Name}Service` test pattern.
+## Complexity Tracking
 
-## Implementation Notes
-
-### exerciseBlockExecutionId origin
-
-The server creates one `ExerciseBlockExecution` record per `ExerciseBlockPlan` when `POST /api/work-executions/start` is called. The start response already returns `exerciseBlockPlanId`; it must also return `exerciseBlockExecutionId` per block. `ExerciseBlockPlan` in `WorkoutExecutionModels.swift` gains `let exerciseBlockExecutionId: Int`, which maps through to `WorkoutExercise.exerciseBlockExecutionId` in `toWorkoutSession()`.
-
-### PerformedSetService
-
-```
-POST https://api.bodymetric.com.br/api/exercise-block-executions/{id}/performed-sets
-Body: { "weight": Double, "reps": Int }
-Success: 200 or 201 → no response body used
-Error: 4xx/5xx → WorkoutPlanError.serverError(code)
-Network failure → WorkoutPlanError.networkError(error)
-```
-
-### ActiveSessionViewModel async commitSet
-
-`commitSet(exIdx:setIdx:weight:reps:)` becomes `async`. It sets `isSubmittingLog = true`, calls `service.logPerformedSet(exerciseBlockExecutionId:weight:reps:)`, clears the error on success, updates progress, then fires rest timer. On failure it sets `logError` and re-enables the button. The ViewModel owns `isSubmittingLog: Bool` and `logError: String?` as `@Observable`-tracked properties.
-
-### LogSetSheet loading state
-
-`LogSetSheet` gains two new parameters: `isLoading: Bool` and `error: String?`. The "Log set" button is disabled and shows a `ProgressView` when `isLoading` is true. An error label appears above the button when `error` is non-nil. These are driven by the VM and passed from `ActiveSessionView`.
-
-### Service injection path
-
-`TodayView` → `CheckInView(performedSetService:)` → `ActiveSessionViewModel(init…service:)`.
+No constitution violations. No complexity justifications required.

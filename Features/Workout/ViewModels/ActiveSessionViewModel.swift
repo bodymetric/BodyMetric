@@ -103,12 +103,18 @@ final class ActiveSessionViewModel {
             logError = "Reps must be at least 1"
             return
         }
+
+        let executionId = workout.exercises[exIdx].exerciseBlockExecutionId
+        guard executionId > 0 else {
+            Logger.error("ActiveSessionViewModel: commitSet called with executionId=0 — server did not return exerciseBlockExecutionId", category: .network)
+            logError = "Cannot log set: session data is incomplete. Please end and restart the session."
+            return
+        }
+
         guard !isSubmittingLog else { return }
 
         isSubmittingLog = true
         logError = nil
-
-        let executionId = workout.exercises[exIdx].exerciseBlockExecutionId
 
         do {
             try await performedSetService.logPerformedSet(
